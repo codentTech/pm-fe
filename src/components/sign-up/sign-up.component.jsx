@@ -1,5 +1,71 @@
 "use client";
 
+import Link from "next/link";
+import CustomButton from "@/common/components/custom-button/custom-button.component";
+import CustomInput from "@/common/components/custom-input/custom-input.component";
+import useSignUp from "./use-sign-up.hook";
+
 export default function SignUp() {
-  return <div>Sign Up</div>;
+  const { register, handleSubmit, errors, onSubmit } = useSignUp();
+
+  return (
+    <div className="form-wrapper">
+      <div className="form-container">
+        <div className="form-card">
+          <Link href="/" className="mb-6 flex justify-center">
+            <span className="text-2xl font-bold text-primary-600">Trello Clone</span>
+          </Link>
+          <div className="form-header">
+            <p className="form-header-p">
+              Create your <span className="text-primary">account</span>
+            </p>
+          </div>
+          <form onSubmit={handleSubmit(onSubmit)} className="form-body">
+            <div className="form-fields">
+              <CustomInput
+                label="Full name"
+                name="FullName"
+                placeholder="John Doe"
+                register={register}
+                errors={errors}
+                isRequired
+              />
+              <CustomInput
+                label="Email"
+                name="Email"
+                type="email"
+                placeholder="you@example.com"
+                register={register}
+                errors={errors}
+                isRequired
+              />
+              <CustomInput
+                label="Password"
+                name="Password"
+                type="password"
+                placeholder="••••••••"
+                register={register}
+                errors={errors}
+                isRequired
+              />
+            </div>
+            <div className="mt-6 flex flex-col gap-3">
+              <CustomButton
+                type="submit"
+                text="Create account"
+                variant="primary"
+                className="w-full rounded-xl py-3"
+              />
+              <p className="text-center text-sm text-neutral-500">
+                Already have an account?{" "}
+                <Link href="/login" className="font-medium text-primary-600 hover:text-primary-700">
+                  Sign in
+                </Link>
+              </p>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
 }

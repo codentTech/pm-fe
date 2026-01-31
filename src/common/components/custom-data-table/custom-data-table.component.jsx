@@ -264,7 +264,7 @@ const CustomDataTable = ({
                     {columns.map((column, colIndex) => (
                       <td
                         key={colIndex}
-                        className="whitespace-nowrap px-4 py-3 text-sm text-gray-900"
+                        className="whitespace-nowrap px-4 py-3 text-left text-sm text-gray-900"
                       >
                         {renderCell(column, row)}
                       </td>
@@ -289,13 +289,15 @@ const CustomDataTable = ({
 
                     {/* Actions cell */}
                     {actions.length > 0 && (
-                      <td className="px-4 py-3 relative">
+                      <td className="px-4 py-3 relative text-left">
                         <button
+                          type="button"
                           onClick={(e) => handleActionRowToggle(row.id, e)}
                           ref={(el) => {
                             if (el) actionButtonRefs.current[row.id] = el;
                           }}
-                          className="p-2 rounded hover:bg-gray-100 transition-colors duration-150"
+                          className="rounded-lg p-2 text-neutral-500 transition-colors duration-150 hover:bg-neutral-100 hover:text-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-1"
+                          aria-label="Row actions"
                         >
                           <ThreedotIcon />
                         </button>
@@ -317,23 +319,37 @@ const CustomDataTable = ({
               left: `${dropdownPosition.left}px`,
             }}
           >
-            <div className="bg-white rounded-md shadow-lg border border-gray-200 py-1 min-w-[180px]">
-              {actions.map((action, index) => (
-                <button
-                  key={action.key}
-                  onClick={() => {
-                    const row = paginatedData.find((r) => r.id === activeActionRowId);
-                    handleActionClick(action.key, row, onActionClick);
-                    setActiveActionRowId(null);
-                  }}
-                  className={`flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-150 ${
-                    index === 0 ? "rounded-t-md" : ""
-                  } ${index === actions.length - 1 ? "rounded-b-md" : ""}`}
-                >
-                  {action.icon && <span className="mr-2 flex-shrink-0">{action.icon}</span>}
-                  <span className="truncate">{action.label}</span>
-                </button>
-              ))}
+            <div className="min-w-[200px] overflow-hidden rounded-xl border border-neutral-200 bg-white py-1.5 shadow-lg">
+              {actions.map((action, index) => {
+                const isDanger = action.key === "delete";
+                return (
+                  <button
+                    key={action.key}
+                    type="button"
+                    onClick={() => {
+                      const row = paginatedData.find((r) => r.id === activeActionRowId);
+                      handleActionClick(action.key, row, onActionClick);
+                      setActiveActionRowId(null);
+                    }}
+                    className={`flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-sm transition-colors duration-150 ${
+                      index > 0 ? "border-t border-neutral-100" : ""
+                    } ${index === 0 ? "rounded-t-xl" : ""} ${
+                      index === actions.length - 1 ? "rounded-b-xl" : ""
+                    } ${
+                      isDanger
+                        ? "text-danger-600 hover:bg-danger-50"
+                        : "text-neutral-800 hover:bg-neutral-50"
+                    }`}
+                  >
+                    {action.icon && (
+                      <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center [&>svg]:h-4 [&>svg]:w-4">
+                        {action.icon}
+                      </span>
+                    )}
+                    <span className="truncate font-medium">{action.label}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}

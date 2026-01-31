@@ -81,7 +81,7 @@ export default function TextArea({
     const disabledClasses = disabled ? "opacity-60 cursor-not-allowed" : "";
     const readOnlyClasses = readOnly ? "bg-neutral-50" : "";
 
-    return `outline-none focus:none ${baseClasses} ${sizeClasses[size] || sizeClasses.md} ${variantClasses[variant]} ${stateClasses} ${disabledClasses} ${readOnlyClasses} ${className}`.trim();
+    return `outline-none focus:outline-none focus:ring-0 ${baseClasses} ${sizeClasses[size] || sizeClasses.md} ${variantClasses[variant]} ${stateClasses} ${disabledClasses} ${readOnlyClasses} ${className}`.trim();
   };
 
   // Container classes

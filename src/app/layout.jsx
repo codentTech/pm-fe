@@ -47,7 +47,7 @@ function LayoutWrapper({ children }) {
       {loading && <FullPageLoader />}
       <React.Fragment>
         {/* {!loading && <Header />} */}
-        <div className="bg-white">{children}</div>
+        <div className="min-h-screen bg-background-secondary">{children}</div>
         {/* <div className="pt-52 lg:pt-40">{children}</div> */}
         {/* {!loading && <Footer />} */}
       </React.Fragment>
@@ -64,16 +64,26 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        <title>Next Js</title>
+        <title>Trello Clone – Boards, Lists & KPI Tracker</title>
+        <meta
+          name="description"
+          content="Organize work with boards, lists, and cards. Track KPIs in one place."
+        />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
           rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
         />
       </head>
       <body>
         <StyledEngineProvider injectFirst>
           <SnackbarProvider
-            anchorOrigin={{ vertical: "top", horizontal: "center" }}
+            anchorOrigin={{ vertical: "top", horizontal: "right" }}
             autoHideDuration={3000}
             maxSnack={2}
             Components={{

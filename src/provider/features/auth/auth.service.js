@@ -4,24 +4,22 @@ import { removeUser } from '@/common/utils/users.util';
 // Login user
 const login = async (userData) => {
   const response = await api().post('/auth/login', userData);
-  if (response.data.Succeeded) {
+  const ok = response.data?.success ?? response.data?.Succeeded;
+  if (ok && response.data?.data) {
     localStorage.setItem('user', JSON.stringify(response.data.data));
     localStorage.setItem('isOtpVerify', false);
   }
   return response.data;
 };
 
-// Logout user
+// Logout user (JWT: clear local state only; no backend call required)
 const logout = async () => {
-  const response = await api().get('/user/logout');
-  if (response.data.Succeeded) {
-    removeUser();
-  }
-  return response.data;
+  removeUser();
+  return { success: true };
 };
 
 const signUp = async (userData) => {
-  const response = await api().post('/user/register', userData);
+  const response = await api().post('/auth/register', userData);
   return response.data;
 };
 
@@ -31,7 +29,7 @@ const loginAndSignUpWithOAuth = async ({ loginType, email, accessToken }) => {
     email,
     accessToken
   });
-  if (response.data.Succeeded) {
+  if ((response.data?.success ?? response.data?.Succeeded) && response.data?.data) {
     localStorage.setItem('user', JSON.stringify(response.data.data));
     localStorage.setItem('isOtpVerify', false);
   }
@@ -40,7 +38,7 @@ const loginAndSignUpWithOAuth = async ({ loginType, email, accessToken }) => {
 
 const loginAndSignUpWithLinkedin = async (payload) => {
   const response = await api().post('/auth/login-and-sign-up-with-linkedin', payload);
-  if (response.data.Succeeded) {
+  if ((response.data?.success ?? response.data?.Succeeded) && response.data?.data) {
     localStorage.setItem('user', JSON.stringify(response.data.data));
     localStorage.setItem('isOtpVerify', false);
   }

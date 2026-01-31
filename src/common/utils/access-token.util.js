@@ -11,7 +11,7 @@ import { getUser } from './users.util';
 export const getAccessToken = (data) => {
   if ((typeof window === 'object' && window?.localStorage?.getItem('user')) || data) {
     const user = data ?? getUser();
-    return user?.loginVerifiedToken?.[0]?.token;
+    return user?.token ?? user?.loginVerifiedToken?.[0]?.token;
   }
   return undefined;
 };
@@ -23,7 +23,7 @@ export const getAccessToken = (data) => {
 export const isLoginVerified = (data) => {
   if ((typeof window === 'object' && window?.localStorage?.getItem('user')) || data) {
     const user = data ?? getUser();
-    return user?.loginVerifiedToken?.[0]?.isLoginVerified;
+    return !!user?.token || !!user?.loginVerifiedToken?.[0]?.isLoginVerified;
   }
   return false;
 };
@@ -63,8 +63,9 @@ export const checkForOldToken = async () => {
  */
 export const checkExpiryDateOfToken = () => {
   if (typeof window === 'object' && window?.localStorage?.getItem('user')) {
-    if (getUser()?.loginVerifiedToken?.[0].token) {
-      if (isJwtExpired(getUser()?.loginVerifiedToken?.[0].token) === false) {
+    const token = getAccessToken();
+    if (token) {
+      if (isJwtExpired(token) === false) {
         return true;
       }
       return false;

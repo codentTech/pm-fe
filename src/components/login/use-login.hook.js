@@ -1,7 +1,10 @@
 "use client";
 
 import { isLoginVerified } from "@/common/utils/access-token.util";
-import { login, loginAndSignUpWithOAuth } from "@/provider/features/auth/auth.slice";
+import {
+  login,
+  loginAndSignUpWithOAuth,
+} from "@/provider/features/auth/auth.slice";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { AES, enc } from "crypto-js";
 import { useRouter } from "next/navigation";
@@ -11,7 +14,9 @@ import { useDispatch } from "react-redux";
 import * as Yup from "yup";
 
 const validationSchema = Yup.object().shape({
-  email: Yup.string().email("Invalid email address").required("Email is required"),
+  email: Yup.string()
+    .email("Invalid email address")
+    .required("Email is required"),
   password: Yup.string()
     .min(6, "Password must be at least 6 characters")
     .required("Password is required"),
@@ -39,7 +44,6 @@ export default function useLogin() {
 
   useEffect(() => {
     if (isLoginVerified()) {
-      handleRedirection();
     }
   }, [router]);
 
@@ -47,35 +51,13 @@ export default function useLogin() {
     handleLogin();
   }, []);
 
-  const handleRedirection = (data, _email) => {
-    // if (isSuperAdmin(data)) {
-    //   router.push("/super-admin/dashboard");
-    // } else if (!isEmailVerified(data)) {
-    //   router.push(`/verify-email?type=email-verification&email=${_email}`);
-    // } else if (!isProfileCreated(data)) {
-    //   router.push(`/profile?email=${_email}&userId=${data.id}`);
-    // } else if (is2FAEnabled(data) && isPhoneVerified(data) && data) {
-    //   router.push(`/two-factor-auth?userId=${data.id}&phone=${data.phone}`);
-    // } else {
-    //   router.push("/dashboard");
-    // }
-  };
-
   // functions
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
   };
 
-  const borderStyle = {
-    border: "1px solid red",
-  };
-
-  const borderSuc = {
-    border: "1px solid #7E7D7D",
-  };
-
   const moveRouter = (data) => {
-    router.push("/");
+    router.push("/boards");
 
     // const _email = getEmailForURL(data?.email);
     // handleRedirection(data, _email);
@@ -90,11 +72,12 @@ export default function useLogin() {
         localStorage.getItem("rememberedPassword")
       ) {
         const storedUsername = localStorage.getItem("rememberedUsername");
-        const storedEncryptedPassword = localStorage.getItem("rememberedPassword");
+        const storedEncryptedPassword =
+          localStorage.getItem("rememberedPassword");
         // Compare the entered password with the stored encrypted password
         const bytes = AES.decrypt(
           storedEncryptedPassword,
-          process.env.NEXT_PUBLIC_MAIN_URL_SECRET_KEY
+          process.env.NEXT_PUBLIC_MAIN_URL_SECRET_KEY,
         );
         const decryptedPassword = bytes.toString(enc.Utf8);
         setValue("email", storedUsername);
@@ -106,7 +89,11 @@ export default function useLogin() {
   const onSubmit = async (values) => {
     setLoading(true);
     const response = await dispatch(
-      login({ payload: { ...values }, successCallBack: moveRouter, setLoading })
+      login({
+        payload: { Email: values.email, Password: values.password },
+        successCallBack: moveRouter,
+        setLoading,
+      }),
     );
     response && setLoading(false);
     if (typeof window === "object" && isChecked) {
@@ -115,7 +102,7 @@ export default function useLogin() {
         // Encrypt the password
         const encryptedPassword = AES.encrypt(
           values.password,
-          process.env.NEXT_PUBLIC_MAIN_URL_SECRET_KEY
+          process.env.NEXT_PUBLIC_MAIN_URL_SECRET_KEY,
         ).toString();
         localStorage.setItem("rememberedUsername", values.email);
         localStorage.setItem("rememberedPassword", encryptedPassword);
@@ -134,14 +121,13 @@ export default function useLogin() {
         email,
         accessToken,
         successCallBack: moveRouter,
-      })
+      }),
     );
   };
 
   return {
     onSubmit,
-    borderStyle,
-    borderSuc,
+
     showPassword,
     isChecked,
     setIsChecked,

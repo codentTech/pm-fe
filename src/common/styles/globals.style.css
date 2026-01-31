@@ -154,13 +154,13 @@
   .form-input {
     @apply block w-full px-3 py-2 border border-border-light rounded-md 
            text-text-primary placeholder-text-tertiary bg-white
-           focus:border-primary-500 focus:ring-1 focus:ring-primary-500
+           focus:outline-none focus:ring-0 focus:border-border-light
            disabled:bg-background-tertiary disabled:text-text-tertiary
            disabled:cursor-not-allowed transition-colors duration-200;
   }
 
   .form-input-error {
-    @apply border-danger-500 focus:border-danger-500 focus:ring-danger-500;
+    @apply border-danger-500 focus:border-danger-500 focus:ring-0 focus:outline-none;
   }
 
   .form-textarea {
@@ -381,8 +381,41 @@
     @apply grid gap-6 grid-cols-1 lg:grid-cols-2;
   }
 
-  /* === FORM LAYOUTS === */
+  /* === AUTH FORM LAYOUTS === */
+  .form-wrapper {
+    @apply flex min-h-screen items-center justify-center bg-background-secondary px-4 py-12;
+  }
+
   .form-container {
+    @apply w-full max-w-md;
+  }
+
+  .form-card {
+    @apply card rounded-xl px-8 py-8 shadow-lg;
+  }
+
+  .form-header {
+    @apply text-center;
+  }
+
+  .form-header-p {
+    @apply text-base text-text-secondary;
+  }
+
+  .form-header-p .text-primary {
+    @apply font-semibold text-primary-600;
+  }
+
+  .form-body {
+    @apply mt-6 space-y-4;
+  }
+
+  .form-fields {
+    @apply space-y-4;
+  }
+
+  /* === FORM LAYOUTS === */
+  .form-container-inner {
     @apply max-w-2xl mx-auto;
   }
 

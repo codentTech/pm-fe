@@ -37,15 +37,19 @@ export default function Modal({
   closeOnBackdropClick = true,
   showDivider = true,
 }) {
-  const { getModalSizeClasses, getModalHeightClasses, getHeaderClasses, handleBackdropClick } =
-    useModal({
-      size,
-      height,
-      customHeight,
-      variant,
-      onClose,
-      closeOnBackdropClick,
-    });
+  const {
+    getModalSizeClasses,
+    getModalHeightClasses,
+    getHeaderClasses,
+    handleBackdropClick,
+  } = useModal({
+    size,
+    height,
+    customHeight,
+    variant,
+    onClose,
+    closeOnBackdropClick,
+  });
 
   // Get modal container classes
   const getModalClasses = () => {
@@ -65,7 +69,7 @@ export default function Modal({
       PaperProps={{
         className: getModalClasses(),
         sx: {
-          borderRadius: "1.25rem", // rounded-card
+          borderRadius: "0.5rem", // rounded-card
           boxShadow: "0px 10px 50px rgba(0, 0, 0, 0.15)", // modal shadow
           display: "flex",
           flexDirection: "column",
@@ -99,7 +103,7 @@ export default function Modal({
           position: "relative",
           overflowY: "auto",
           flex: 1,
-          padding: "1.5rem",
+          padding: "0.25rem",
           minHeight: 0,
           "&.MuiDialogContent-dividers": {
             borderTop: `1px solid var(--color-primary-200)`,

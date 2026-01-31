@@ -45,7 +45,7 @@ export const signUp = createAsyncThunk(
   async ({ payload, successCallBack, callBackMessage }, thunkAPI) => {
     try {
       const response = await authService.signUp(payload);
-      if (response.Succeeded) {
+      if (response.success ?? response.Succeeded) {
         successCallBack(response.data);
         return response.data;
       }
@@ -67,7 +67,7 @@ export const loginAndSignUpWithOAuth = createAsyncThunk(
         accessToken,
       });
 
-      if (response.Succeeded) {
+      if (response.success ?? response.Succeeded) {
         successCallBack(response.data);
         return response.data;
       }
@@ -83,7 +83,7 @@ export const loginAndSignUpWithLinkedin = createAsyncThunk(
   async ({ payload, successCallBack }, thunkAPI) => {
     try {
       const response = await authService.loginAndSignUpWithLinkedin(payload);
-      if (response.Succeeded) {
+      if (response.success ?? response.Succeeded) {
         successCallBack(response.data);
         return response.data;
       }
@@ -98,7 +98,7 @@ export const logout = createAsyncThunk("auth/logout", async (payload, thunkAPI) 
   try {
     const response = await authService.logout();
     removeUser();
-    if (response.Succeeded) {
+    if (response.success ?? response.Succeeded) {
       return response;
     }
     return thunkAPI.rejectWithValue(response);

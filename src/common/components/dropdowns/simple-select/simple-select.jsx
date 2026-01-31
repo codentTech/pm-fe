@@ -104,11 +104,7 @@ const SimpleSelect = forwardRef(function SimpleSelect(
     // State classes
     const stateClasses = hasError ? "form-input-error" : "";
     const disabledClasses = disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer";
-    const focusClasses = showMenu
-      ? "ring-2 ring-primary-500 ring-opacity-20 border-primary-500"
-      : "";
-
-    return `${baseClasses} ${sizeClasses[size] || sizeClasses.md} ${variantClasses[variant]} ${stateClasses} ${disabledClasses} ${focusClasses} ${className}`.trim();
+    return `${baseClasses} ${sizeClasses[size] || sizeClasses.md} ${variantClasses[variant]} ${stateClasses} ${disabledClasses} outline-none focus:outline-none focus:ring-0 ${className}`.trim();
   };
 
   // Container classes
@@ -116,10 +112,10 @@ const SimpleSelect = forwardRef(function SimpleSelect(
     ? "grid w-full grid-cols-[130px_1fr] items-start gap-4"
     : "form-group";
 
-  // Get dropdown position classes
+  // Get dropdown position classes (high z-index so open menu stacks above other dropdowns)
   const getDropdownClasses = () => {
     const baseClasses =
-      "absolute w-full bg-white border border-neutral-200 rounded-sm shadow-2xl overflow-hidden";
+      "absolute left-0 right-0 z-[100] w-full bg-white border border-neutral-200 rounded-sm shadow-2xl overflow-hidden";
     const positionClasses = "top-full mt-1";
 
     return `${baseClasses} ${positionClasses}`;
@@ -152,7 +148,9 @@ const SimpleSelect = forwardRef(function SimpleSelect(
         />
       )}
 
-      <div className="relative w-full z-10">
+      <div
+        className={`relative w-full ${showMenu && !disabled ? "z-[100]" : "z-[1]"}`}
+      >
         {/* Main Select Input */}
         <div
           ref={inputRef}

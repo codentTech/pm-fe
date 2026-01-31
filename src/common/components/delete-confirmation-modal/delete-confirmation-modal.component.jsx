@@ -1,7 +1,6 @@
-import React from "react";
+import { Dialog } from "@mui/material/node";
 import PropTypes from "prop-types";
-import { Dialog, DialogContent } from "@mui/material/node";
-import useFooterDetails from "@/components/delivery-notes/create/footer-details/use-footer-details.hook";
+import React from "react";
 import CustomButton from "../custom-button/custom-button.component";
 
 function DeleteConfirmationModal({
@@ -25,8 +24,8 @@ function DeleteConfirmationModal({
         ref={confirmationRef}
         open={openConfirmationPopup}
       >
-        <div className="max-h-full w-[471px] max-w-full p-6 ">
-          <div className="flex h-14 items-center justify-between px-5">
+        <div className="max-h-full w-[471px] max-w-full p-3">
+          <div className="flex h-14 items-center justify-between">
             <div className="text-xl font-medium not-italic leading-[30px] text-text-dark-gray" />
             <div
               className="hover:cursor-pointer"

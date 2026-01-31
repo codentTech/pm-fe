@@ -113,21 +113,11 @@ export default function CustomInput({
     ? "grid w-full grid-cols-[130px_1fr] items-center gap-4"
     : "form-group";
 
-  // Get padding based on icons and size
-  const getPaddingClasses = () => {
-    const sizeMap = {
-      sm: { start: "pl-3", end: "pr-3", both: "px-3" },
-      md: { start: "pl-4", end: "pr-4", both: "px-4" },
-      lg: { start: "pl-4", end: "pr-4", both: "px-4" },
-    };
+  const hasStartIcon = !!startIcon;
+  const hasEndIcon = !!endIcon || !!getInputEndAdornment();
 
-    const sizePadding = sizeMap[size] || sizeMap.md;
-
-    if (startIcon && endIcon) return sizePadding.both;
-    if (startIcon) return `${sizePadding.start} pr-10`;
-    if (endIcon || getInputEndAdornment()) return `${sizePadding.end} pl-4`;
-    return sizePadding.both;
-  };
+  // Match input line-height to size so placeholder/text are vertically centered
+  const inputLineHeight = { sm: "2.25rem", md: "2.75rem", lg: "3rem" }[size] ?? "2.75rem";
 
   return (
     <div className={containerClasses}>
@@ -161,23 +151,23 @@ export default function CustomInput({
           onFocus={onFocus}
           type={showPassword ? "text" : type}
           placeholder={placeholder}
-          className={`${getInputClasses()} ${getPaddingClasses()}`}
+          className={getInputClasses()}
           {...(defaultValue !== null && defaultValue !== undefined && { defaultValue })}
           {...(value !== null && value !== undefined && { value })}
           {...(customRef && { inputRef: customRef })}
           disabled={disabled}
-          variant="standard" // Use standard to avoid MUI default styling
-          disableUnderline={true} // Remove MUI underline
+          variant="standard"
+          disableUnderline={true}
           startAdornment={
             startIcon ? (
-              <InputAdornment position="start" className="ml-1">
+              <InputAdornment position="start" sx={{ marginRight: 0, marginLeft: "4px" }}>
                 {startIcon}
               </InputAdornment>
             ) : null
           }
           endAdornment={
             getInputEndAdornment() ? (
-              <InputAdornment position="end" className="mr-1">
+              <InputAdornment position="end" sx={{ marginLeft: 0, marginRight: "4px" }}>
                 {getInputEndAdornment()}
               </InputAdornment>
             ) : null
@@ -186,11 +176,41 @@ export default function CustomInput({
           readOnly={readOnly}
           {...(onBlur && { onBlur })}
           sx={{
-            "& .MuiInputBase-input": {
-              padding: 0, // Remove MUI default padding
+            "&.MuiInputBase-root": {
+              outline: "none",
+              display: "flex",
+              alignItems: "center",
+              flexWrap: "nowrap",
+              minHeight: "inherit",
+              "&:focus": { outline: "none", boxShadow: "none" },
+              "&:focus-within": { outline: "none", boxShadow: "none" },
+              "&::before": { display: "none" },
+              "&::after": { display: "none" },
             },
+            "& .MuiInputBase-input": {
+              padding: 0,
+              paddingLeft: hasStartIcon ? "8px" : undefined,
+              paddingRight: hasEndIcon ? "8px" : undefined,
+              outline: "none",
+              border: "none",
+              boxShadow: "none",
+              lineHeight: inputLineHeight,
+              "&:focus": { outline: "none", border: "none", boxShadow: "none" },
+            },
+            "& .MuiOutlinedInput-notchedOutline": { display: "none" },
+            "& fieldset": { display: "none" },
             "& .MuiInputAdornment-root": {
               color: "inherit",
+              alignSelf: "center",
+            },
+            "& .MuiInputAdornment-positionStart": {
+              marginRight: "4px",
+            },
+            "& .MuiInputAdornment-positionEnd": {
+              marginLeft: "4px",
+            },
+            "& .MuiIconButton-root": {
+              padding: "4px",
             },
           }}
         />

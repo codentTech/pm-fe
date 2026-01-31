@@ -14,15 +14,20 @@ export default function ConfirmationModal({
   cancelText = "Cancel",
   variant = "danger",
   size = "sm",
+  loading = false,
 }) {
-  const { getModalSizeClasses, getModalHeightClasses, getHeaderClasses, handleBackdropClick } =
-    useModal({
-      size,
-      height: "auto",
-      variant,
-      onClose,
-      closeOnBackdropClick: true,
-    });
+  const {
+    getModalSizeClasses,
+    getModalHeightClasses,
+    getHeaderClasses,
+    handleBackdropClick,
+  } = useModal({
+    size,
+    height: "auto",
+    variant,
+    onClose,
+    closeOnBackdropClick: true,
+  });
 
   // Get modal container classes
   const getModalClasses = () => {
@@ -41,7 +46,7 @@ export default function ConfirmationModal({
       PaperProps={{
         className: getModalClasses(),
         sx: {
-          borderRadius: "1.25rem",
+          borderRadius: "0.5rem",
           boxShadow: "0px 10px 50px rgba(0, 0, 0, 0.15)",
           display: "flex",
           flexDirection: "column",
@@ -56,7 +61,12 @@ export default function ConfirmationModal({
       }}
     >
       {/* Header */}
-      <div className={getHeaderClasses() + " flex items-center justify-between px-4 py-[14px]"}>
+      <div
+        className={
+          getHeaderClasses() +
+          " flex items-center justify-between px-4 py-[14px]"
+        }
+      >
         <DialogTitle className="px-0 py-0 font-dm text-xl font-bold leading-8 text-white">
           {title || "Are you sure?"}
         </DialogTitle>
@@ -76,11 +86,28 @@ export default function ConfirmationModal({
           minHeight: 0,
         }}
       >
-        <div className="modal-body flex flex-col items-center justify-center gap-6">
-          {description && <div className="text-center text-gray-700 text-sm">{description}</div>}
+        <div className="flex flex-col items-center justify-center gap-6">
+          {description && (
+            <div className="text-center text-gray-700 text-sm">
+              {description}
+            </div>
+          )}
           <div className="w-full flex justify-end gap-4 pt-4 border-t">
-            <CustomButton onClick={onClose} text={cancelText} className="btn-cancel" />
-            <CustomButton text={confirmText} type="submit" variant={variant} onClick={onConfirm} />
+            <CustomButton
+              onClick={onClose}
+              text={cancelText}
+              variant="cancel"
+              className="rounded-lg"
+              disabled={loading}
+            />
+            <CustomButton
+              text={confirmText}
+              type="button"
+              variant={variant}
+              onClick={onConfirm}
+              loading={loading}
+              className="rounded-lg"
+            />
           </div>
         </div>
       </DialogContent>
@@ -98,4 +125,5 @@ ConfirmationModal.propTypes = {
   cancelText: PropTypes.string,
   variant: PropTypes.oneOf(["default", "danger", "success", "warning"]),
   size: PropTypes.oneOf(["sm", "md", "lg", "xl", "full"]),
+  loading: PropTypes.bool,
 };
