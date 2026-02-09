@@ -67,7 +67,7 @@ export default function ConfirmationModal({
           " flex items-center justify-between px-4 py-[14px]"
         }
       >
-        <DialogTitle className="px-0 py-0 font-dm text-xl font-bold leading-8 text-white">
+        <DialogTitle className="px-0 py-0 typography-h2 text-white">
           {title || "Are you sure?"}
         </DialogTitle>
         {onClose && (
@@ -88,16 +88,16 @@ export default function ConfirmationModal({
       >
         <div className="flex flex-col items-center justify-center gap-6">
           {description && (
-            <div className="text-center text-gray-700 text-sm">
+            <div className="text-center typography-body text-neutral-600">
               {description}
             </div>
           )}
-          <div className="w-full flex justify-end gap-4 pt-4 border-t">
+          <div className="flex w-full flex-col-reverse gap-2 pt-4 border-t sm:flex-row sm:justify-end sm:gap-4">
             <CustomButton
               onClick={onClose}
               text={cancelText}
               variant="cancel"
-              className="rounded-lg"
+              className="w-full rounded-lg sm:w-auto"
               disabled={loading}
             />
             <CustomButton
@@ -106,7 +106,7 @@ export default function ConfirmationModal({
               variant={variant}
               onClick={onConfirm}
               loading={loading}
-              className="rounded-lg"
+              className="w-full rounded-lg sm:w-auto"
             />
           </div>
         </div>

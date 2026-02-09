@@ -17,6 +17,7 @@ function useSimpleSelect({
   defaultValue,
   value,
   disabled,
+  showPillsBelow = false,
 }) {
   const [showMenu, setShowMenu] = useState(false);
   const [selectedValue, setSelectedValue] = useState(() => {
@@ -85,9 +86,13 @@ function useSimpleSelect({
     }
   };
 
-  const getDisplay = () => {
+  const getDisplay = (showPillsBelow = false) => {
     if (!selectedValue || (isMulti && selectedValue.length === 0)) {
       return placeholder || "Select an option...";
+    }
+
+    if (isMulti && showPillsBelow) {
+      return `${selectedValue.length} selected`;
     }
 
     if (isMulti) {
@@ -110,6 +115,8 @@ function useSimpleSelect({
 
     return selectedValue.label;
   };
+
+  const getSelectedPills = () => (isMulti ? selectedValue : []);
 
   const removeOption = (option) => {
     return selectedValue.filter((o) => o.value !== option.value);
@@ -183,6 +190,8 @@ function useSimpleSelect({
     inputRef,
     handleInputClick,
     getDisplay,
+    getSelectedPills,
+    onTagRemove,
     showMenu,
     onSearch,
     searchValue,

@@ -20,22 +20,24 @@ export const PERIOD_OPTIONS = [
 
 const defaultKpiValues = {
   Name: "",
-  TargetValue: 0,
-  CurrentValue: 0,
-  Unit: "",
+  Value: 0,
   Period: "monthly",
   DueDate: "",
   Notes: "",
 };
 
 export default function useKpiTracker() {
+  // stats
   const dispatch = useDispatch();
   const {
     kpis,
     fetchKpis: fetchState,
     createKpi: createKpiState,
     deleteKpi: deleteKpiState,
-  } = useSelector((state) => state.kpis);
+  } = useSelector((state) => state?.kpis ?? {});
+  const currentOrganizationId = useSelector(
+    (state) => state.organizations?.currentOrganizationId
+  );
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingKpi, setEditingKpi] = useState(null);
   const [kpiToDeleteId, setKpiToDeleteId] = useState(null);
@@ -43,18 +45,21 @@ export default function useKpiTracker() {
   const createForm = useForm({ defaultValues: defaultKpiValues });
   const editForm = useForm({ defaultValues: defaultKpiValues });
 
-  useEffect(() => {
-    dispatch(fetchKpis());
-  }, [dispatch]);
+  const loading = fetchState?.isLoading;
 
-  const handleCreate = (values) => {
+  useEffect(() => {
+    if (currentOrganizationId !== undefined) {
+      dispatch(fetchKpis());
+    }
+  }, [dispatch, currentOrganizationId]);
+
+  // functions
+  function handleCreate(values) {
     dispatch(
       createKpi({
         payload: {
           Name: values.Name,
-          TargetValue: Number(values.TargetValue),
-          CurrentValue: Number(values.CurrentValue) || 0,
-          Unit: values.Unit || undefined,
+          Value: Number(values.Value) ?? 0,
           Period: values.Period,
           DueDate: values.DueDate || undefined,
           Notes: values.Notes || undefined,
@@ -65,18 +70,16 @@ export default function useKpiTracker() {
         },
       })
     );
-  };
+  }
 
-  const handleUpdate = (values) => {
+  function handleUpdate(values) {
     if (!editingKpi) return;
     dispatch(
       updateKpi({
         id: editingKpi.Id,
         payload: {
           Name: values.Name,
-          TargetValue: Number(values.TargetValue),
-          CurrentValue: Number(values.CurrentValue),
-          Unit: values.Unit || undefined,
+          Value: Number(values.Value) ?? 0,
           Period: values.Period,
           DueDate: values.DueDate || undefined,
           Notes: values.Notes || undefined,
@@ -84,11 +87,13 @@ export default function useKpiTracker() {
         successCallBack: () => setEditingKpi(null),
       })
     );
-  };
+  }
 
-  const requestDeleteKpi = (id) => setKpiToDeleteId(id);
+  function requestDeleteKpi(id) {
+    setKpiToDeleteId(id);
+  }
 
-  const confirmDeleteKpi = () => {
+  function confirmDeleteKpi() {
     if (!kpiToDeleteId) return;
     dispatch(
       deleteKpi({
@@ -96,22 +101,18 @@ export default function useKpiTracker() {
         successCallBack: () => setKpiToDeleteId(null),
       })
     );
-  };
+  }
 
-  const openEdit = (kpi) => {
+  function openEdit(kpi) {
     setEditingKpi(kpi);
     editForm.reset({
       Name: kpi.Name,
-      TargetValue: kpi.TargetValue,
-      CurrentValue: kpi.CurrentValue,
-      Unit: kpi.Unit || "",
+      Value: Number(kpi.CurrentValue) ?? 0,
       Period: kpi.Period || "monthly",
       DueDate: kpi.DueDate ? kpi.DueDate.slice(0, 10) : "",
       Notes: kpi.Notes || "",
     });
-  };
-
-  const loading = fetchState?.isLoading;
+  }
 
   return {
     kpis,

@@ -12,8 +12,8 @@ export default function SignUp() {
     <div className="form-wrapper">
       <div className="form-container">
         <div className="form-card">
-          <Link href="/" className="mb-6 flex justify-center">
-            <span className="text-2xl font-bold text-primary-600">Trello Clone</span>
+          <Link href="/" className="mb-5 flex justify-center">
+            <span className="typography-h3 text-primary-600">Create account</span>
           </Link>
           <div className="form-header">
             <p className="form-header-p">
@@ -54,9 +54,9 @@ export default function SignUp() {
                 type="submit"
                 text="Create account"
                 variant="primary"
-                className="w-full rounded-xl py-3"
+                className="w-full rounded-lg py-2.5"
               />
-              <p className="text-center text-sm text-neutral-500">
+              <p className="text-center typography-caption text-neutral-500">
                 Already have an account?{" "}
                 <Link href="/login" className="font-medium text-primary-600 hover:text-primary-700">
                   Sign in

@@ -23,6 +23,24 @@ const signUp = async (userData) => {
   return response.data;
 };
 
+const verifyEmail = async (token) => {
+  const response = await api().post('/auth/verify-email', { Token: token });
+  return response.data;
+};
+
+const forgotPassword = async (email) => {
+  const response = await api().post('/auth/forgot-password', { Email: email });
+  return response.data;
+};
+
+const resetPassword = async (token, newPassword) => {
+  const response = await api().post('/auth/reset-password', {
+    Token: token,
+    NewPassword: newPassword,
+  });
+  return response.data;
+};
+
 const loginAndSignUpWithOAuth = async ({ loginType, email, accessToken }) => {
   const response = await api().post('/auth/login-and-sign-up-with-oauth', {
     loginType,
@@ -49,8 +67,11 @@ const authService = {
   logout,
   login,
   signUp,
+  verifyEmail,
+  forgotPassword,
+  resetPassword,
   loginAndSignUpWithOAuth,
-  loginAndSignUpWithLinkedin
+  loginAndSignUpWithLinkedin,
 };
 
 export default authService;

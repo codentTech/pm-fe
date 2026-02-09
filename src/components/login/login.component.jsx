@@ -1,6 +1,5 @@
 import Link from "next/link";
 import CustomButton from "@/common/components/custom-button/custom-button.component";
-import Loader from "@/common/components/loader/loader.component";
 import useLogin from "./use-login.hook";
 import CustomInput from "@/common/components/custom-input/custom-input.component";
 
@@ -8,6 +7,7 @@ export default function Login() {
   // hooks
   const {
     onSubmit,
+    loginError,
     isChecked,
     setIsChecked,
     router,
@@ -23,10 +23,8 @@ export default function Login() {
     <div className="form-wrapper">
       <div className="form-container">
         <div className="form-card">
-          <Link href="/" className="mb-6 flex justify-center">
-            <span className="text-2xl font-bold text-primary-600">
-              Trello Clone
-            </span>
+          <Link href="/" className="mb-5 flex justify-center">
+            <span className="typography-h3 text-primary-600">Sign in</span>
           </Link>
           <div className="form-header">
             <p className="form-header-p">
@@ -61,10 +59,16 @@ export default function Login() {
                 />
               </div>
 
-              <div className="mt-4 flex items-center justify-between">
+              <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div
-                  className="flex gap-[6.5px]"
+                  className="flex cursor-pointer gap-[6.5px]"
                   onClick={() => setIsChecked(!isChecked)}
+                  onKeyDown={(e) =>
+                    e.key === "Enter" && setIsChecked(!isChecked)
+                  }
+                  role="button"
+                  tabIndex={0}
+                  aria-label="Remember me"
                 >
                   {isChecked ? (
                     <img src="/assets/icons/check.svg" alt="" />
@@ -75,42 +79,37 @@ export default function Login() {
                   <label
                     htmlFor="terms"
                     id="terms"
-                    className="fon cursor-pointer text-[12px]
-                 font-normal not-italic leading-[18px]"
+                    className="cursor-pointer typography-label font-normal"
                   >
                     Remember Me
                   </label>
                 </div>
                 <Link
-                  href="/forget-password"
-                  onClick={() =>
-                    router.push(
-                      "/forget-password?btnText=Password%20Recovery%20Link",
-                    )
-                  }
-                  className="forgotText rounded-xl text-xs font-bold leading-[18px] "
+                  href="/auth/forgot-password"
+                  className="rounded-xl typography-caption font-semibold"
                 >
                   Forgot Password?
                 </Link>
               </div>
-              <div className="form-btn-c mt-[32px]">
+              <div className="mt-6">
                 <CustomButton
                   type="submit"
-                  className="btn-primary h-[50px] w-full rounded-xl px-[30px] py-3 text-base leading-6"
-                  text={!loading && "Login"}
-                  startIcon={<Loader loading={loading} />}
+                  className="w-full rounded-lg py-2.5"
+                  text="Sign in"
+                  loading={loading}
                   disabled={!email || !password || loading}
                 />
               </div>
 
-              <div className="text-xs font-normal leading-[18px] text-text-dark-gray">
-                <p className="login mt-5 text-center">
-                  Create an account?
-                  <Link href="/" className="span-link">
-                    Signup
-                  </Link>
-                </p>
-              </div>
+              <p className="mt-4 text-center typography-caption text-neutral-500">
+                Create an account?{" "}
+                <Link
+                  href="/sign-up"
+                  className="font-medium text-primary-600 hover:text-primary-700"
+                >
+                  Sign up
+                </Link>
+              </p>
             </form>
           </div>
         </div>

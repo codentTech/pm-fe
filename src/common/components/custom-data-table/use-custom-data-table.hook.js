@@ -45,41 +45,31 @@ export const useCustomDataTable = ({
 
     const button = event.currentTarget;
     const buttonRect = button.getBoundingClientRect();
-    const tableContainer = button.closest(".overflow-x-auto");
-    const tableRect = tableContainer.getBoundingClientRect();
-
-    // Calculate position relative to the table container
-    const relativeTop = buttonRect.top - tableRect.top;
-    const relativeLeft = buttonRect.left - tableRect.left;
 
     // Dropdown dimensions (approximate)
     const dropdownWidth = 200;
     const dropdownHeight = actions.length * 40; // approximate height per action
 
-    // Calculate optimal position
-    let top = relativeTop + buttonRect.height + 4; // 4px offset
-    let left = relativeLeft - dropdownWidth + buttonRect.width;
+    // Calculate position relative to viewport (for fixed positioning)
+    let top = buttonRect.bottom + 4; // 4px offset below button
+    let left = buttonRect.right - dropdownWidth; // Align to right edge of button
 
-    // Check if dropdown would go outside table bounds
-    const tableWidth = tableRect.width;
-    const tableHeight = tableRect.height;
-
-    // Adjust horizontal position if dropdown would overflow
-    if (left < 0) {
-      left = relativeLeft; // Align to left of button
+    // Adjust horizontal position if dropdown would overflow viewport
+    if (left < 10) {
+      left = buttonRect.left; // Align to left of button
     }
-    if (left + dropdownWidth > tableWidth) {
-      left = tableWidth - dropdownWidth - 10; // 10px margin from edge
+    if (left + dropdownWidth > window.innerWidth - 10) {
+      left = window.innerWidth - dropdownWidth - 10; // 10px margin from edge
     }
 
-    // Adjust vertical position if dropdown would overflow
-    if (top + dropdownHeight > tableHeight) {
-      top = relativeTop - dropdownHeight - 4; // Show above button
+    // Adjust vertical position if dropdown would overflow viewport
+    if (top + dropdownHeight > window.innerHeight - 10) {
+      top = buttonRect.top - dropdownHeight - 4; // Show above button
     }
 
-    // Ensure dropdown doesn't go above table
-    if (top < 0) {
-      top = 4; // Small margin from top
+    // Ensure dropdown doesn't go above viewport
+    if (top < 10) {
+      top = 10; // Small margin from top
     }
 
     setDropdownPosition({ top, left });
@@ -89,7 +79,10 @@ export const useCustomDataTable = ({
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (activeActionRowId && !event.target.closest(".action-dropdown-container")) {
+      if (
+        activeActionRowId &&
+        !event.target.closest(".action-dropdown-container")
+      ) {
         setActiveActionRowId(null);
       }
     };
@@ -119,7 +112,9 @@ export const useCustomDataTable = ({
 
   // Process data based on search, sort, and pagination
   const processedData = useMemo(() => {
-    let result = [...data];
+    // Ensure data is an array
+    const dataArray = Array.isArray(data) ? data : [];
+    let result = [...dataArray];
 
     // Apply search filter (if not external)
     if (!externalSearch && searchValue) {
@@ -127,8 +122,10 @@ export const useCustomDataTable = ({
         columns.some((column) => {
           const value = row[column.key];
           if (value == null) return false;
-          return String(value).toLowerCase().includes(searchValue.toLowerCase());
-        })
+          return String(value)
+            .toLowerCase()
+            .includes(searchValue.toLowerCase());
+        }),
       );
     }
 
@@ -159,7 +156,9 @@ export const useCustomDataTable = ({
   }, [data, searchValue, sortConfig, columns, externalSearch, externalSort]);
 
   // Calculate pagination
-  const totalRecordsCount = externalPagination ? totalRecords : processedData.length;
+  const totalRecordsCount = externalPagination
+    ? totalRecords
+    : processedData.length;
   const totalPages = Math.ceil(totalRecordsCount / internalPageSize);
 
   // Apply pagination (if not external)
@@ -170,7 +169,12 @@ export const useCustomDataTable = ({
 
     const startIndex = (internalCurrentPage - 1) * internalPageSize;
     return processedData.slice(startIndex, startIndex + internalPageSize);
-  }, [processedData, internalCurrentPage, internalPageSize, externalPagination]);
+  }, [
+    processedData,
+    internalCurrentPage,
+    internalPageSize,
+    externalPagination,
+  ]);
 
   // Handle page change
   const handlePageChange = (newPage) => {
@@ -203,7 +207,9 @@ export const useCustomDataTable = ({
       onSelectionChange?.(newSelectedIds);
     } else {
       const currentPageIds = paginatedData.map((row) => row.id);
-      const newSelectedIds = selectedIds.filter((id) => !currentPageIds.includes(id));
+      const newSelectedIds = selectedIds.filter(
+        (id) => !currentPageIds.includes(id),
+      );
       onSelectionChange?.(newSelectedIds);
     }
   };
@@ -212,7 +218,9 @@ export const useCustomDataTable = ({
     if (checked) {
       onSelectionChange?.([...selectedIds, id]);
     } else {
-      onSelectionChange?.(selectedIds.filter((selectedId) => selectedId !== id));
+      onSelectionChange?.(
+        selectedIds.filter((selectedId) => selectedId !== id),
+      );
     }
   };
 
@@ -223,11 +231,15 @@ export const useCustomDataTable = ({
 
   // Selection state calculations
   const currentPageIds = paginatedData.map((row) => row.id);
-  const selectedCurrentPageIds = selectedIds.filter((id) => currentPageIds.includes(id));
+  const selectedCurrentPageIds = selectedIds.filter((id) =>
+    currentPageIds.includes(id),
+  );
   const isAllSelected =
-    currentPageIds.length > 0 && selectedCurrentPageIds.length === currentPageIds.length;
+    currentPageIds.length > 0 &&
+    selectedCurrentPageIds.length === currentPageIds.length;
   const isIndeterminate =
-    selectedCurrentPageIds.length > 0 && selectedCurrentPageIds.length < currentPageIds.length;
+    selectedCurrentPageIds.length > 0 &&
+    selectedCurrentPageIds.length < currentPageIds.length;
 
   return {
     // Data

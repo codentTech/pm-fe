@@ -1,6 +1,17 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import kpisService from "./kpis.service";
 
+const getValidOrgId = (state) => {
+  const { organizations, currentOrganizationId } = state?.organizations || {};
+  if (
+    currentOrganizationId &&
+    organizations?.some((o) => o.Id === currentOrganizationId)
+  ) {
+    return currentOrganizationId;
+  }
+  return undefined;
+};
+
 const generalState = {
   isLoading: false,
   isSuccess: false,
@@ -20,8 +31,9 @@ const initialState = {
 export const fetchKpis = createAsyncThunk(
   "kpis/fetchKpis",
   async (_, thunkAPI) => {
+    const orgId = getValidOrgId(thunkAPI.getState());
     try {
-      const response = await kpisService.fetchKpis();
+      const response = await kpisService.fetchKpis(orgId);
       if (response?.success && response?.data) {
         return response.data;
       }
@@ -35,8 +47,9 @@ export const fetchKpis = createAsyncThunk(
 export const createKpi = createAsyncThunk(
   "kpis/createKpi",
   async ({ payload, successCallBack }, thunkAPI) => {
+    const orgId = getValidOrgId(thunkAPI.getState());
     try {
-      const response = await kpisService.createKpi(payload);
+      const response = await kpisService.createKpi(payload, orgId);
       if (response?.success && response?.data) {
         successCallBack?.(response.data);
         return response.data;
@@ -51,8 +64,9 @@ export const createKpi = createAsyncThunk(
 export const updateKpi = createAsyncThunk(
   "kpis/updateKpi",
   async ({ id, payload, successCallBack }, thunkAPI) => {
+    const orgId = getValidOrgId(thunkAPI.getState());
     try {
-      const response = await kpisService.updateKpi(id, payload);
+      const response = await kpisService.updateKpi(id, payload, orgId);
       if (response?.success && response?.data) {
         successCallBack?.(response.data);
         return response.data;
@@ -67,8 +81,9 @@ export const updateKpi = createAsyncThunk(
 export const deleteKpi = createAsyncThunk(
   "kpis/deleteKpi",
   async ({ id, successCallBack }, thunkAPI) => {
+    const orgId = getValidOrgId(thunkAPI.getState());
     try {
-      const response = await kpisService.deleteKpi(id);
+      const response = await kpisService.deleteKpi(id, orgId);
       if (response?.success) {
         successCallBack?.();
         return id;
@@ -81,6 +96,7 @@ export const deleteKpi = createAsyncThunk(
 );
 
 const setPending = (state, key) => {
+  if (!state[key]) state[key] = { ...generalState };
   state[key].isLoading = true;
   state[key].message = "";
   state[key].isError = false;
@@ -88,11 +104,13 @@ const setPending = (state, key) => {
   state[key].data = null;
 };
 const setFulfilled = (state, key, data) => {
+  if (!state[key]) state[key] = { ...generalState };
   state[key].isLoading = false;
   state[key].isSuccess = true;
   state[key].data = data;
 };
 const setRejected = (state, key, message) => {
+  if (!state[key]) state[key] = { ...generalState };
   state[key].isLoading = false;
   state[key].isError = true;
   state[key].message = message || "Something went wrong";
@@ -108,7 +126,7 @@ export const kpisSlice = createSlice({
       .addCase(fetchKpis.pending, (state) => setPending(state, "fetchKpis"))
       .addCase(fetchKpis.fulfilled, (state, action) => {
         setFulfilled(state, "fetchKpis", action.payload);
-        state.kpis = action.payload || [];
+        state.kpis = action.payload?.items ?? action.payload ?? [];
       })
       .addCase(fetchKpis.rejected, (state, action) =>
         setRejected(state, "fetchKpis", action.payload?.message)

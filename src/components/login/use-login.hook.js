@@ -1,17 +1,18 @@
 "use client";
 
-import { isLoginVerified } from "@/common/utils/access-token.util";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useDispatch, useSelector } from "react-redux";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as Yup from "yup";
+import { AES, enc } from "crypto-js";
 import {
   login,
   loginAndSignUpWithOAuth,
 } from "@/provider/features/auth/auth.slice";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { AES, enc } from "crypto-js";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { useDispatch } from "react-redux";
-import * as Yup from "yup";
+import { isLoginVerified } from "@/common/utils/access-token.util";
+import { isSafeReturnUrl } from "@/common/utils/is-safe-return-url.util";
 
 const validationSchema = Yup.object().shape({
   email: Yup.string()
@@ -23,8 +24,11 @@ const validationSchema = Yup.object().shape({
 });
 
 export default function useLogin() {
+  // stats
   const router = useRouter();
+  const searchParams = useSearchParams();
   const dispatch = useDispatch();
+  const loginError = useSelector((state) => state.auth?.login?.message) || "";
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
@@ -42,92 +46,87 @@ export default function useLogin() {
 
   const { email, password } = watch();
 
+  // useEffect
   useEffect(() => {
     if (isLoginVerified()) {
     }
   }, [router]);
 
   useEffect(() => {
-    handleLogin();
+    loadRememberedCredentials();
   }, []);
 
   // functions
-  const toggleShowPassword = () => {
-    setShowPassword(!showPassword);
-  };
+  function toggleShowPassword() {
+    setShowPassword((prev) => !prev);
+  }
 
-  const moveRouter = (data) => {
-    router.push("/boards");
-
-    // const _email = getEmailForURL(data?.email);
-    // handleRedirection(data, _email);
-  };
-
-  const handleLogin = () => {
-    if (typeof window === "object") {
-      // Check if the browser supports localStorage
-      if (
-        localStorage &&
-        localStorage.getItem("rememberedUsername") &&
-        localStorage.getItem("rememberedPassword")
-      ) {
-        const storedUsername = localStorage.getItem("rememberedUsername");
-        const storedEncryptedPassword =
-          localStorage.getItem("rememberedPassword");
-        // Compare the entered password with the stored encrypted password
-        const bytes = AES.decrypt(
-          storedEncryptedPassword,
-          process.env.NEXT_PUBLIC_MAIN_URL_SECRET_KEY,
-        );
-        const decryptedPassword = bytes.toString(enc.Utf8);
-        setValue("email", storedUsername);
-        setValue("password", decryptedPassword);
-      }
+  function moveRouter() {
+    const returnUrl = searchParams?.get("returnUrl");
+    if (returnUrl && typeof window !== "undefined" && isSafeReturnUrl(returnUrl)) {
+      router.push(returnUrl);
+    } else {
+      router.push("/projects");
     }
-  };
+  }
 
-  const onSubmit = async (values) => {
+  function loadRememberedCredentials() {
+    if (typeof window !== "object") return;
+    if (
+      localStorage?.getItem("rememberedUsername") &&
+      localStorage?.getItem("rememberedPassword")
+    ) {
+      const storedUsername = localStorage.getItem("rememberedUsername");
+      const storedEncryptedPassword = localStorage.getItem("rememberedPassword");
+      const bytes = AES.decrypt(
+        storedEncryptedPassword,
+        process.env.NEXT_PUBLIC_MAIN_URL_SECRET_KEY
+      );
+      const decryptedPassword = bytes.toString(enc.Utf8);
+      setValue("email", storedUsername);
+      setValue("password", decryptedPassword);
+    }
+  }
+
+  async function onSubmit(values) {
     setLoading(true);
     const response = await dispatch(
       login({
         payload: { Email: values.email, Password: values.password },
         successCallBack: moveRouter,
         setLoading,
-      }),
+      })
     );
     response && setLoading(false);
-    if (typeof window === "object" && isChecked) {
-      // Check if the browser supports localStorage
-      if (localStorage) {
-        // Encrypt the password
+    if (typeof window === "object" && localStorage) {
+      if (isChecked) {
         const encryptedPassword = AES.encrypt(
           values.password,
-          process.env.NEXT_PUBLIC_MAIN_URL_SECRET_KEY,
+          process.env.NEXT_PUBLIC_MAIN_URL_SECRET_KEY
         ).toString();
         localStorage.setItem("rememberedUsername", values.email);
         localStorage.setItem("rememberedPassword", encryptedPassword);
+      } else {
+        localStorage.removeItem("rememberedUsername");
+        localStorage.removeItem("rememberedPassword");
       }
     }
-    if (isChecked === false) {
-      localStorage.removeItem("rememberedUsername");
-      localStorage.removeItem("rememberedPassword");
-    }
-  };
+  }
 
-  const loginWithOAuth = (loginType, email, accessToken) => {
+  function loginWithOAuth(loginType, email, accessToken) {
     dispatch(
       loginAndSignUpWithOAuth({
         loginType,
         email,
         accessToken,
         successCallBack: moveRouter,
-      }),
+      })
     );
-  };
+  }
 
   return {
     onSubmit,
-
+    loginError,
     showPassword,
     isChecked,
     setIsChecked,

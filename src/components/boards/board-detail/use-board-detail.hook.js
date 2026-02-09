@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 import {
   fetchBoardById,
   createList,
@@ -15,8 +16,13 @@ import {
   moveCardOptimistic,
   revertCardMove,
 } from "@/provider/features/boards/boards.slice";
+import { fetchLabels } from "@/provider/features/labels/labels.slice";
+import { fetchMembers } from "@/provider/features/organizations/organizations.slice";
+import useBoardSocket from "@/common/hooks/use-board-socket.hook";
 
 export default function useBoardDetail(boardId) {
+  useBoardSocket(boardId);
+  const router = useRouter();
   const dispatch = useDispatch();
   const {
     currentBoard,
@@ -27,15 +33,27 @@ export default function useBoardDetail(boardId) {
     createCard: createCardState,
     updateCard: updateCardState,
   } = useSelector((state) => state.boards);
+  const labels = useSelector((state) => state.labels?.labels || []);
   const [showAddList, setShowAddList] = useState(false);
   const [addingCardListId, setAddingCardListId] = useState(null);
   const [selectedCard, setSelectedCard] = useState(null);
   const [activeCard, setActiveCard] = useState(null);
   const [activeListId, setActiveListId] = useState(null);
   const [activeDropTarget, setActiveDropTarget] = useState(null);
+  const [orgMembers, setOrgMembers] = useState([]);
 
   const listForm = useForm({ defaultValues: { Title: "" } });
-  const cardDetailForm = useForm({ defaultValues: { Title: "", Description: "", DueDate: "" } });
+  const cardDetailForm = useForm({
+    defaultValues: {
+      Title: "",
+      Description: "",
+      DueDate: "",
+      LabelIds: [],
+      AssigneeIds: [],
+    },
+  });
+
+  const orgId = currentBoard?.OrganizationId;
 
   useEffect(() => {
     if (boardId) dispatch(fetchBoardById(boardId));
@@ -43,16 +61,46 @@ export default function useBoardDetail(boardId) {
   }, [boardId, dispatch]);
 
   useEffect(() => {
+    if (orgId) dispatch(fetchLabels(orgId));
+  }, [orgId, dispatch]);
+
+  useEffect(() => {
     if (selectedCard) {
       cardDetailForm.reset({
         Title: selectedCard.Title || "",
         Description: selectedCard.Description || "",
         DueDate: selectedCard.DueDate ? selectedCard.DueDate.slice(0, 10) : "",
+        LabelIds: (selectedCard.CardLabels || []).map((cl) => cl.LabelId),
+        AssigneeIds: (selectedCard.CardAssignees || []).map((ca) => ca.UserId),
       });
     }
   }, [selectedCard]);
 
-  const handleCreateList = (values) => {
+  useEffect(() => {
+    if (selectedCard?.Id && orgId) {
+      dispatch(
+        fetchMembers({
+          orgId,
+          successCallBack: (data) => setOrgMembers(data || []),
+          errorCallBack: () => setOrgMembers([]),
+        })
+      );
+    } else {
+      setOrgMembers([]);
+    }
+  }, [selectedCard?.Id, orgId, dispatch]);
+
+  useEffect(() => {
+    if (selectedCard?.Id && currentBoard?.Lists) {
+      const card = currentBoard.Lists.flatMap((l) => l.Cards || []).find(
+        (c) => c.Id === selectedCard.Id
+      );
+      if (card) setSelectedCard(card);
+    }
+  }, [currentBoard?.Lists, selectedCard?.Id]);
+
+  // functions
+  function handleCreateList(values) {
     dispatch(
       createList({
         payload: { Title: values.Title, BoardId: boardId },
@@ -62,9 +110,9 @@ export default function useBoardDetail(boardId) {
         },
       })
     );
-  };
+  }
 
-  const handleCreateCard = (listId, payload) => {
+  function handleCreateCard(listId, payload) {
     const title = typeof payload === "string" ? payload : payload?.Title;
     if (!title?.trim()) return;
     const body =
@@ -82,27 +130,11 @@ export default function useBoardDetail(boardId) {
         successCallBack: () => setAddingCardListId(null),
       })
     );
-  };
+  }
 
-  const handleUpdateCard = (values) => {
-    if (!selectedCard) return;
-    dispatch(
-      updateCard({
-        id: selectedCard.Id,
-        payload: {
-          Title: values.Title,
-          Description: values.Description || undefined,
-          DueDate: values.DueDate || undefined,
-        },
-        successCallBack: () => setSelectedCard(null),
-      })
-    );
-  };
-
-  const handleMoveCard = (cardId, targetListId) => {
+  function handleMoveCard(cardId, targetListId) {
     dispatch(updateCard({ id: cardId, payload: { ListId: targetListId } }));
-    if (selectedCard?.Id === cardId) setSelectedCard(null);
-  };
+  }
 
   const handleMoveCardAt = useCallback(
     (cardId, targetListId, targetIndex) => {
@@ -123,27 +155,25 @@ export default function useBoardDetail(boardId) {
           targetIndex,
         })
       );
-      if (selectedCard?.Id === cardId) setSelectedCard(null);
 
       dispatch(
         updateCard({
           id: cardId,
           payload: { ListId: targetListId, Position: targetIndex },
+          errorCallBack: () => {
+            dispatch(
+              revertCardMove({
+                cardId,
+                sourceListId,
+                sourceIndex,
+                targetListId,
+              })
+            );
+          },
         })
-      )
-        .unwrap()
-        .catch(() => {
-          dispatch(
-            revertCardMove({
-              cardId,
-              sourceListId,
-              sourceIndex,
-              targetListId,
-            })
-          );
-        });
+      );
     },
-    [dispatch, currentBoard?.Lists, selectedCard?.Id]
+    [dispatch, currentBoard?.Lists]
   );
 
   const handleReorderLists = useCallback(
@@ -155,18 +185,141 @@ export default function useBoardDetail(boardId) {
     [dispatch]
   );
 
-  const handleDeleteList = (listId) => {
+  function handleDeleteList(listId) {
     dispatch(deleteListAction({ id: listId }));
-  };
+  }
 
-  const handleDeleteCard = (cardId) => {
+  function handleDeleteCard(cardId) {
     dispatch(deleteCardAction({ id: cardId }));
     if (selectedCard?.Id === cardId) setSelectedCard(null);
-  };
+  }
 
-  const closeCardDetail = () => {
+  const lists = useMemo(
+    () =>
+      [...(currentBoard?.Lists || [])].sort(
+        (a, b) => (a.Position ?? 0) - (b.Position ?? 0),
+      ),
+    [currentBoard?.Lists],
+  );
+  const listIds = useMemo(() => lists.map((l) => l.Id), [lists]);
+
+  function requestDeleteList(listId) {
+    setListToDeleteId(listId);
+  }
+
+  function requestDeleteCard(cardId) {
+    setCardToDeleteId(cardId);
+  }
+
+  function confirmDeleteCard() {
+    if (cardToDeleteId) {
+      handleDeleteCard(cardToDeleteId);
+      setCardToDeleteId(null);
+    }
+  }
+
+  function confirmDeleteList() {
+    if (listToDeleteId) {
+      handleDeleteList(listToDeleteId);
+      setListToDeleteId(null);
+    }
+  }
+
+  function handleCardClick(card) {
+    router.push(`/projects/${boardId}/cards/${card.Id}`);
+  }
+
+  function closeCardDetail() {
     setSelectedCard(null);
-  };
+  }
+
+  const refetchBoard = useCallback(() => {
+    if (boardId) dispatch(fetchBoardById(boardId));
+  }, [boardId, dispatch]);
+
+  async function handleAddAttachment(url, fileName) {
+    if (!selectedCard?.Id || !orgId) return;
+    const res = await attachmentsService.create(
+      selectedCard.Id,
+      { Type: "link", Url: url, FileName: fileName || null },
+      orgId
+    );
+    if (res?.success) refetchBoard();
+  }
+
+  async function handleRemoveAttachment(attachmentId) {
+    if (!selectedCard?.Id || !orgId) return;
+    const res = await attachmentsService.remove(
+      selectedCard.Id,
+      attachmentId,
+      orgId
+    );
+    if (res?.success) refetchBoard();
+  }
+
+  async function handleAddComment(content) {
+    if (!selectedCard?.Id || !orgId) return;
+    const res = await commentsService.create(
+      selectedCard.Id,
+      { Content: content },
+      orgId
+    );
+    if (res?.success) refetchBoard();
+  }
+
+  async function handleAddChecklist(title) {
+    if (!selectedCard?.Id || !orgId) return;
+    const res = await checklistsService.createChecklist(
+      selectedCard.Id,
+      { Title: title },
+      orgId
+    );
+    if (res?.success) refetchBoard();
+  }
+
+  async function handleAddChecklistItem(checklistId, title) {
+    if (!selectedCard?.Id || !orgId) return;
+    const res = await checklistsService.createItem(
+      selectedCard.Id,
+      checklistId,
+      { Title: title },
+      orgId
+    );
+    if (res?.success) refetchBoard();
+  }
+
+  async function handleToggleChecklistItem(checklistId, itemId, isCompleted) {
+    if (!selectedCard?.Id || !orgId) return;
+    const res = await checklistsService.updateItem(
+      selectedCard.Id,
+      checklistId,
+      itemId,
+      { IsCompleted: isCompleted },
+      orgId
+    );
+    if (res?.success) refetchBoard();
+  }
+
+  async function handleDeleteChecklist(checklistId) {
+    if (!selectedCard?.Id || !orgId) return;
+    const res = await checklistsService.deleteChecklist(
+      selectedCard.Id,
+      checklistId,
+      orgId
+    );
+    if (res?.success) refetchBoard();
+  }
+
+  async function handleDeleteChecklistItem(checklistId, itemId) {
+    if (!selectedCard?.Id || !orgId) return;
+    const res = await checklistsService.deleteItem(
+      selectedCard.Id,
+      checklistId,
+      itemId,
+      orgId
+    );
+    if (res?.success) refetchBoard();
+  }
 
   return {
     currentBoard,
@@ -175,13 +328,10 @@ export default function useBoardDetail(boardId) {
     deleteListState,
     createListState,
     createCardState,
-    updateCardState,
     showAddList,
     setShowAddList,
     addingCardListId,
     setAddingCardListId,
-    selectedCard,
-    setSelectedCard,
     activeCard,
     setActiveCard,
     activeListId,
@@ -189,15 +339,23 @@ export default function useBoardDetail(boardId) {
     activeDropTarget,
     setActiveDropTarget,
     listForm,
-    cardDetailForm,
+    lists,
+    listIds,
+    listToDeleteId,
+    setListToDeleteId,
+    cardToDeleteId,
+    setCardToDeleteId,
     handleCreateList,
     handleCreateCard,
-    handleUpdateCard,
     handleMoveCard,
     handleMoveCardAt,
     handleReorderLists,
     handleDeleteList,
     handleDeleteCard,
-    closeCardDetail,
+    requestDeleteList,
+    requestDeleteCard,
+    confirmDeleteCard,
+    confirmDeleteList,
+    handleCardClick,
   };
 }

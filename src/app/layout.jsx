@@ -64,10 +64,14 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        <title>Trello Clone – Boards, Lists & KPI Tracker</title>
+        <title>Projects, Lists & KPI Tracker</title>
         <meta
           name="description"
-          content="Organize work with boards, lists, and cards. Track KPIs in one place."
+          content="Organize work with projects, lists, and cards. Track KPIs in one place."
+        />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=5"
         />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link

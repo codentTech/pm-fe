@@ -3,6 +3,17 @@ import boardsService from "./boards.service";
 import listsService from "@/provider/features/lists/lists.service";
 import cardsService from "@/provider/features/cards/cards.service";
 
+const getValidOrgId = (state) => {
+  const { organizations, currentOrganizationId } = state?.organizations || {};
+  if (
+    currentOrganizationId &&
+    organizations?.some((o) => o.Id === currentOrganizationId)
+  ) {
+    return currentOrganizationId;
+  }
+  return undefined;
+};
+
 const generalState = {
   isLoading: false,
   isSuccess: false,
@@ -30,8 +41,9 @@ const initialState = {
 export const fetchBoards = createAsyncThunk(
   "boards/fetchBoards",
   async (_, thunkAPI) => {
+    const orgId = getValidOrgId(thunkAPI.getState());
     try {
-      const response = await boardsService.fetchBoards();
+      const response = await boardsService.fetchBoards(orgId);
       if (response?.success && response?.data) {
         return response.data;
       }
@@ -45,8 +57,9 @@ export const fetchBoards = createAsyncThunk(
 export const fetchBoardById = createAsyncThunk(
   "boards/fetchBoardById",
   async (id, thunkAPI) => {
+    const orgId = getValidOrgId(thunkAPI.getState());
     try {
-      const response = await boardsService.fetchBoardById(id);
+      const response = await boardsService.fetchBoardById(id, orgId);
       if (response?.success && response?.data) {
         return response.data;
       }
@@ -60,8 +73,9 @@ export const fetchBoardById = createAsyncThunk(
 export const createBoard = createAsyncThunk(
   "boards/createBoard",
   async ({ payload, successCallBack }, thunkAPI) => {
+    const orgId = getValidOrgId(thunkAPI.getState());
     try {
-      const response = await boardsService.createBoard(payload);
+      const response = await boardsService.createBoard(payload, orgId);
       if (response?.success && response?.data) {
         successCallBack?.(response.data);
         return response.data;
@@ -76,8 +90,9 @@ export const createBoard = createAsyncThunk(
 export const updateBoard = createAsyncThunk(
   "boards/updateBoard",
   async ({ id, payload, successCallBack }, thunkAPI) => {
+    const orgId = getValidOrgId(thunkAPI.getState());
     try {
-      const response = await boardsService.updateBoard(id, payload);
+      const response = await boardsService.updateBoard(id, payload, orgId);
       if (response?.success && response?.data) {
         successCallBack?.(response.data);
         return response.data;
@@ -92,8 +107,9 @@ export const updateBoard = createAsyncThunk(
 export const deleteBoard = createAsyncThunk(
   "boards/deleteBoard",
   async ({ id, successCallBack }, thunkAPI) => {
+    const orgId = getValidOrgId(thunkAPI.getState());
     try {
-      const response = await boardsService.deleteBoard(id);
+      const response = await boardsService.deleteBoard(id, orgId);
       if (response?.success) {
         successCallBack?.();
         return id;
@@ -171,15 +187,17 @@ export const createCard = createAsyncThunk(
 
 export const updateCard = createAsyncThunk(
   "boards/updateCard",
-  async ({ id, payload, successCallBack }, thunkAPI) => {
+  async ({ id, payload, successCallBack, errorCallBack }, thunkAPI) => {
     try {
       const response = await cardsService.updateCard(id, payload);
       if (response?.success && response?.data) {
         successCallBack?.(response.data);
         return response.data;
       }
+      errorCallBack?.();
       return thunkAPI.rejectWithValue(response);
     } catch (error) {
+      errorCallBack?.();
       return thunkAPI.rejectWithValue({ payload: error });
     }
   }
@@ -202,6 +220,7 @@ export const deleteCard = createAsyncThunk(
 );
 
 const setPending = (state, key) => {
+  if (!state[key]) state[key] = { ...generalState };
   state[key].isLoading = true;
   state[key].message = "";
   state[key].isError = false;
@@ -209,11 +228,13 @@ const setPending = (state, key) => {
   state[key].data = null;
 };
 const setFulfilled = (state, key, data) => {
+  if (!state[key]) state[key] = { ...generalState };
   state[key].isLoading = false;
   state[key].isSuccess = true;
   state[key].data = data;
 };
 const setRejected = (state, key, message) => {
+  if (!state[key]) state[key] = { ...generalState };
   state[key].isLoading = false;
   state[key].isError = true;
   state[key].message = message || "Something went wrong";
@@ -241,8 +262,11 @@ export const boardsSlice = createSlice({
       const card = sourceList.Cards[sourceIdx];
       const listWithoutCard = sourceList.Cards.filter((c) => c.Id !== cardId);
 
+      // Assign Position so useListColumn sort displays correct order
+      const withPositions = (arr) =>
+        arr.map((c, i) => ({ ...c, Position: i }));
+
       if (sourceListId === targetListId) {
-        // Same-list reorder: insert card at targetIndex into list without card.
         const insertIndex = Math.min(targetIndex, listWithoutCard.length);
         const newCards = [
           ...listWithoutCard.slice(0, insertIndex),
@@ -250,7 +274,9 @@ export const boardsSlice = createSlice({
           ...listWithoutCard.slice(insertIndex),
         ];
         state.currentBoard.Lists = lists.map((list) =>
-          list.Id === targetListId ? { ...list, Cards: newCards } : list
+          list.Id === targetListId
+            ? { ...list, Cards: withPositions(newCards) }
+            : list
         );
         return;
       }
@@ -265,10 +291,66 @@ export const boardsSlice = createSlice({
         ...targetCards.slice(insertIndex),
       ];
       state.currentBoard.Lists = lists.map((list) => {
-        if (list.Id === sourceListId) return { ...list, Cards: listWithoutCard };
-        if (list.Id === targetListId) return { ...list, Cards: newTargetCards };
+        if (list.Id === sourceListId)
+          return { ...list, Cards: withPositions(listWithoutCard) };
+        if (list.Id === targetListId)
+          return { ...list, Cards: withPositions(newTargetCards) };
         return list;
       });
+    },
+    applyRemoteCardMoved: (state, action) => {
+      const { cardId, fromListId, toListId, position } = action.payload;
+      if (!state.currentBoard?.Lists) return;
+      const lists = state.currentBoard.Lists;
+      const sourceList = lists.find((l) => l.Id === fromListId);
+      const targetList = lists.find((l) => l.Id === toListId);
+      if (!sourceList || !targetList) return;
+      const card = (sourceList.Cards || []).find((c) => c.Id === cardId);
+      if (!card) return;
+      state.currentBoard.Lists = lists.map((list) => {
+        if (list.Id === fromListId) {
+          return { ...list, Cards: (list.Cards || []).filter((c) => c.Id !== cardId) };
+        }
+        if (list.Id === toListId) {
+          const cards = (list.Cards || []).filter((c) => c.Id !== cardId);
+          const pos = Math.min(Math.max(0, position ?? cards.length), cards.length);
+          return { ...list, Cards: [...cards.slice(0, pos), { ...card, ListId: toListId, Position: position }, ...cards.slice(pos)] };
+        }
+        return list;
+      });
+    },
+    applyRemoteCardCreated: (state, action) => {
+      const { card, listId } = action.payload;
+      if (!state.currentBoard?.Lists || !card) return;
+      state.currentBoard.Lists = state.currentBoard.Lists.map((l) =>
+        l.Id === listId ? { ...l, Cards: [...(l.Cards || []), card].filter(Boolean) } : l
+      );
+    },
+    applyRemoteCardUpdated: (state, action) => {
+      const { card } = action.payload;
+      if (!state.currentBoard?.Lists || !card) return;
+      state.currentBoard.Lists = state.currentBoard.Lists.map((list) => ({
+        ...list,
+        Cards: (list.Cards || []).map((c) => (c.Id === card.Id ? { ...c, ...card } : c)),
+      }));
+    },
+    applyRemoteCardDeleted: (state, action) => {
+      const { cardId } = action.payload;
+      if (!state.currentBoard?.Lists) return;
+      state.currentBoard.Lists = state.currentBoard.Lists.map((list) => ({
+        ...list,
+        Cards: (list.Cards || []).filter((c) => c.Id !== cardId),
+      }));
+    },
+    applyRemoteListCreated: (state, action) => {
+      const { list } = action.payload;
+      if (!state.currentBoard?.Lists || !list) return;
+      state.currentBoard.Lists = [...(state.currentBoard.Lists || []), list].filter(Boolean);
+    },
+    applyRemoteListDeleted: (state, action) => {
+      const { listId } = action.payload;
+      if (!state.currentBoard?.Lists) return;
+      state.currentBoard.Lists = state.currentBoard.Lists.filter((l) => l.Id !== listId);
     },
     revertCardMove: (state, action) => {
       const { cardId, sourceListId, sourceIndex, targetListId } = action.payload;
@@ -299,7 +381,7 @@ export const boardsSlice = createSlice({
       .addCase(fetchBoards.pending, (state) => setPending(state, "fetchBoards"))
       .addCase(fetchBoards.fulfilled, (state, action) => {
         setFulfilled(state, "fetchBoards", action.payload);
-        state.boards = action.payload || [];
+        state.boards = action.payload?.items ?? action.payload ?? [];
       })
       .addCase(fetchBoards.rejected, (state, action) =>
         setRejected(state, "fetchBoards", action.payload?.message)
@@ -452,6 +534,16 @@ export const boardsSlice = createSlice({
   },
 });
 
-export const { setCurrentBoard, clearCurrentBoard, moveCardOptimistic, revertCardMove } =
-  boardsSlice.actions;
+export const {
+  setCurrentBoard,
+  clearCurrentBoard,
+  moveCardOptimistic,
+  revertCardMove,
+  applyRemoteCardMoved,
+  applyRemoteCardCreated,
+  applyRemoteCardUpdated,
+  applyRemoteCardDeleted,
+  applyRemoteListCreated,
+  applyRemoteListDeleted,
+} = boardsSlice.actions;
 export default boardsSlice.reducer;

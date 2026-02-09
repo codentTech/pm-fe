@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import {
   PointerSensor,
+  TouchSensor,
   KeyboardSensor,
   useSensor,
   useSensors,
@@ -42,12 +43,17 @@ export default function useBoardDnd({
   setActiveListId,
   setActiveDropTarget,
 }) {
+  // Trello-style: 5px activation distance for snappier feel; TouchSensor for mobile
   const pointerSensor = useSensor(PointerSensor, {
-    activationConstraint: { distance: 8 },
+    activationConstraint: { distance: 5 },
+  });
+  const touchSensor = useSensor(TouchSensor, {
+    activationConstraint: { delay: 150, tolerance: 5 },
   });
   const keyboardSensor = useSensor(KeyboardSensor);
-  const sensors = useSensors(pointerSensor, keyboardSensor);
+  const sensors = useSensors(pointerSensor, touchSensor, keyboardSensor);
 
+  // functions
   const onDragStart = useCallback(
     (event) => {
       const { active } = event;
@@ -68,29 +74,37 @@ export default function useBoardDnd({
     [lists, setActiveCard, setActiveListId]
   );
 
+  const lastTargetRef = useRef(null);
   const onDragOver = useCallback(
     (event) => {
       const { over } = event;
-      if (!over) {
-        setActiveDropTarget?.(null);
-        return;
+      let nextTarget = null;
+      if (over) {
+        const overId = String(over.id);
+        const slotData = parseSlotId(overId);
+        if (slotData) {
+          nextTarget = { listId: slotData.listId, index: slotData.index };
+        } else {
+          const appendListId = parseListAppendId(overId);
+          if (appendListId) {
+            const list = lists.find((l) => l.Id === appendListId);
+            nextTarget = {
+              listId: appendListId,
+              index: (list?.Cards?.length ?? 0),
+            };
+          }
+        }
       }
-      const overId = String(over.id);
-      const slotData = parseSlotId(overId);
-      if (slotData) {
-        setActiveDropTarget?.({ listId: slotData.listId, index: slotData.index });
-        return;
+      const prev = lastTargetRef.current;
+      const same =
+        prev &&
+        nextTarget &&
+        prev.listId === nextTarget.listId &&
+        prev.index === nextTarget.index;
+      if (!same) {
+        lastTargetRef.current = nextTarget;
+        setActiveDropTarget?.(nextTarget);
       }
-      const appendListId = parseListAppendId(overId);
-      if (appendListId) {
-        const list = lists.find((l) => l.Id === appendListId);
-        setActiveDropTarget?.({
-          listId: appendListId,
-          index: (list?.Cards?.length ?? 0),
-        });
-        return;
-      }
-      setActiveDropTarget?.(null);
     },
     [lists, setActiveDropTarget]
   );
@@ -155,6 +169,7 @@ export default function useBoardDnd({
   );
 
   const onDragCancel = useCallback(() => {
+    lastTargetRef.current = null;
     setActiveCard(null);
     setActiveListId(null);
     setActiveDropTarget?.(null);

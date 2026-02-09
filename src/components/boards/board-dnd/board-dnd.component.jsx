@@ -3,30 +3,31 @@
 import {
   DndContext,
   DragOverlay,
-  closestCenter,
+  closestCorners,
   defaultDropAnimationSideEffects,
 } from "@dnd-kit/core";
 import { SortableContext, horizontalListSortingStrategy } from "@dnd-kit/sortable";
 import CardItem from "@/components/boards/card-item/card-item.component";
-import DraggableCard from "./draggable-card.component";
+import DraggableCard from "./components/draggable-card/draggable-card.component";
 import useBoardDnd from "./use-board-dnd.hook";
 
-// Use closestCenter so the slot whose center is closest to the dragging card wins.
-// This lets small (6px) slots between cards win over the large list-append area.
+// Use closestCorners so you can drop anywhere near a slot - no need to be precisely over the tiny gap.
+// pointerWithin required the cursor inside the droppable, making 12px slots nearly impossible to hit.
 function cardCollisionDetection(args) {
-  return closestCenter(args);
+  return closestCorners(args);
 }
 
 const dropAnimationConfig = {
   sideEffects: defaultDropAnimationSideEffects({
     styles: {
       active: {
-        opacity: "0.5",
+        opacity: "0",
+        transition: "opacity 180ms cubic-bezier(0.25, 0.1, 0.25, 1)",
       },
     },
   }),
   duration: 200,
-  easing: "cubic-bezier(0.18, 0.67, 0.6, 1.22)",
+  easing: "cubic-bezier(0.22, 1, 0.36, 1)",
 };
 
 export default function BoardDnd({

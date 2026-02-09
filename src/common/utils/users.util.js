@@ -15,6 +15,17 @@ export const getUser = () => {
 };
 
 /**
+ * Get the actual user object for display (handles { user, token } structure from login)
+ * @returns {{ FullName?, fullName?, Email?, email?, Id? } | undefined}
+ */
+export const getDisplayUser = () => {
+  const stored = getUser();
+  if (!stored) return undefined;
+  const actualUser = stored.user ?? stored;
+  return actualUser;
+};
+
+/**
  * Remove the user from local storage
  */
 export const removeUser = () => {

@@ -1,23 +1,18 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
+import ConfirmationModal from "@/common/components/confirmation-modal/confirmation-modal.component";
 import CustomButton from "@/common/components/custom-button/custom-button.component";
 import CustomInput from "@/common/components/custom-input/custom-input.component";
-import TextArea from "@/common/components/text-area/text-area.component";
-import ConfirmationModal from "@/common/components/confirmation-modal/confirmation-modal.component";
-import SimpleSelect from "@/common/components/dropdowns/simple-select/simple-select.jsx";
 import Loader from "@/common/components/loader/loader.component";
-import Modal from "@/common/components/modal/modal.component";
-import { ArrowLeft, Plus, Trash2 } from "lucide-react";
-import useBoardDetail from "./use-board-detail.hook";
+import NoResultFound from "@/common/components/no-result-found/no-result-found.jsx";
 import BoardDnd from "@/components/boards/board-dnd/board-dnd.component";
-import SortableListColumn from "@/components/boards/board-dnd/sortable-list-column.component";
+import SortableListColumn from "@/components/boards/board-dnd/components/sortable-list-column/sortable-list-column.component";
+import { ArrowLeft, LayoutGrid, Plus } from "lucide-react";
+import Link from "next/link";
+import useBoardDetail from "./use-board-detail.hook";
+import { LIST_COLORS } from "@/common/constants/colors.constant";
 
 export default function BoardDetail({ boardId }) {
-  const [listToDeleteId, setListToDeleteId] = useState(null);
-  const [showDeleteCardConfirm, setShowDeleteCardConfirm] = useState(false);
-
   const {
     currentBoard,
     fetchState,
@@ -25,13 +20,10 @@ export default function BoardDetail({ boardId }) {
     deleteListState,
     createListState,
     createCardState,
-    updateCardState,
     showAddList,
     setShowAddList,
     addingCardListId,
     setAddingCardListId,
-    selectedCard,
-    setSelectedCard,
     activeCard,
     setActiveCard,
     activeListId,
@@ -39,16 +31,22 @@ export default function BoardDetail({ boardId }) {
     activeDropTarget,
     setActiveDropTarget,
     listForm,
-    cardDetailForm,
+    lists,
+    listIds,
+    listToDeleteId,
+    setListToDeleteId,
+    cardToDeleteId,
+    setCardToDeleteId,
     handleCreateList,
     handleCreateCard,
-    handleUpdateCard,
     handleMoveCard,
     handleMoveCardAt,
     handleReorderLists,
-    handleDeleteList,
-    handleDeleteCard,
-    closeCardDetail,
+    requestDeleteList,
+    requestDeleteCard,
+    confirmDeleteCard,
+    confirmDeleteList,
+    handleCardClick,
   } = useBoardDetail(boardId);
 
   if (fetchState?.isLoading && !currentBoard) {
@@ -61,50 +59,66 @@ export default function BoardDetail({ boardId }) {
 
   if (!currentBoard) {
     return (
-      <div className="p-6">
-        <div className="rounded-xl border border-neutral-200 bg-white p-8 text-center shadow-sm">
-          <p className="text-neutral-600">Board not found.</p>
+      <div className="p-4 sm:p-6">
+        <div className="flex flex-col items-center gap-4">
+          <NoResultFound
+            icon={LayoutGrid}
+            title="Project not found"
+            description="This project doesn't exist or you don't have access to it."
+            variant="compact"
+          />
           <Link
-            href="/boards"
-            className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-primary-600 hover:text-primary-700"
+            href="/projects"
+            className="inline-flex items-center gap-2 typography-body font-medium text-primary-600 hover:text-primary-700"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to boards
+            Back to projects
           </Link>
         </div>
       </div>
     );
   }
 
-  const lists = [...(currentBoard.Lists || [])].sort(
-    (a, b) => (a.Position ?? 0) - (b.Position ?? 0),
-  );
-  const listIds = lists.map((l) => l.Id);
+  const listToDeleteTitle =
+    lists.find((l) => l.Id === listToDeleteId)?.Title ?? "this list";
 
   return (
-    <div className="min-h-full bg-neutral-100/80">
-      <div className="sticky top-0 z-10 flex items-center gap-3 border-b border-neutral-200 bg-white/95 px-4 py-3 shadow-sm backdrop-blur">
+    <div className="min-h-full ">
+      <div className="sticky top-0 z-10 page-header-bar">
         <Link
-          href="/boards"
-          className="flex items-center gap-1.5 rounded-md px-2 py-1.5 text-sm font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
+          href="/projects"
+          className="flex shrink-0 items-center gap-1.5 rounded-md px-2 py-1.5 typography-body font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
         >
           <ArrowLeft className="h-4 w-4" />
-          <span className="hidden sm:inline">Boards</span>
+          <span className="hidden sm:inline">Projects</span>
         </Link>
-        <div className="h-5 w-px bg-neutral-200" />
-        <div className="min-w-0 flex-1">
-          <h1 className="truncate text-lg font-semibold text-neutral-900">
+        <div className="page-header-divider" />
+        <div className="min-w-0 flex-1 overflow-hidden">
+          <h1 className="truncate font-bold !text-indigo-600 typography-h4 sm:typography-h3">
             {currentBoard.Name}
           </h1>
           {currentBoard.Description && (
-            <p className="truncate text-xs text-neutral-500">
+            <p className="page-header-subtitle">
               {currentBoard.Description}
             </p>
           )}
         </div>
       </div>
 
-      <div className="flex gap-4 overflow-x-auto p-4 pb-6 scrollbar-thin">
+      <div className="page-separator" aria-hidden>
+        <span className="page-separator-line" />
+        <span className="flex gap-1">
+          {LIST_COLORS.map((color, i) => (
+            <span
+              key={i}
+              className={`page-separator-dot bg-gradient-to-br ${color}`}
+            />
+          ))}
+        </span>
+        <span className="page-separator-line" />
+      </div>
+
+      <div className="flex gap-3 overflow-x-auto p-3 pb-6 scrollbar-thin sm:gap-4 sm:p-4 [-webkit-overflow-scrolling:touch]">
         <BoardDnd
           listIds={listIds}
           lists={lists}
@@ -115,10 +129,11 @@ export default function BoardDetail({ boardId }) {
           setActiveListId={setActiveListId}
           setActiveDropTarget={setActiveDropTarget}
         >
-          {lists.map((list) => (
+          {lists.map((list, index) => (
             <SortableListColumn
               key={list.Id}
               list={list}
+              listIndex={index}
               activeDropTarget={activeDropTarget}
               activeCard={activeCard}
               onAddCard={() => setAddingCardListId(list.Id)}
@@ -127,25 +142,25 @@ export default function BoardDetail({ boardId }) {
               onCancelCard={() => setAddingCardListId(null)}
               isSavingCard={createCardState?.isLoading}
               onMoveCard={handleMoveCard}
-              onRequestDeleteList={() => setListToDeleteId(list.Id)}
-              onDeleteCard={handleDeleteCard}
-              onCardClick={setSelectedCard}
+              onRequestDeleteList={() => requestDeleteList(list.Id)}
+              onDeleteCard={requestDeleteCard}
+              onCardClick={handleCardClick}
               otherLists={lists.filter((l) => l.Id !== list.Id)}
             />
           ))}
         </BoardDnd>
 
         {!showAddList ? (
-          <button
+          <CustomButton
             type="button"
+            text="Add another list"
+            variant="ghost"
+            startIcon={<Plus className="h-4 w-4 shrink-0" />}
             onClick={() => setShowAddList(true)}
-            className="h-fit min-w-[280px] shrink-0 rounded-lg border-2 border-dashed border-neutral-300 bg-white/60 p-4 text-left text-sm font-medium text-neutral-500 transition-colors hover:border-neutral-400 hover:bg-white/80 hover:text-neutral-700"
-          >
-            <Plus className="mr-2 inline h-4 w-4" />
-            Add another list
-          </button>
+            className="h-fit min-w-[240px] shrink-0 justify-start rounded-lg border-2 border-dashed border-neutral-300 p-3 text-left font-medium text-neutral-600 typography-body transition-colors hover:border-neutral-400 hover:bg-neutral-100 hover:text-neutral-800 sm:min-w-[280px] sm:p-4 [&_.btn]:!justify-start"
+          />
         ) : (
-          <div className="min-w-[280px] shrink-0 rounded-lg border border-neutral-200 bg-neutral-100 p-4">
+          <div className="min-w-[240px] shrink-0 rounded-lg border border-neutral-200 p-3 sm:min-w-[280px] sm:p-4">
             <form
               onSubmit={listForm.handleSubmit(handleCreateList)}
               className="space-y-3"
@@ -177,93 +192,10 @@ export default function BoardDetail({ boardId }) {
         )}
       </div>
 
-      <Modal
-        show={!!selectedCard}
-        onClose={closeCardDetail}
-        title="Card details"
-        size="md"
-      >
-        {selectedCard && (
-          <form
-            onSubmit={cardDetailForm.handleSubmit(handleUpdateCard)}
-            className="space-y-4"
-          >
-            <CustomInput
-              label="Title"
-              name="Title"
-              placeholder="Card title"
-              register={cardDetailForm.register}
-              errors={cardDetailForm.formState.errors}
-              isRequired
-            />
-            <TextArea
-              label="Description"
-              name="Description"
-              placeholder="Add a more detailed description…"
-              register={cardDetailForm.register}
-              errors={cardDetailForm.formState.errors}
-            />
-            <CustomInput
-              label="Due date"
-              name="DueDate"
-              type="date"
-              register={cardDetailForm.register}
-              errors={cardDetailForm.formState.errors}
-            />
-            {lists.length > 1 && (
-              <div>
-                <SimpleSelect
-                  label="Move to list"
-                  name="moveToList"
-                  options={lists.map((l) => ({ value: l.Id, label: l.Title }))}
-                  value={selectedCard.ListId}
-                  onChange={(listId) => {
-                    if (listId && listId !== selectedCard.ListId) {
-                      handleMoveCard(selectedCard.Id, listId);
-                      closeCardDetail();
-                    }
-                  }}
-                  placeholder="Select list…"
-                />
-              </div>
-            )}
-            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-neutral-200 pt-4">
-              <CustomButton
-                type="button"
-                text="Delete card"
-                variant="danger"
-                startIcon={<Trash2 className="h-4 w-4" />}
-                onClick={() => setShowDeleteCardConfirm(true)}
-                className="rounded-lg"
-              />
-              <div className="flex gap-2">
-                <CustomButton
-                  type="button"
-                  text="Close"
-                  variant="cancel"
-                  onClick={closeCardDetail}
-                  className="rounded-lg"
-                />
-                <CustomButton
-                  type="submit"
-                  text="Save"
-                  variant="primary"
-                  className="rounded-lg"
-                  loading={updateCardState?.isLoading}
-                />
-              </div>
-            </div>
-          </form>
-        )}
-      </Modal>
-
       <ConfirmationModal
-        show={showDeleteCardConfirm}
-        onClose={() => setShowDeleteCardConfirm(false)}
-        onConfirm={() => {
-          if (selectedCard) handleDeleteCard(selectedCard.Id);
-          setShowDeleteCardConfirm(false);
-        }}
+        show={!!cardToDeleteId}
+        onClose={() => setCardToDeleteId(null)}
+        onConfirm={confirmDeleteCard}
         title="Delete card"
         description="This card will be permanently removed. This cannot be undone."
         confirmText="Delete"
@@ -275,16 +207,9 @@ export default function BoardDetail({ boardId }) {
       <ConfirmationModal
         show={!!listToDeleteId}
         onClose={() => setListToDeleteId(null)}
-        onConfirm={() => {
-          if (listToDeleteId) handleDeleteList(listToDeleteId);
-          setListToDeleteId(null);
-        }}
+        onConfirm={confirmDeleteList}
         title="Delete list"
-        description={
-          listToDeleteId
-            ? `Delete "${lists.find((l) => l.Id === listToDeleteId)?.Title ?? "this list"}"? All cards in it will be removed.`
-            : ""
-        }
+        description={`Delete "${listToDeleteTitle}"? All cards in it will be removed.`}
         confirmText="Delete"
         cancelText="Cancel"
         variant="danger"

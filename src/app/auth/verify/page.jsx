@@ -1,8 +1,7 @@
-'use client';
+"use client";
 
-import useVerify from './use-verify.hook';
+import Verify from "@/components/verify/verify.component";
 
-export default function Page() {
-  useVerify();
-  return <div />;
+export default function VerifyPage() {
+  return <Verify />;
 }

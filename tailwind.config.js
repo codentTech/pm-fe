@@ -89,8 +89,31 @@ module.exports = {
     },
 
     fontFamily: {
-      sans: ["Inter", "system-ui", "sans-serif"],
+      sans: ["Inter", "system-ui", "-apple-system", "sans-serif"],
       mono: ["JetBrains Mono", "Fira Code", "monospace"],
+    },
+
+    /* Typography scale - optimized for readability (fontWeight via utility classes) */
+    fontSize: {
+      xs: ["0.8125rem", { lineHeight: "1.375rem" }],
+      sm: ["0.9375rem", { lineHeight: "1.5rem" }],
+      base: ["1rem", { lineHeight: "1.625rem" }],
+      lg: ["1.125rem", { lineHeight: "1.75rem" }],
+      xl: ["1.25rem", { lineHeight: "1.875rem" }],
+      "2xl": ["1.5rem", { lineHeight: "2rem" }],
+      "3xl": ["1.875rem", { lineHeight: "2.25rem" }],
+      "4xl": ["2.25rem", { lineHeight: "2.5rem" }],
+      /* Semantic tokens - use with typography-* classes or text-* + font-* */
+      "heading-1": ["1.5rem", { lineHeight: "2rem" }],
+      "heading-2": ["1.25rem", { lineHeight: "1.75rem" }],
+      "heading-3": ["1.125rem", { lineHeight: "1.625rem" }],
+      "heading-4": ["1rem", { lineHeight: "1.5rem" }],
+      body: ["0.9375rem", { lineHeight: "1.5rem" }],
+      "body-sm": ["0.875rem", { lineHeight: "1.375rem" }],
+      label: ["0.875rem", { lineHeight: "1.25rem" }],
+      caption: ["0.8125rem", { lineHeight: "1.375rem" }],
+      button: ["0.9375rem", { lineHeight: "1.25rem" }],
+      table: ["0.9375rem", { lineHeight: "1.5rem" }],
     },
 
     extend: {
@@ -188,8 +211,9 @@ module.exports = {
           "--color-primary-700": themeColors.primary[700],
           "--color-background-primary": "#FFFFFF",
           "--color-background-secondary": "#F9FAFB",
-          "--color-text-primary": "#111827",
-          "--color-text-secondary": "#374151",
+          "--color-text-primary": "#0F172A",
+          "--color-text-secondary": "#334155",
+          "--color-text-tertiary": "#475569",
           "--border-radius-default": "0.5rem",
           "--shadow-default":
             "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
@@ -201,35 +225,34 @@ module.exports = {
 
         body: {
           backgroundColor: "#FFFFFF",
-          color: "#111827",
-          fontFamily: "Inter, system-ui, sans-serif",
+          color: "#0F172A",
+          fontFamily: "Inter, system-ui, -apple-system, sans-serif",
           lineHeight: "1.6",
         },
 
         "*:focus-visible": {
-          outline: "2px solid #6366F1",
-          outlineOffset: "2px",
+          outline: "none",
         },
       });
 
       addComponents({
         ".btn": {
-          "@apply inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed":
+          "@apply inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 focus:outline-none focus:ring-0 disabled:opacity-50 disabled:cursor-not-allowed":
             {},
         },
 
         ".btn-primary": {
-          "@apply btn bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500 shadow-sm":
+          "@apply btn bg-primary-600 text-white hover:bg-primary-700 shadow-sm":
             {},
         },
 
         ".btn-secondary": {
-          "@apply btn bg-white text-neutral-700 border border-neutral-300 hover:bg-neutral-50 focus:ring-primary-500 shadow-sm":
+          "@apply btn bg-white text-neutral-700 border border-neutral-300 hover:bg-neutral-50":
             {},
         },
 
         ".btn-ghost": {
-          "@apply btn text-neutral-600 hover:bg-neutral-100 focus:ring-primary-500":
+          "@apply btn text-neutral-600 hover:bg-neutral-100":
             {},
         },
 
@@ -250,12 +273,12 @@ module.exports = {
         },
 
         ".form-input": {
-          "@apply block w-full px-3 py-2 border border-neutral-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 disabled:bg-neutral-50 disabled:text-neutral-500":
+          "@apply block w-full px-3 py-2 border border-neutral-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-neutral-300 focus:border-neutral-400 disabled:bg-neutral-50 disabled:text-neutral-500":
             {},
         },
 
         ".form-label": {
-          "@apply block text-sm font-medium text-neutral-700 mb-1": {},
+          "@apply block text-sm font-medium text-neutral-800 mb-1": {},
         },
 
         ".form-error": {
@@ -294,6 +317,51 @@ module.exports = {
 
         ".page-header": {
           "@apply bg-white border-b border-neutral-200 px-6 py-4": {},
+        },
+
+        /* Boards-list aesthetics - page header bar */
+        ".page-header-bar": {
+          "@apply flex items-center gap-2 bg-gradient-to-l from-indigo-100 via-white to-neutral-100 px-3 py-2 sm:gap-3 sm:px-4 sm:py-3": {},
+        },
+        ".page-header-divider": {
+          "@apply h-4 w-px shrink-0 bg-indigo-600 sm:h-5": {},
+        },
+        ".page-header-title": {
+          "@apply truncate font-bold typography-h2 text-indigo-600": {},
+        },
+        ".page-header-subtitle": {
+          "@apply truncate typography-caption font-medium text-neutral-700": {},
+        },
+
+        /* Page separator with colored dots */
+        ".page-separator": {
+          "@apply mb-5 flex items-center gap-1 px-3 py-2 sm:mb-6 sm:px-4": {},
+        },
+        ".page-separator-line": {
+          "@apply h-px flex-1 bg-gradient-to-r from-transparent via-neutral-300 to-transparent": {},
+        },
+        ".page-separator-dot": {
+          "@apply h-1.5 w-1.5 rounded-full bg-gradient-to-br": {},
+        },
+
+        /* Card title on gradient (white text) */
+        ".card-title-gradient": {
+          "@apply truncate text-lg font-extrabold text-white drop-shadow-md": {},
+        },
+        /* Card body text */
+        ".card-body-text": {
+          "@apply line-clamp-2 typography-body font-medium text-neutral-700": {},
+        },
+        ".card-meta-text": {
+          "@apply typography-caption font-bold text-neutral-600": {},
+        },
+
+        /* Action icon buttons */
+        ".action-icon-edit": {
+          "@apply flex h-7 w-7 items-center justify-center rounded text-neutral-600 hover:bg-neutral-100 hover:text-neutral-800 outline-none": {},
+        },
+        ".action-icon-delete": {
+          "@apply flex h-7 w-7 items-center justify-center rounded text-danger-600 hover:bg-danger-50 hover:text-danger-700 outline-none": {},
         },
       });
 

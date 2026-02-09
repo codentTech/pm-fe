@@ -113,7 +113,7 @@ export default function TextArea({
           className={getTextareaClasses()}
           {...(defaultValue !== null && defaultValue !== undefined && { defaultValue })}
           {...(value !== null && value !== undefined && { value })}
-          onChange={onChange}
+          {...(onChange && { onChange })}
           onKeyDown={onKeyDown}
           readOnly={readOnly}
           disabled={disabled}
@@ -129,7 +129,7 @@ export default function TextArea({
             {errorMessage ? (
               <FieldError className="normal-case" error={errorMessage} />
             ) : (
-              helperText && <p className="text-xs text-neutral-500">{helperText}</p>
+              helperText && <p className="typography-caption text-neutral-500">{helperText}</p>
             )}
           </div>
         )}

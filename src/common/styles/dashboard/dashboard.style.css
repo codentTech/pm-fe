@@ -1,13 +1,40 @@
 /* Theme: primary indigo – scrollbar & layout */
 .dashboard-main {
-  display: grid;
-  grid-template-columns: 260px 1fr;
-  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .dashboard-main {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    grid-template-rows: 1fr;
+  }
+}
+
+.dashboard-main .dashboard-main__sidebar {
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-main .dashboard-main__main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .scroll-content {
-  max-height: calc(100vh - 64px);
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
+  overflow-x: hidden;
+  overflow-anchor: auto;
   scrollbar-color: #818cf8 #eef2ff;
   scrollbar-width: thin;
 }
@@ -120,11 +147,8 @@
   transition: all 0.4s ease-in;
 }
 
-@media screen and (max-width: 1200px) {
-  .dashboard-main {
-    grid-template-columns: 100%;
-  }
 
+@media screen and (max-width: 1200px) {
   .offcanva {
     left: -273px;
   }

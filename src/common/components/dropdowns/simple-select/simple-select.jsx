@@ -53,6 +53,7 @@ const SimpleSelect = forwardRef(function SimpleSelect(
     clearable = false,
     loading = false,
     noOptionsMessage = "No options found",
+    showPillsBelow = false,
   },
   ref
 ) {
@@ -60,6 +61,8 @@ const SimpleSelect = forwardRef(function SimpleSelect(
     inputRef,
     handleInputClick,
     getDisplay,
+    getSelectedPills,
+    onTagRemove,
     showMenu,
     onSearch,
     searchValue,
@@ -135,8 +138,9 @@ const SimpleSelect = forwardRef(function SimpleSelect(
   };
 
   // Check if we should show placeholder
-  const displayValue = getDisplay();
-  const isPlaceholder = displayValue === placeholder || displayValue === "Select an option...";
+  const displayValue = getDisplay(showPillsBelow);
+  const isPlaceholder =
+    displayValue === placeholder || displayValue === "Select an option...";
 
   return (
     <div className={containerClasses}>
@@ -254,7 +258,7 @@ const SimpleSelect = forwardRef(function SimpleSelect(
                   <div
                     key={`${option.value}-${index}`}
                     onClick={() => onItemClick(option)}
-                    className={`cursor-pointer px-4 py-3 text-sm transition-colors hover:bg-primary-50 ${
+                    className={`cursor-pointer px-4 py-3 typography-body transition-colors hover:bg-primary-50 ${
                       isSelected(option)
                         ? "bg-primary-100 text-primary-700 font-medium"
                         : "text-neutral-700"
@@ -262,13 +266,14 @@ const SimpleSelect = forwardRef(function SimpleSelect(
                     role="option"
                     aria-selected={isSelected(option)}
                   >
-                    <div className="flex items-center justify-between">
-                      <span className="truncate">{option.label}</span>
+                    <div className="flex items-center justify-between gap-3 min-w-0">
+                      <span className="truncate min-w-0">{option.label}</span>
                       {isMulti && isSelected(option) && (
                         <svg
-                          className="w-4 h-4 text-primary-600 ml-2 flex-shrink-0"
+                          className="w-4 h-4 text-primary-600 flex-shrink-0"
                           fill="currentColor"
                           viewBox="0 0 20 20"
+                          aria-hidden
                         >
                           <path
                             fillRule="evenodd"
@@ -281,7 +286,7 @@ const SimpleSelect = forwardRef(function SimpleSelect(
                   </div>
                 ))
               ) : (
-                <div className="px-4 py-6 text-sm text-neutral-500 text-center">
+                <div className="px-4 py-6 typography-body text-neutral-500 text-center">
                   {isSearchable && searchValue
                     ? `No results for "${searchValue}"`
                     : noOptionsMessage}
@@ -297,7 +302,7 @@ const SimpleSelect = forwardRef(function SimpleSelect(
             {errorMessage ? (
               <FieldError className="normal-case" error={errorMessage} />
             ) : (
-              helperText && <p className="text-xs text-neutral-500">{helperText}</p>
+              helperText && <p className="typography-caption text-neutral-500">{helperText}</p>
             )}
           </div>
         )}
@@ -343,6 +348,7 @@ SimpleSelect.propTypes = {
   clearable: PropTypes.bool,
   loading: PropTypes.bool,
   noOptionsMessage: PropTypes.string,
+  showPillsBelow: PropTypes.bool,
 };
 
 // Export size and variant constants for easy usage

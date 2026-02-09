@@ -1,122 +1,19 @@
 "use client";
 
-import CustomButton from "@/common/components/custom-button/custom-button.component";
 import ConfirmationModal from "@/common/components/confirmation-modal/confirmation-modal.component";
+import CustomButton from "@/common/components/custom-button/custom-button.component";
 import CustomDataTable from "@/common/components/custom-data-table/custom-data-table.component";
+import CustomInput from "@/common/components/custom-input/custom-input.component";
 import SimpleSelect from "@/common/components/dropdowns/simple-select/simple-select.jsx";
 import Modal from "@/common/components/modal/modal.component";
-import CustomInput from "@/common/components/custom-input/custom-input.component";
-import Loader from "@/common/components/loader/loader.component";
+import NoResultFound from "@/common/components/no-result-found/no-result-found.jsx";
+import KpiTableSkeleton from "@/common/components/skeleton/kpi-table-skeleton.component";
 import TextArea from "@/common/components/text-area/text-area.component";
-import { Plus, BarChart3, Pencil, Trash2 } from "lucide-react";
+import { BarChart3, Plus } from "lucide-react";
 import { Controller } from "react-hook-form";
+import { KPI_ACTIONS, KPI_COLUMNS } from "./kpi-tracker.constants";
+import { KPI_SEPARATOR_COLORS } from "@/common/constants/colors.constant";
 import useKpiTracker, { PERIOD_OPTIONS } from "./use-kpi-tracker.hook";
-
-const UNIT_OPTIONS = [
-  { value: "", label: "None" },
-  { value: "USD", label: "USD" },
-  { value: "%", label: "%" },
-  { value: "EUR", label: "EUR" },
-  { value: "GBP", label: "GBP" },
-  { value: "kg", label: "kg" },
-  { value: "units", label: "Units" },
-];
-
-function progressPct(row) {
-  const target = Number(row.TargetValue) || 0;
-  const current = Number(row.CurrentValue) || 0;
-  return target ? Math.min(100, Math.round((current / target) * 100)) : 0;
-}
-
-function progressColor(pct) {
-  return pct >= 100
-    ? "bg-success-500"
-    : pct >= 50
-      ? "bg-primary-500"
-      : "bg-warning-500";
-}
-
-const KPI_COLUMNS = [
-  { key: "Name", title: "Name", sortable: true },
-  {
-    key: "Target",
-    title: "Target",
-    sortable: false,
-    customRender: (row) => {
-      const target = Number(row.TargetValue) ?? 0;
-      const unit = row.Unit ? ` ${row.Unit}` : "";
-      return (
-        <span className="text-sm text-neutral-600">
-          {target}
-          {unit && <span className="text-neutral-400">{unit}</span>}
-        </span>
-      );
-    },
-  },
-  {
-    key: "CurrentValue",
-    title: "Current",
-    sortable: true,
-    customRender: (row) => (
-      <span className="text-sm text-neutral-600">
-        {Number(row.CurrentValue) ?? 0}
-      </span>
-    ),
-  },
-  {
-    key: "Progress",
-    title: "Progress",
-    sortable: false,
-    customRender: (row) => {
-      const pct = progressPct(row);
-      const color = progressColor(pct);
-      return (
-        <div className="px-1">
-          <div className="h-2 w-full overflow-hidden rounded-full bg-neutral-200">
-            <div
-              className={`h-full rounded-full transition-all ${color}`}
-              style={{ width: `${Math.min(100, pct)}%` }}
-            />
-          </div>
-          <span className="mt-1 block text-left text-xs font-medium text-neutral-500">
-            {pct}%
-          </span>
-        </div>
-      );
-    },
-  },
-  {
-    key: "Period",
-    title: "Period",
-    sortable: true,
-    customRender: (row) => {
-      const p = row.Period ? String(row.Period) : "";
-      const capitalized = p
-        ? p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()
-        : "—";
-      return <span className="capitalize text-neutral-600">{capitalized}</span>;
-    },
-  },
-  {
-    key: "DueDate",
-    title: "Due",
-    sortable: true,
-    customRender: (row) => (
-      <span className="text-neutral-500">
-        {row.DueDate ? new Date(row.DueDate).toLocaleDateString() : "—"}
-      </span>
-    ),
-  },
-];
-
-const KPI_ACTIONS = [
-  { key: "edit", label: "Edit", icon: <Pencil className="h-4 w-4" /> },
-  {
-    key: "delete",
-    label: "Delete",
-    icon: <Trash2 className="h-4 w-4 text-danger-600" />,
-  },
-];
 
 export default function KpiTracker() {
   const {
@@ -148,41 +45,51 @@ export default function KpiTracker() {
   };
 
   return (
-    <div className="p-6">
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-semibold text-neutral-800">
-            KPI Tracker
-          </h2>
-          <p className="mt-1 text-sm text-neutral-500">
-            Track targets and progress
+    <div className="min-h-full">
+      <div className="page-header-bar p-4 sm:p-5">
+        <div className="page-header-divider" />
+        <div className="min-w-0 flex-1 overflow-hidden">
+          <h1 className="page-header-title">KPI Tracker</h1>
+          <p className="page-header-subtitle">
+            Track key metrics and performance indicators
           </p>
         </div>
         <CustomButton
           text="Add KPI"
           onClick={() => setShowCreateModal(true)}
           variant="primary"
-          startIcon={<Plus className="h-4 w-4" />}
-          className="rounded-xl px-5 py-2.5"
+          startIcon={<Plus className="h-3.5 w-3.5 shrink-0" />}
+          size="sm"
+          className="shrink-0 rounded-lg px-3 py-1.5 typography-caption font-medium sm:px-4 sm:py-2 sm:typography-button"
         />
       </div>
 
+      <div
+        className="my-4 flex items-center gap-1 px-4 sm:mb-6 sm:px-5"
+        aria-hidden
+      >
+        <span className="h-px flex-1 bg-gradient-to-r from-transparent via-neutral-300 to-transparent" />
+        <span className="flex gap-1">
+          {KPI_SEPARATOR_COLORS.map((color, i) => (
+            <span
+              key={i}
+              className={`h-1.5 w-1.5 rounded-full bg-gradient-to-br ${color}`}
+            />
+          ))}
+        </span>
+        <span className="h-px flex-1 bg-gradient-to-r from-transparent via-neutral-300 to-transparent" />
+      </div>
+
       {loading ? (
-        <div className="flex justify-center py-24">
-          <Loader loading />
-        </div>
+        <KpiTableSkeleton />
       ) : !kpis?.length ? (
-        <div className="card flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-neutral-200 bg-neutral-50/50 py-16 px-6 text-center">
-          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-primary-100 text-primary-600">
-            <BarChart3 className="h-7 w-7" />
-          </div>
-          <h3 className="text-lg font-medium text-neutral-800">No KPIs yet</h3>
-          <p className="mt-2 max-w-sm text-sm text-neutral-500">
-            Add your first KPI to track targets and progress over time.
-          </p>
-        </div>
+        <NoResultFound
+          icon={BarChart3}
+          title="No KPIs yet"
+          description="Add your first KPI to track key metrics over time."
+        />
       ) : (
-        <div className="card overflow-hidden rounded-xl border-neutral-200 shadow-sm">
+        <div className="w-full overflow-x-auto px-4 sm:px-5">
           <CustomDataTable
             columns={KPI_COLUMNS}
             data={tableData}
@@ -220,38 +127,13 @@ export default function KpiTracker() {
             errors={createForm.formState.errors}
             isRequired
           />
-          <div className="grid grid-cols-2 gap-4">
-            <CustomInput
-              label="Target"
-              name="TargetValue"
-              type="number"
-              placeholder="0"
-              register={createForm.register}
-              errors={createForm.formState.errors}
-            />
-            <CustomInput
-              label="Current"
-              name="CurrentValue"
-              type="number"
-              placeholder="0"
-              register={createForm.register}
-              errors={createForm.formState.errors}
-            />
-          </div>
-          <Controller
-            name="Unit"
-            control={createForm.control}
-            render={({ field }) => (
-              <SimpleSelect
-                label="Unit (optional)"
-                name="Unit"
-                options={UNIT_OPTIONS}
-                value={field.value}
-                onChange={field.onChange}
-                placeholder="Select unit…"
-                errors={createForm.formState.errors}
-              />
-            )}
+          <CustomInput
+            label="Value"
+            name="Value"
+            type="number"
+            placeholder="0"
+            register={createForm.register}
+            errors={createForm.formState.errors}
           />
           <Controller
             name="Period"
@@ -282,18 +164,20 @@ export default function KpiTracker() {
             register={createForm.register}
             errors={createForm.formState.errors}
           />
-          <div className="flex justify-end gap-2 pt-2">
+          <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
             <CustomButton
               type="button"
               text="Cancel"
               variant="cancel"
               onClick={() => setShowCreateModal(false)}
+              className="w-full sm:w-auto"
             />
             <CustomButton
               type="submit"
               text="Create"
               variant="primary"
               loading={createKpiState?.isLoading}
+              className="w-full sm:w-auto"
             />
           </div>
         </form>
@@ -316,36 +200,12 @@ export default function KpiTracker() {
             errors={editForm.formState.errors}
             isRequired
           />
-          <div className="grid grid-cols-2 gap-4">
-            <CustomInput
-              label="Target"
-              name="TargetValue"
-              type="number"
-              register={editForm.register}
-              errors={editForm.formState.errors}
-            />
-            <CustomInput
-              label="Current"
-              name="CurrentValue"
-              type="number"
-              register={editForm.register}
-              errors={editForm.formState.errors}
-            />
-          </div>
-          <Controller
-            name="Unit"
-            control={editForm.control}
-            render={({ field }) => (
-              <SimpleSelect
-                label="Unit"
-                name="Unit"
-                options={UNIT_OPTIONS}
-                value={field.value}
-                onChange={field.onChange}
-                placeholder="Select unit…"
-                errors={editForm.formState.errors}
-              />
-            )}
+          <CustomInput
+            label="Value"
+            name="Value"
+            type="number"
+            register={editForm.register}
+            errors={editForm.formState.errors}
           />
           <Controller
             name="Period"
@@ -376,14 +236,20 @@ export default function KpiTracker() {
             register={editForm.register}
             errors={editForm.formState.errors}
           />
-          <div className="flex justify-end gap-2 pt-2">
+          <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
             <CustomButton
               type="button"
               text="Cancel"
               variant="cancel"
               onClick={() => setEditingKpi(null)}
+              className="w-full sm:w-auto"
             />
-            <CustomButton type="submit" text="Save" variant="primary" />
+            <CustomButton
+              type="submit"
+              text="Save"
+              variant="primary"
+              className="w-full sm:w-auto"
+            />
           </div>
         </form>
       </Modal>

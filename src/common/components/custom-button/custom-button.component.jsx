@@ -52,7 +52,7 @@ export default function CustomButton({
       lg: "btn-lg",
     };
 
-    return `${baseClasses} ${variantClasses[variant] || variantClasses.primary} ${sizeClasses[size] || ""} ${className}`;
+    return `${baseClasses} focus:outline-none focus:ring-0 ${variantClasses[variant] || variantClasses.primary} ${sizeClasses[size] || ""} ${className}`;
   };
 
   // Handle loading state

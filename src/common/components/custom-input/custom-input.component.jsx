@@ -131,7 +131,7 @@ export default function CustomInput({
 
           {/* Helper text */}
           {helperText && (
-            <p className="min-w-24 text-[8px] text-gray-600 font-normal leading-[15px] whitespace-nowrap truncate">
+            <p className="min-w-24 typography-caption text-neutral-600 whitespace-nowrap truncate">
               {helperText}
             </p>
           )}
@@ -196,6 +196,7 @@ export default function CustomInput({
               boxShadow: "none",
               lineHeight: inputLineHeight,
               "&:focus": { outline: "none", border: "none", boxShadow: "none" },
+              "&:focus-visible": { outline: "none", border: "none", boxShadow: "none" },
             },
             "& .MuiOutlinedInput-notchedOutline": { display: "none" },
             "& fieldset": { display: "none" },

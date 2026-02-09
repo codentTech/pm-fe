@@ -84,14 +84,39 @@ export default function Modal({
       }}
     >
       {/* Header */}
-      <div className="flex items-center justify-between bg-primary-600 px-4 py-[14px]">
-        <DialogTitle className="px-0 py-0 font-dm text-xl font-bold leading-8 text-white">
+      <div
+        className={`flex items-center justify-between px-5 py-4 ${
+          variant === "neutral"
+            ? "border-b border-neutral-200 bg-white"
+            : variant === "danger"
+              ? "bg-danger-600"
+              : variant === "success"
+                ? "bg-success-600"
+                : variant === "warning"
+                  ? "bg-warning-600"
+                  : "bg-primary-600"
+        }`}
+      >
+        <DialogTitle
+          className={`px-0 py-0 typography-h3 ${
+            variant === "neutral" ? "text-neutral-900" : "text-white"
+          }`}
+        >
           {title}
         </DialogTitle>
         {onClose && (
-          <div className="hover:cursor-pointer" onClick={onClose}>
-            <X className="text-white" />
-          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-black/10 ${
+              variant === "neutral"
+                ? "text-neutral-500 hover:text-neutral-700"
+                : "text-white hover:bg-white/20"
+            }`}
+            aria-label="Close"
+          >
+            <X className="h-5 w-5" />
+          </button>
         )}
       </div>
 
@@ -103,10 +128,10 @@ export default function Modal({
           position: "relative",
           overflowY: "auto",
           flex: 1,
-          padding: "0.25rem",
+          padding: variant === "neutral" ? "0.25rem" : "0.25rem",
           minHeight: 0,
           "&.MuiDialogContent-dividers": {
-            borderTop: `1px solid var(--color-primary-200)`,
+            borderTop: `1px solid ${variant === "neutral" ? "#e5e7eb" : "var(--color-primary-200)"}`,
             borderBottom: "none",
           },
         }}
@@ -125,7 +150,13 @@ Modal.propTypes = {
   size: PropTypes.oneOf(["sm", "md", "lg", "xl", "full"]),
   height: PropTypes.oneOf(["auto", "full", "custom"]),
   customHeight: PropTypes.string,
-  variant: PropTypes.oneOf(["default", "danger", "success", "warning"]),
+  variant: PropTypes.oneOf([
+    "default",
+    "neutral",
+    "danger",
+    "success",
+    "warning",
+  ]),
   className: PropTypes.string,
   hideCloseButton: PropTypes.bool,
   closeOnBackdropClick: PropTypes.bool,
@@ -149,6 +180,7 @@ export const MODAL_HEIGHTS = {
 
 export const MODAL_VARIANTS = {
   DEFAULT: "default",
+  NEUTRAL: "neutral",
   DANGER: "danger",
   SUCCESS: "success",
   WARNING: "warning",

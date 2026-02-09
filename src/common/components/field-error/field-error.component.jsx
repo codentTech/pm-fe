@@ -4,7 +4,7 @@ import FieldErrorIcon from "@/common/icons/field-error.icon";
 export default function FieldError({ className = "", error = "" }) {
   return (
     <p
-      className={`flex flex-row font-dm text-xs font-normal leading-[15px] text-danger ${className} items-center justify-start align-middle`}
+      className={`flex flex-row typography-caption text-danger ${className} items-center justify-start align-middle`}
     >
       <FieldErrorIcon className="mr-[4px]" width={12} height={12} /> {error}
     </p>

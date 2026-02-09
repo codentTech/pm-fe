@@ -1,4 +1,21 @@
 export const ENDPOINT = {
+  organizations: {
+    list: { method: "GET", path: "/organizations" },
+    default: { method: "GET", path: "/organizations/default" },
+    get: { method: "GET", path: "/organizations/:id" },
+    create: { method: "POST", path: "/organizations" },
+    update: { method: "PUT", path: "/organizations/:id" },
+    delete: { method: "DELETE", path: "/organizations/:id" },
+    members: { method: "GET", path: "/organizations/:id/members" },
+  },
+  invitations: {
+    create: { method: "POST", path: "/invitations/organizations/:orgId" },
+    byOrg: { method: "GET", path: "/invitations/organizations/:orgId" },
+    forMe: { method: "GET", path: "/invitations/me" },
+    accept: { method: "POST", path: "/invitations/accept/:token" },
+    decline: { method: "POST", path: "/invitations/decline/:token" },
+    cancel: { method: "DELETE", path: "/invitations/organizations/:orgId/:invitationId" },
+  },
   auth: {
     register: { method: "POST", path: "/auth/register" },
     login: { method: "POST", path: "/auth/login" },

@@ -2,6 +2,8 @@
 
 import { Plus, MoreHorizontal, Trash2 } from "lucide-react";
 import CustomButton from "@/common/components/custom-button/custom-button.component";
+import CustomInput from "@/common/components/custom-input/custom-input.component";
+import TextArea from "@/common/components/text-area/text-area.component";
 import CardItem from "@/components/boards/card-item/card-item.component";
 import useListColumn from "./use-list-column.hook";
 
@@ -27,30 +29,28 @@ export default function ListColumn({
     showMenu,
     setShowMenu,
     cards,
-    resetCardForm,
-  } = useListColumn(list);
-
-  const handleSaveCard = () => {
-    if (!cardTitle?.trim()) return;
-    onSaveCard({
-      Title: cardTitle.trim(),
-      Description: cardDescription?.trim() || undefined,
-      DueDate: cardDueDate || undefined,
-    });
-    resetCardForm();
-  };
+    handleSaveCard,
+    handleCardFormKeyDown,
+    handleCancelCard,
+  } = useListColumn(list, onSaveCard, onCancelCard);
 
   return (
     <div className="min-w-[280px] max-w-[280px] shrink-0 rounded-lg border border-neutral-200 bg-neutral-200/50 p-3">
       <div className="mb-2 flex items-center justify-between gap-2">
-        <h3 className="flex-1 truncate font-semibold text-neutral-800">{list.Title}</h3>
-        <span className="text-xs font-medium text-neutral-500">{cards.length}</span>
+        <h3 className="flex-1 truncate typography-h4 text-neutral-800">
+          {list.Title}
+        </h3>
+        <span className="typography-caption font-medium text-neutral-500">
+          {cards.length}
+        </span>
         <div className="relative">
           {onDeleteList && (
             <>
               <button
                 type="button"
-                onClick={() => setShowMenu(showMenu === list.Id ? null : list.Id)}
+                onClick={() =>
+                  setShowMenu(showMenu === list.Id ? null : list.Id)
+                }
                 className="rounded p-1 text-neutral-500 hover:bg-neutral-300 hover:text-neutral-700"
                 aria-label="List options"
               >
@@ -97,37 +97,33 @@ export default function ListColumn({
 
         {showAddCard ? (
           <div className="rounded-lg border border-neutral-200 bg-white p-3 shadow-sm">
-            <input
-              type="text"
-              value={cardTitle}
-              onChange={(e) => setCardTitle(e.target.value)}
-              placeholder="Enter a title for this card…"
-              className="mb-2 w-full rounded border border-neutral-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-              autoFocus
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSaveCard();
-                }
-                if (e.key === "Escape") {
-                  resetCardForm();
-                  onCancelCard();
-                }
-              }}
-            />
-            <textarea
-              value={cardDescription}
-              onChange={(e) => setCardDescription(e.target.value)}
-              placeholder="Description (optional)"
-              rows={2}
-              className="mb-2 w-full resize-none rounded border border-neutral-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-            />
-            <input
-              type="date"
-              value={cardDueDate}
-              onChange={(e) => setCardDueDate(e.target.value)}
-              className="mb-3 w-full rounded border border-neutral-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-            />
+            <div className="mb-2 [&_.form-group]:!mb-0">
+              <CustomInput
+                name="cardTitle"
+                type="text"
+                placeholder="Enter a title for this card…"
+                value={cardTitle}
+                onChange={(e) => setCardTitle(e.target.value)}
+                onKeyDown={handleCardFormKeyDown}
+              />
+            </div>
+            <div className="mb-2 [&_.form-group]:!mb-0">
+              <TextArea
+                name="cardDescription"
+                placeholder="Description (optional)"
+                minRows={2}
+                value={cardDescription}
+                onChange={(e) => setCardDescription(e.target.value)}
+              />
+            </div>
+            <div className="mb-3 [&_.form-group]:!mb-0">
+              <CustomInput
+                name="cardDueDate"
+                type="date"
+                value={cardDueDate}
+                onChange={(e) => setCardDueDate(e.target.value)}
+              />
+            </div>
             <div className="flex gap-2">
               <CustomButton
                 text="Add card"
@@ -138,10 +134,7 @@ export default function ListColumn({
               <CustomButton
                 text="Cancel"
                 variant="cancel"
-                onClick={() => {
-                  resetCardForm();
-                  onCancelCard();
-                }}
+                onClick={handleCancelCard}
                 className="rounded-lg"
               />
             </div>
@@ -150,7 +143,7 @@ export default function ListColumn({
           <button
             type="button"
             onClick={onAddCard}
-            className="flex w-full items-center gap-2 rounded-lg bg-white/80 py-2.5 pl-3 text-left text-sm font-medium text-neutral-600 transition-colors hover:bg-white hover:text-neutral-800"
+            className="flex w-full items-center gap-2 rounded-lg bg-white/80 py-2.5 pl-3 text-left typography-body font-medium text-neutral-600 transition-colors hover:bg-white hover:text-neutral-800"
           >
             <Plus className="h-4 w-4 shrink-0" />
             Add a card

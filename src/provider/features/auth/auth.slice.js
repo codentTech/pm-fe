@@ -1,5 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { getUser, removeUser } from "@/common/utils/users.util";
+import { clearOrganizations } from "@/provider/features/organizations/organizations.slice";
+import { clearPendingForMe } from "@/provider/features/invitations/invitations.slice";
 import authService from "./auth.service";
 
 const generalState = {
@@ -19,6 +21,8 @@ const initialState = {
   login: generalState,
   signUp: generalState,
   logout: generalState,
+  forgotPassword: generalState,
+  resetPassword: generalState,
   loginAndSignUpWithOAuth: generalState,
   loginAndSignUpWithLinkedin: generalState,
 };
@@ -94,16 +98,70 @@ export const loginAndSignUpWithLinkedin = createAsyncThunk(
   }
 );
 
+export const verifyEmail = createAsyncThunk(
+  "auth/verifyEmail",
+  async ({ token, successCallBack, errorCallBack }, thunkAPI) => {
+    try {
+      const response = await authService.verifyEmail(token);
+      if (response?.success ?? response?.Succeeded) {
+        successCallBack?.();
+        return response;
+      }
+      errorCallBack?.();
+      return thunkAPI.rejectWithValue(response);
+    } catch (error) {
+      errorCallBack?.();
+      return thunkAPI.rejectWithValue({ payload: error });
+    }
+  }
+);
+
+export const forgotPassword = createAsyncThunk(
+  "auth/forgotPassword",
+  async ({ email, successCallBack }, thunkAPI) => {
+    try {
+      const response = await authService.forgotPassword(email);
+      if (response?.success ?? response?.Succeeded) {
+        successCallBack?.();
+        return response;
+      }
+      return thunkAPI.rejectWithValue(response);
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ payload: error });
+    }
+  }
+);
+
+export const resetPassword = createAsyncThunk(
+  "auth/resetPassword",
+  async ({ token, newPassword, successCallBack }, thunkAPI) => {
+    try {
+      const response = await authService.resetPassword(token, newPassword);
+      if (response?.success ?? response?.Succeeded) {
+        successCallBack?.();
+        return response;
+      }
+      return thunkAPI.rejectWithValue(response);
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ payload: error });
+    }
+  }
+);
+
 export const logout = createAsyncThunk("auth/logout", async (payload, thunkAPI) => {
   try {
     const response = await authService.logout();
     removeUser();
+    thunkAPI.dispatch(clearOrganizations());
+    thunkAPI.dispatch(clearPendingForMe());
     if (response.success ?? response.Succeeded) {
       return response;
     }
     return thunkAPI.rejectWithValue(response);
   } catch (error) {
     removeUser();
+    thunkAPI.dispatch(clearOrganizations());
+    thunkAPI.dispatch(clearPendingForMe());
     return thunkAPI.rejectWithValue({ payload: error });
   }
 });
@@ -144,7 +202,9 @@ export const authSlice = createSlice({
         state.login.data = action.payload;
       })
       .addCase(login.rejected, (state, action) => {
-        state.login.message = action.payload.message;
+        const err = action.payload?.payload || action.payload;
+        state.login.message =
+          err?.response?.data?.message || err?.message || "Login failed";
         state.login.isLoading = false;
         state.login.isError = true;
         state.login.data = null;
@@ -220,6 +280,36 @@ export const authSlice = createSlice({
         state.loginAndSignUpWithLinkedin.isLoading = false;
         state.loginAndSignUpWithLinkedin.isError = true;
         state.loginAndSignUpWithLinkedin.data = null;
+      })
+      .addCase(forgotPassword.pending, (state) => {
+        state.forgotPassword = { ...generalState, isLoading: true };
+      })
+      .addCase(forgotPassword.fulfilled, (state, action) => {
+        state.forgotPassword.isLoading = false;
+        state.forgotPassword.isSuccess = true;
+        state.forgotPassword.data = action.payload;
+      })
+      .addCase(forgotPassword.rejected, (state, action) => {
+        const err = action.payload?.payload || action.payload;
+        state.forgotPassword.message =
+          err?.response?.data?.message || err?.message || "Request failed";
+        state.forgotPassword.isLoading = false;
+        state.forgotPassword.isError = true;
+      })
+      .addCase(resetPassword.pending, (state) => {
+        state.resetPassword = { ...generalState, isLoading: true };
+      })
+      .addCase(resetPassword.fulfilled, (state, action) => {
+        state.resetPassword.isLoading = false;
+        state.resetPassword.isSuccess = true;
+        state.resetPassword.data = action.payload;
+      })
+      .addCase(resetPassword.rejected, (state, action) => {
+        const err = action.payload?.payload || action.payload;
+        state.resetPassword.message =
+          err?.response?.data?.message || err?.message || "Reset failed";
+        state.resetPassword.isLoading = false;
+        state.resetPassword.isError = true;
       });
   },
 });

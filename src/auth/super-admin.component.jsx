@@ -1,6 +1,5 @@
 "use client";
 
-import Navbar from "@/common/components/dashboard/navbar/navbar.component";
 import NAVBAR_TITLE from "@/common/constants/navbar-title.constant";
 import { checkExpiryDateOfToken } from "@/common/utils/access-token.util";
 import { isSuperAdmin, removeUser } from "@/common/utils/users.util";
@@ -13,7 +12,10 @@ import { useEffect, useState } from "react";
  * @param {component} props take a component
  * @returns component | redirect to home page
  */
-export default function SuperAdmin({ component, title = NAVBAR_TITLE.DOCUMENTS }) {
+export default function SuperAdmin({
+  component,
+  title = NAVBAR_TITLE.DOCUMENTS,
+}) {
   const [toggle, setToggle] = useState(false);
 
   const router = useRouter();
@@ -30,10 +32,7 @@ export default function SuperAdmin({ component, title = NAVBAR_TITLE.DOCUMENTS }
 
   return (
     <div className="dashboard-main">
-      <div className="content basis-5/6 bg-secondary-gray">
-        <Navbar setToggle={setToggle} value={toggle} title={title} />
-        {component}
-      </div>
+      <div className="content basis-5/6 bg-secondary-gray">{component}</div>
     </div>
   );
 }
