@@ -20,7 +20,7 @@ export default function OnboardingBanner({ hasProjects }) {
 
   return (
     <div
-      className="mb-4 rounded-lg border border-neutral-200 bg-neutral-50/60 px-4 py-3"
+      className="mb-4 sm:mx-4 mx-5 rounded-lg border border-neutral-200 bg-neutral-50/60 px-4 py-3"
       role="region"
       aria-label="Get started"
     >

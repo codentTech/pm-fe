@@ -83,6 +83,7 @@ export default function CardItem({
   onDelete,
   onCardClick,
   otherLists,
+  wipByListId,
 }) {
   const { showMoveMenu, setShowMoveMenu } = useCardItem();
 
@@ -147,19 +148,43 @@ export default function CardItem({
                     onClick={() => setShowMoveMenu(false)}
                   />
                   <div className="absolute left-0 top-full z-20 mt-1 max-h-48 w-44 overflow-y-auto rounded-lg border border-neutral-200 bg-white py-1 shadow-lg">
-                    {otherLists.map((l) => (
-                      <button
-                        key={l.Id}
-                        type="button"
-                        className="block w-full px-3 py-2 text-left typography-body text-neutral-700 hover:bg-primary-50 hover:text-primary-700"
-                        onClick={() => {
-                          onMoveTo(card.Id, l.Id);
-                          setShowMoveMenu(false);
-                        }}
-                      >
-                        {l.Title}
-                      </button>
-                    ))}
+                    {otherLists.map((l) => {
+                      const wipInfo = wipByListId?.[l.Id];
+                      const isBlocked = !!wipInfo?.isBlocked;
+                      return (
+                        <button
+                          key={l.Id}
+                          type="button"
+                          disabled={isBlocked}
+                          className={`block w-full px-3 py-2 text-left typography-body ${
+                            isBlocked
+                              ? "cursor-not-allowed text-neutral-300"
+                              : "text-neutral-700 hover:bg-primary-50 hover:text-primary-700"
+                          }`}
+                          title={isBlocked ? "WIP limit reached" : l.Title}
+                          onClick={() => {
+                            if (isBlocked) return;
+                            onMoveTo(card.Id, l.Id);
+                            setShowMoveMenu(false);
+                          }}
+                        >
+                          <span className="flex items-center justify-between gap-2">
+                            <span>{l.Title}</span>
+                            {wipInfo?.limit ? (
+                              <span
+                                className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                                  isBlocked
+                                    ? "bg-danger-100 text-danger-700"
+                                    : "bg-neutral-100 text-neutral-600"
+                                }`}
+                              >
+                                {wipInfo.count}/{wipInfo.limit}
+                              </span>
+                            ) : null}
+                          </span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </>
               )}

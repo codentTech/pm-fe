@@ -92,10 +92,10 @@ export default function GlobalSearch({ show, onClose }) {
                         <p className="truncate font-medium text-neutral-800">
                           {item.title}
                         </p>
-                        {(item.subtitle || item.boardName) && (
+                        {(item.subtitle || item.projectName) && (
                           <p className="truncate typography-caption text-neutral-500">
-                            {item.boardName
-                              ? `${item.boardName}${item.subtitle ? ` • ${item.subtitle}` : ""}`
+                            {item.projectName
+                              ? `${item.projectName}${item.subtitle ? ` • ${item.subtitle}` : ""}`
                               : item.subtitle}
                           </p>
                         )}

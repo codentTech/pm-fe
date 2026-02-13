@@ -22,7 +22,7 @@ export default function useGlobalSearch(show, onClose) {
   const allItems = [
     ...(results?.cards || []).map((c) => ({ ...c, type: "card" })),
     ...(results?.todos || []).map((t) => ({ ...t, type: "todo" })),
-    ...(results?.boards || []).map((b) => ({ ...b, type: "board" })),
+    ...(results?.projects || []).map((p) => ({ ...p, type: "project" })),
     ...(results?.kpis || []).map((k) => ({ ...k, type: "kpi" })),
     ...(results?.workspaces || []).map((w) => ({ ...w, type: "workspace" })),
   ];

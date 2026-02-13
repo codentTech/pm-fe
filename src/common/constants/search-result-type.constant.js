@@ -3,7 +3,8 @@ import { FileText, CheckSquare, LayoutGrid, BarChart3, Building2 } from "lucide-
 export const SEARCH_RESULT_TYPE_ICONS = Object.freeze({
   card: FileText,
   todo: CheckSquare,
-  board: LayoutGrid,
+  project: LayoutGrid,
+  board: LayoutGrid, // alias for backward compatibility
   kpi: BarChart3,
   workspace: Building2,
 });
@@ -11,7 +12,8 @@ export const SEARCH_RESULT_TYPE_ICONS = Object.freeze({
 export const SEARCH_RESULT_TYPE_LABELS = Object.freeze({
   card: "Cards",
   todo: "Todos",
-  board: "Projects",
+  project: "Projects",
+  board: "Projects", // alias
   kpi: "KPIs",
   workspace: "Workspaces",
 });
@@ -20,7 +22,7 @@ export const SEARCH_FILTER_OPTIONS = Object.freeze([
   { value: "", label: "All" },
   { value: "card", label: "Cards" },
   { value: "todo", label: "Todos" },
-  { value: "board", label: "Projects" },
+  { value: "project", label: "Projects" },
   { value: "kpi", label: "KPIs" },
   { value: "workspace", label: "Workspaces" },
 ]);

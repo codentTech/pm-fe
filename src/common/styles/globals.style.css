@@ -498,7 +498,7 @@
   }
 
   .modal-content {
-    @apply bg-white rounded-lg shadow-xl max-w-md w-full max-h-screen overflow-y-auto;
+    @apply bg-white rounded-lg shadow-xl w-full max-h-screen overflow-y-auto;
   }
 
   .modal-header {

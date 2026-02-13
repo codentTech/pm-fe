@@ -17,14 +17,14 @@ export default function useModal({
   onClose,
   closeOnBackdropClick,
 }) {
-  // Get modal size classes (responsive: full width minus margin on mobile)
+  // Get modal size classes
   const getModalSizeClasses = () => {
     const sizeClasses = {
-      sm: "w-[calc(100vw-2rem)] max-w-sm sm:w-full", // 384px
-      md: "w-[calc(100vw-2rem)] max-w-md sm:w-full", // 448px
-      lg: "w-[calc(100vw-2rem)] max-w-2xl sm:w-full", // 672px
-      xl: "w-[calc(100vw-2rem)] max-w-4xl sm:w-full", // 896px
-      full: "w-[calc(100vw-2rem)] max-w-7xl sm:w-full", // Almost full screen
+      sm: "max-w-sm w-full", // 384px
+      md: "max-w-md w-full", // 448px
+      lg: "max-w-2xl w-full", // 672px
+      xl: "max-w-4xl w-full", // 896px
+      full: "max-w-7xl w-full mx-4", // Almost full screen with margin
     };
 
     return sizeClasses[size] || sizeClasses.md;
@@ -55,19 +55,16 @@ export default function useModal({
     return `${baseClasses} ${variantClasses[variant] || variantClasses.default}`;
   };
 
-  // Handle backdrop click
-  const handleBackdropClick = (event) => {
-    if (!closeOnBackdropClick || !onClose) return;
-
-    // Only close if clicking the backdrop, not the modal content
-    if (event.target === event.currentTarget) {
+  // Handle escape key press
+  const handleKeyDown = (event) => {
+    if (event.key === "Escape" && onClose) {
       onClose();
     }
   };
 
-  // Handle escape key press
-  const handleKeyDown = (event) => {
-    if (event.key === "Escape" && onClose) {
+  // Handle backdrop click
+  const handleBackdropClick = (event) => {
+    if (closeOnBackdropClick && onClose) {
       onClose();
     }
   };
@@ -76,7 +73,7 @@ export default function useModal({
     getModalSizeClasses,
     getModalHeightClasses,
     getHeaderClasses,
-    handleBackdropClick,
     handleKeyDown,
+    handleBackdropClick,
   };
 }

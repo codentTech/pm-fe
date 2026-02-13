@@ -8,12 +8,12 @@ import CardDetail from "@/components/cards/card-detail/card-detail.component";
 
 export default function CardDetailPage({ params }) {
   const resolved = use(params);
-  const boardId = resolved.id;
+  const projectId = resolved.id;
   const cardId = resolved.cardId;
 
   return (
     <Auth
-      component={<CardDetail boardId={boardId} cardId={cardId} />}
+      component={<CardDetail projectId={projectId} cardId={cardId} />}
       type={AUTH.PRIVATE}
       title={NAVBAR_TITLE.PROJECT_DETAIL}
     />

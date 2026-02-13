@@ -42,6 +42,8 @@ export default function SortableListColumn({
   onCardClick,
   otherLists,
   isSavingCard = false,
+  wipInfo,
+  wipByListId,
 }) {
   const {
     cardTitle,
@@ -99,9 +101,23 @@ export default function SortableListColumn({
             <h3 className="flex-1 truncate font-bold text-neutral-800 typography-h4">
               {list.Title}
             </h3>
-            <span className="typography-caption font-medium text-neutral-600">
-              {cards.length}
-            </span>
+            <div className="flex items-center gap-2">
+              {wipInfo?.limit ? (
+                <span
+                  className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+                    wipInfo.isBlocked
+                      ? "bg-danger-100 text-danger-700"
+                      : "bg-neutral-100 text-neutral-600"
+                  }`}
+                  title={`WIP limit ${wipInfo.count}/${wipInfo.limit}`}
+                >
+                  {wipInfo.count}/{wipInfo.limit}
+                </span>
+              ) : null}
+              <span className="typography-caption font-medium text-neutral-600">
+                {cards.length}
+              </span>
+            </div>
             <div
               className="relative shrink-0"
               onClick={(e) => e.stopPropagation()}
@@ -166,6 +182,7 @@ export default function SortableListColumn({
                     onDelete={onDeleteCard}
                     onCardClick={onCardClick}
                     otherLists={otherLists}
+                    wipByListId={wipByListId}
                   />
                 </DraggableCard>
               </div>

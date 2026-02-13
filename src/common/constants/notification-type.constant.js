@@ -16,9 +16,10 @@ export const NOTIFICATION_TYPE_ICONS = Object.freeze({
 
 export function getNotificationUrl(notification) {
   const data = notification?.Data || {};
-  if (data.boardId && data.cardId)
-    return `/projects/${data.boardId}?card=${data.cardId}`;
-  if (data.boardId) return `/projects/${data.boardId}`;
+  const projectId = data.projectId ?? data.boardId;
+  if (projectId && data.cardId)
+    return `/projects/${projectId}?card=${data.cardId}`;
+  if (projectId) return `/projects/${projectId}`;
   if (data.todoListId) return "/todos";
   return "/settings";
 }

@@ -1,4 +1,13 @@
 /**
+ * Format a date as locale date string (e.g. "1/30/2026").
+ * @param {string|Date} date - Date string or Date object
+ * @returns {string}
+ */
+export function formatDate(date) {
+  return date ? new Date(date).toLocaleDateString() : "—";
+}
+
+/**
  * Format a date as locale date/time string (e.g. "1/30/25, 2:45 PM").
  * @param {string|Date} date - Date string or Date object
  * @returns {string}

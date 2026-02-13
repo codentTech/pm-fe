@@ -5,6 +5,8 @@ const NAVBAR_TITLE = Object.freeze({
   PROJECT_DETAIL: 'Project',
   BOARD_DETAIL: 'Board',
   KPIS: 'KPI Tracker',
+  BIDS: 'Bid Management',
+  DAILY_UPDATES: 'Daily Updates',
   TODOS: 'Todo Tracker',
   WORKSPACE_SETTINGS: 'Workspace settings',
   DOCUMENTS: 'Documents',

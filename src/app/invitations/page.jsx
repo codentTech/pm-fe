@@ -17,7 +17,8 @@ import {
   fetchOrganizations,
   setCurrentOrganization,
 } from "@/provider/features/organizations/organizations.slice";
-import { fetchBoards } from "@/provider/features/boards/boards.slice";
+import { fetchProjects } from "@/provider/features/projects/projects.slice";
+import { fetchBids } from "@/provider/features/bids/bids.slice";
 import { fetchKpis } from "@/provider/features/kpis/kpis.slice";
 import InvitationAcceptPage from "@/components/invitation-accept/invitation-accept.component";
 
@@ -84,7 +85,8 @@ export default function InvitationsPage() {
           if (invitation?.Organization?.Id) {
             dispatch(setCurrentOrganization(invitation.Organization.Id));
             dispatch(fetchOrganizations());
-            dispatch(fetchBoards());
+            dispatch(fetchProjects());
+            dispatch(fetchBids());
             dispatch(fetchKpis());
           }
           router.replace("/dashboard");

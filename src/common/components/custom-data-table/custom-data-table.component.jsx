@@ -4,6 +4,7 @@ import ThreedotIcon from "@/common/icons/threedot.icon";
 import PropTypes from "prop-types";
 import React from "react";
 import { useCustomDataTable } from "./use-custom-data-table.hook";
+import SimpleSelect from "../dropdowns/simple-select/simple-select";
 
 const CustomDataTable = ({
   // Core data props
@@ -17,7 +18,7 @@ const CustomDataTable = ({
   externalSort = false,
 
   // Selection props
-  selectable = true,
+  selectable = false,
   selectedIds = [],
   onSelectionChange,
 
@@ -178,7 +179,12 @@ const CustomDataTable = ({
 
   const calculateColSpan = () => {
     const hasActions = getActions ? true : actions.length > 0;
-    return columns.length + (selectable ? 1 : 0) + (statusField ? 1 : 0) + (hasActions ? 1 : 0);
+    return (
+      columns.length +
+      (selectable ? 1 : 0) +
+      (statusField ? 1 : 0) +
+      (hasActions ? 1 : 0)
+    );
   };
 
   const hasColumnWidths = columns.some((col) => col.width);
@@ -187,18 +193,22 @@ const CustomDataTable = ({
     <div className={`bg-white ${className}`}>
       {/* Table */}
       <div
-        className="w-full overflow-x-scroll relative border border-gray-300 rounded-xs"
+        className="w-full overflow-x-auto overflow-y-visible relative border border-gray-300 rounded-lg"
         style={{ height }}
       >
         <table
           className={`${tableClassName}`}
           style={
-            hasColumnWidths ? { tableLayout: "fixed", minWidth: "1200px" } : { minWidth: "1200px" }
+            hasColumnWidths
+              ? { tableLayout: "fixed", minWidth: "100%" }
+              : { minWidth: "100%" }
           }
         >
           {/* Header */}
           {showHeader && (
-            <thead className={`z-10 bg-gray-50 border-b rounded-full ${headerClassName}`}>
+            <thead
+              className={`z-10 bg-gray-50 border-b rounded-full ${headerClassName}`}
+            >
               <tr>
                 {/* Selection checkbox */}
                 {selectable && (
@@ -222,18 +232,28 @@ const CustomDataTable = ({
                     className="px-4 py-3 text-left text-sm font-medium text-gray-900"
                     style={
                       column.width
-                        ? { width: column.width, maxWidth: column.width, minWidth: column.width }
+                        ? {
+                            width: column.width,
+                            maxWidth: column.width,
+                            minWidth: column.width,
+                          }
                         : {}
                     }
                   >
                     <div
                       className={`flex items-center ${column.width ? "" : "whitespace-nowrap"} ${
-                        column.sortable ? "cursor-pointer hover:text-gray-700" : ""
+                        column.sortable
+                          ? "cursor-pointer hover:text-gray-700"
+                          : ""
                       }`}
                       onClick={() => column.sortable && handleSort(column.key)}
                       title={column.title}
                     >
-                      <span className={column.width ? "truncate flex-1 min-w-0" : ""}>
+                      <span
+                        className={
+                          column.width ? "truncate flex-1 min-w-0" : ""
+                        }
+                      >
                         {column.title}
                       </span>
                       {renderSortIcon(column)}
@@ -243,13 +263,18 @@ const CustomDataTable = ({
 
                 {/* Status column */}
                 {statusField && (
-                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">Status</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">
+                    Status
+                  </th>
                 )}
 
                 {/* Actions column */}
-                {((getActions && paginatedData.some((row) => getActions(row).length > 0)) ||
+                {((getActions &&
+                  paginatedData.some((row) => getActions(row).length > 0)) ||
                   actions.length > 0) && (
-                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">Actions</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">
+                    Actions
+                  </th>
                 )}
               </tr>
             </thead>
@@ -259,7 +284,10 @@ const CustomDataTable = ({
           <tbody className="divide-y divide-gray-200">
             {loading ? (
               <tr>
-                <td colSpan={calculateColSpan()} className="px-4 py-8 text-center">
+                <td
+                  colSpan={calculateColSpan()}
+                  className="px-4 py-8 text-center"
+                >
                   <div className="flex items-center justify-center">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                     <span className="ml-2 text-gray-600">Loading...</span>
@@ -268,7 +296,10 @@ const CustomDataTable = ({
               </tr>
             ) : paginatedData.length === 0 ? (
               <tr>
-                <td colSpan={calculateColSpan()} className="px-4 py-8 text-center text-gray-500">
+                <td
+                  colSpan={calculateColSpan()}
+                  className="p-4 text-center text-gray-500"
+                >
                   {emptyMessage}
                 </td>
               </tr>
@@ -282,7 +313,9 @@ const CustomDataTable = ({
                         <input
                           type="checkbox"
                           checked={selectedIds.includes(row.id)}
-                          onChange={(e) => handleRowSelect(row.id, e.target.checked)}
+                          onChange={(e) =>
+                            handleRowSelect(row.id, e.target.checked)
+                          }
                           className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                         />
                       </td>
@@ -307,7 +340,9 @@ const CustomDataTable = ({
                           }
                         >
                           {column.width ? (
-                            <div className="truncate block w-full">{cellContent}</div>
+                            <div className="truncate block w-full">
+                              {cellContent}
+                            </div>
                           ) : (
                             cellContent
                           )}
@@ -320,7 +355,9 @@ const CustomDataTable = ({
                       <td className="px-4 py-3">
                         <select
                           value={row[statusField]}
-                          onChange={(e) => onStatusChange?.(row.id, e.target.value)}
+                          onChange={(e) =>
+                            onStatusChange?.(row.id, e.target.value)
+                          }
                           className="rounded border-gray-300 text-sm focus:ring-blue-500 focus:border-blue-500"
                         >
                           {statusOptions.map((option) => (
@@ -367,9 +404,11 @@ const CustomDataTable = ({
               left: `${dropdownPosition.left}px`,
             }}
           >
-            <div className="bg-white rounded-md shadow-lg border border-gray-200 py-1 min-w-[180px]">
+            <div className="rounded-lg border border-indigo-100 bg-white/95 shadow-xl backdrop-blur-sm py-2 min-w-[200px]">
               {(() => {
-                const row = paginatedData.find((r) => r.id === activeActionRowId);
+                const row = paginatedData.find(
+                  (r) => r.id === activeActionRowId,
+                );
                 const rowActions = getActions ? getActions(row) : actions;
                 return rowActions.map((action, index) => (
                   <button
@@ -378,11 +417,15 @@ const CustomDataTable = ({
                       handleActionClick(action.key, row, onActionClick);
                       setActiveActionRowId(null);
                     }}
-                    className={`flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-150 ${
-                      index === 0 ? "rounded-t-md" : ""
-                    } ${index === rowActions.length - 1 ? "rounded-b-md" : ""}`}
+                    className={`flex items-center w-full px-4 py-1 text-sm text-neutral-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors duration-150 ${
+                      index === 0 ? "rounded-t-lg" : ""
+                    } ${index === rowActions.length - 1 ? "rounded-b-lg" : ""}`}
                   >
-                    {action.icon && <span className="mr-2 flex-shrink-0">{action.icon}</span>}
+                    {action.icon && (
+                      <span className="mr-2 flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
+                        {action.icon}
+                      </span>
+                    )}
                     <span className="truncate">{action.label}</span>
                   </button>
                 ));
@@ -394,46 +437,61 @@ const CustomDataTable = ({
 
       {/* Pagination */}
       {paginated && totalRecordsCount > 0 && (
-        <div className="z-10 px-2 sm:px-4 py-2 sm:py-3 bg-gray-50 border-t border-gray-200 rounded-b-lg flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-0">
-          <div className="flex items-center text-xs sm:text-sm text-gray-700 w-full sm:w-auto justify-center sm:justify-start">
-            <span className="hidden sm:inline">Show</span>
-            <select
+        <div className="z-10 py-2 sm:py-3 bg-gray-50 border-b border-gray-200 rounded-b-lg flex flex-col sm:flex-row items-center justify-between gap-3">
+          {/* Left: Page size + results info */}
+          <div className="flex items-center text-xs sm:text-sm text-gray-700 w-full sm:w-auto justify-center sm:justify-start gap-2">
+            <span className="hidden sm:inline">Rows per page:</span>
+
+            <SimpleSelect
+              size="sm"
+              variant="minimal"
+              className="min-w-[64px]"
+              menuPosition="bottom"
+              options={[
+                { value: 10, label: "10" },
+                { value: 25, label: "25" },
+                { value: 50, label: "50" },
+                { value: 100, label: "100" },
+              ]}
               value={internalPageSize}
-              onChange={(e) => handlePageSizeChange(Number(e.target.value))}
-              className="mx-1 sm:mx-2 rounded border-gray-300 text-xs sm:text-sm focus:ring-blue-500 focus:border-blue-500 py-1"
-            >
-              <option value={10}>10</option>
-              <option value={25}>25</option>
-              <option value={50}>50</option>
-              <option value={100}>100</option>
-            </select>
+              onChange={(value) => handlePageSizeChange(Number(value))}
+            />
+
+            <span className="text-gray-500 hidden sm:inline">·</span>
+
             <span className="whitespace-nowrap">
-              <span className="hidden sm:inline">of </span>
-              {totalRecordsCount} <span className="hidden sm:inline">entries</span>
+              Showing{" "}
+              <span className="font-medium">
+                {(internalCurrentPage - 1) * internalPageSize + 1}–
+                {Math.min(
+                  internalCurrentPage * internalPageSize,
+                  totalRecordsCount,
+                )}
+              </span>{" "}
+              of <span className="font-medium">{totalRecordsCount}</span>
             </span>
           </div>
 
-          <div className="flex items-center space-x-1 sm:space-x-2 w-full sm:w-auto justify-center sm:justify-end">
+          {/* Right: Pagination controls */}
+          <div className="flex items-center gap-1 sm:gap-2 w-full sm:w-auto justify-center sm:justify-end">
             <button
               onClick={() => handlePageChange(internalCurrentPage - 1)}
               disabled={internalCurrentPage <= 1}
-              className="px-2 sm:px-3 py-1 rounded border border-gray-300 text-xs sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 transition-colors"
+              className="px-2 sm:px-3 py-1 rounded-md border border-gray-300 text-xs sm:text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-100 transition"
             >
               <span className="hidden sm:inline">Previous</span>
               <span className="sm:hidden">Prev</span>
             </button>
 
-            <span className="text-xs sm:text-sm text-gray-700 px-1 sm:px-2 whitespace-nowrap">
-              <span className="hidden sm:inline">Page </span>
-              {internalCurrentPage} <span className="hidden sm:inline">of </span>
-              <span className="sm:hidden">/</span>
-              {totalPages}
+            <span className="text-xs sm:text-sm text-gray-700 px-2 whitespace-nowrap">
+              Page <span className="font-medium">{internalCurrentPage}</span> of{" "}
+              <span className="font-medium">{totalPages}</span>
             </span>
 
             <button
               onClick={() => handlePageChange(internalCurrentPage + 1)}
               disabled={internalCurrentPage >= totalPages}
-              className="px-2 sm:px-3 py-1 rounded border border-gray-300 text-xs sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 transition-colors"
+              className="px-2 sm:px-3 py-1 rounded-md border border-gray-300 text-xs sm:text-sm disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-100 transition"
             >
               Next
             </button>
@@ -453,7 +511,7 @@ CustomDataTable.propTypes = {
       sortable: PropTypes.bool,
       customRender: PropTypes.func,
       width: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    })
+    }),
   ).isRequired,
   data: PropTypes.arrayOf(PropTypes.object).isRequired,
   loading: PropTypes.bool,
@@ -468,7 +526,9 @@ CustomDataTable.propTypes = {
 
   // Selection
   selectable: PropTypes.bool,
-  selectedIds: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number])),
+  selectedIds: PropTypes.arrayOf(
+    PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  ),
   onSelectionChange: PropTypes.func,
 
   // Search
@@ -492,7 +552,7 @@ CustomDataTable.propTypes = {
       key: PropTypes.string.isRequired,
       label: PropTypes.string.isRequired,
       icon: PropTypes.node,
-    })
+    }),
   ),
   onActionClick: PropTypes.func,
 
@@ -502,7 +562,7 @@ CustomDataTable.propTypes = {
     PropTypes.shape({
       value: PropTypes.string.isRequired,
       label: PropTypes.string.isRequired,
-    })
+    }),
   ),
   onStatusChange: PropTypes.func,
 

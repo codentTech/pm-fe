@@ -11,7 +11,7 @@ export default function ProjectDetailPage({ params }) {
 
   return (
     <Auth
-      component={<BoardDetail boardId={id} />}
+      component={<BoardDetail projectId={id} />}
       type={AUTH.PRIVATE}
       title={NAVBAR_TITLE.PROJECT_DETAIL}
     />

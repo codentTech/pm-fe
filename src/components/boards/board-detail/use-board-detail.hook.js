@@ -5,34 +5,56 @@ import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import {
-  fetchBoardById,
+  fetchProjectById,
   createList,
   createCard,
   updateCard,
   updateList,
   deleteCard as deleteCardAction,
   deleteList as deleteListAction,
-  clearCurrentBoard,
+  clearCurrentProject,
   moveCardOptimistic,
   revertCardMove,
-} from "@/provider/features/boards/boards.slice";
+  fetchProductBacklog,
+  fetchSprintBacklog,
+  fetchBugBacklog,
+  fetchBlockedBacklog,
+} from "@/provider/features/projects/projects.slice";
+import {
+  fetchSprints,
+  createSprint,
+  updateSprint,
+  deleteSprint,
+} from "@/provider/features/sprints/sprints.slice";
 import { fetchLabels } from "@/provider/features/labels/labels.slice";
 import { fetchMembers } from "@/provider/features/organizations/organizations.slice";
-import useBoardSocket from "@/common/hooks/use-board-socket.hook";
+import { getDisplayUser } from "@/common/utils/users.util";
+import useProjectSocket from "@/common/hooks/use-project-socket.hook";
 
-export default function useBoardDetail(boardId) {
-  useBoardSocket(boardId);
+export default function useBoardDetail(projectId) {
+  useProjectSocket(projectId);
   const router = useRouter();
   const dispatch = useDispatch();
   const {
-    currentBoard,
-    fetchBoardById: fetchState,
+    currentProject,
+    fetchProjectById: fetchState,
     deleteCard: deleteCardState,
     deleteList: deleteListState,
     createList: createListState,
     createCard: createCardState,
     updateCard: updateCardState,
-  } = useSelector((state) => state.boards);
+    productBacklog,
+    sprintBacklog,
+    bugBacklog,
+    blockedBacklog,
+  } = useSelector((state) => state.projects);
+  const {
+    sprints,
+    fetchSprints: fetchSprintsState,
+    createSprint: createSprintState,
+    updateSprint: updateSprintState,
+    deleteSprintState,
+  } = useSelector((state) => state.sprints ?? {});
   const labels = useSelector((state) => state.labels?.labels || []);
   const [showAddList, setShowAddList] = useState(false);
   const [addingCardListId, setAddingCardListId] = useState(null);
@@ -41,8 +63,43 @@ export default function useBoardDetail(boardId) {
   const [activeListId, setActiveListId] = useState(null);
   const [activeDropTarget, setActiveDropTarget] = useState(null);
   const [orgMembers, setOrgMembers] = useState([]);
+  const [listToDeleteId, setListToDeleteId] = useState(null);
+  const [cardToDeleteId, setCardToDeleteId] = useState(null);
+  const [activeView, setActiveView] = useState("kanban");
+  const [activeBacklogTab, setActiveBacklogTab] = useState("product");
+  const [showCreateSprint, setShowCreateSprint] = useState(false);
+  const [showEditSprint, setShowEditSprint] = useState(false);
+  const [editSprintId, setEditSprintId] = useState("");
+  const [showPlanSprint, setShowPlanSprint] = useState(false);
+  const [planSprintId, setPlanSprintId] = useState("");
+  const [selectedProductIds, setSelectedProductIds] = useState([]);
+  const [selectedSprintIds, setSelectedSprintIds] = useState([]);
+  const [bulkAssignLoading, setBulkAssignLoading] = useState(false);
+  const [sprintError, setSprintError] = useState("");
+  const [selectedSprintId, setSelectedSprintId] = useState("");
+  const [currentUserRole, setCurrentUserRole] = useState(null);
+  const [sprintToDeleteId, setSprintToDeleteId] = useState(null);
 
   const listForm = useForm({ defaultValues: { Title: "" } });
+  const sprintForm = useForm({
+    defaultValues: {
+      Name: "",
+      StartDate: "",
+      EndDate: "",
+      Goal: "",
+      CapacitySnapshot: {},
+    },
+  });
+  const editSprintForm = useForm({
+    defaultValues: {
+      Name: "",
+      StartDate: "",
+      EndDate: "",
+      Goal: "",
+      CapacitySnapshot: {},
+      Status: "planned",
+    },
+  });
   const cardDetailForm = useForm({
     defaultValues: {
       Title: "",
@@ -53,16 +110,44 @@ export default function useBoardDetail(boardId) {
     },
   });
 
-  const orgId = currentBoard?.OrganizationId;
+  const orgId = currentProject?.OrganizationId;
+  const isReadOnly = currentUserRole === "guest";
 
   useEffect(() => {
-    if (boardId) dispatch(fetchBoardById(boardId));
-    return () => dispatch(clearCurrentBoard());
-  }, [boardId, dispatch]);
+    if (projectId) dispatch(fetchProjectById(projectId));
+    return () => dispatch(clearCurrentProject());
+  }, [projectId, dispatch]);
+
+  useEffect(() => {
+    if (projectId) dispatch(fetchSprints({ projectId }));
+  }, [projectId, dispatch]);
 
   useEffect(() => {
     if (orgId) dispatch(fetchLabels(orgId));
   }, [orgId, dispatch]);
+
+  useEffect(() => {
+    if (!orgId) return;
+    dispatch(
+      fetchMembers({
+        orgId,
+        successCallBack: (data) => setOrgMembers(data || []),
+        errorCallBack: () => setOrgMembers([]),
+      })
+    );
+  }, [orgId, dispatch]);
+
+  useEffect(() => {
+    const user = getDisplayUser();
+    if (!user?.Id || orgMembers.length === 0) {
+      setCurrentUserRole(null);
+      return;
+    }
+    const member = orgMembers.find(
+      (m) => m.User?.Id === user.Id || m.UserId === user.Id
+    );
+    setCurrentUserRole((member?.Role || "").toLowerCase() || null);
+  }, [orgMembers]);
 
   useEffect(() => {
     if (selectedCard) {
@@ -91,22 +176,96 @@ export default function useBoardDetail(boardId) {
   }, [selectedCard?.Id, orgId, dispatch]);
 
   useEffect(() => {
-    if (selectedCard?.Id && currentBoard?.Lists) {
-      const card = currentBoard.Lists.flatMap((l) => l.Cards || []).find(
+    if (activeView !== "backlogs" || !projectId) return;
+    if (activeBacklogTab === "product") {
+      dispatch(fetchProductBacklog({ projectId }));
+    }
+    if (activeBacklogTab === "sprint" && selectedSprintId) {
+      dispatch(fetchSprintBacklog({ projectId, sprintId: selectedSprintId }));
+    }
+    if (activeBacklogTab === "bugs") {
+      dispatch(fetchBugBacklog({ projectId }));
+    }
+    if (activeBacklogTab === "blocked") {
+      dispatch(fetchBlockedBacklog({ projectId }));
+    }
+  }, [
+    activeView,
+    activeBacklogTab,
+    projectId,
+    selectedSprintId,
+    dispatch,
+  ]);
+
+  useEffect(() => {
+    if (selectedCard?.Id && currentProject?.Lists) {
+      const card = currentProject.Lists.flatMap((l) => l.Cards || []).find(
         (c) => c.Id === selectedCard.Id
       );
       if (card) setSelectedCard(card);
     }
-  }, [currentBoard?.Lists, selectedCard?.Id]);
+  }, [currentProject?.Lists, selectedCard?.Id]);
 
   // functions
   function handleCreateList(values) {
     dispatch(
       createList({
-        payload: { Title: values.Title, BoardId: boardId },
+        payload: { Title: values.Title, ProjectId: projectId },
         successCallBack: () => {
           setShowAddList(false);
           listForm.reset();
+        },
+      })
+    );
+  }
+
+  function handleCreateSprint(values) {
+    if (!projectId) return;
+    setSprintError("");
+    const capacity =
+      values.CapacitySnapshot && Object.keys(values.CapacitySnapshot).length > 0
+        ? values.CapacitySnapshot
+        : undefined;
+    dispatch(
+      createSprint({
+        payload: {
+          ProjectId: projectId,
+          Name: values.Name,
+          StartDate: values.StartDate,
+          EndDate: values.EndDate,
+          Goal: values.Goal || undefined,
+          CapacitySnapshot: capacity,
+        },
+        successCallBack: () => {
+          setShowCreateSprint(false);
+          sprintForm.reset();
+          dispatch(fetchSprints({ projectId }));
+        },
+      })
+    );
+  }
+
+  function handleUpdateSprint(id, values, onSuccess) {
+    if (!id) return;
+    setSprintError("");
+    const payload = {};
+    if (values?.Name !== undefined) payload.Name = values.Name;
+    if (values?.StartDate !== undefined) payload.StartDate = values.StartDate;
+    if (values?.EndDate !== undefined) payload.EndDate = values.EndDate;
+    if (values?.Goal !== undefined) payload.Goal = values.Goal || undefined;
+    if (values && Object.prototype.hasOwnProperty.call(values, "CapacitySnapshot")) {
+      const hasCapacity =
+        values.CapacitySnapshot && Object.keys(values.CapacitySnapshot).length > 0;
+      payload.CapacitySnapshot = hasCapacity ? values.CapacitySnapshot : null;
+    }
+    if (values?.Status !== undefined) payload.Status = values.Status;
+    dispatch(
+      updateSprint({
+        id,
+        payload,
+        successCallBack: (data) => {
+          onSuccess?.(data);
+          if (projectId) dispatch(fetchSprints({ projectId }));
         },
       })
     );
@@ -136,9 +295,129 @@ export default function useBoardDetail(boardId) {
     dispatch(updateCard({ id: cardId, payload: { ListId: targetListId } }));
   }
 
+  function handleAssignSprint(cardId, sprintId) {
+    if (!cardId) return;
+    dispatch(
+      updateCard({
+        id: cardId,
+        payload: { SprintId: sprintId || null },
+        successCallBack: () => {
+          if (!projectId) return;
+          if (activeBacklogTab === "product") dispatch(fetchProductBacklog({ projectId }));
+          if (activeBacklogTab === "sprint" && selectedSprintId) {
+            dispatch(fetchSprintBacklog({ projectId, sprintId: selectedSprintId }));
+          }
+          if (activeBacklogTab === "bugs") dispatch(fetchBugBacklog({ projectId }));
+          if (activeBacklogTab === "blocked") dispatch(fetchBlockedBacklog({ projectId }));
+        },
+      })
+    );
+  }
+
+  function handleUpdateCardFields(cardId, payload, refetchBacklog = true) {
+    if (!cardId) return;
+    dispatch(
+      updateCard({
+        id: cardId,
+        payload,
+        successCallBack: () => {
+          if (!refetchBacklog || !projectId) return;
+          if (activeBacklogTab === "product") dispatch(fetchProductBacklog({ projectId }));
+          if (activeBacklogTab === "sprint" && selectedSprintId) {
+            dispatch(fetchSprintBacklog({ projectId, sprintId: selectedSprintId }));
+          }
+          if (activeBacklogTab === "bugs") dispatch(fetchBugBacklog({ projectId }));
+          if (activeBacklogTab === "blocked") dispatch(fetchBlockedBacklog({ projectId }));
+        },
+      })
+    );
+  }
+
+  async function handleBulkAssignToSprint(cardIds, sprintId) {
+    if (!cardIds?.length || !sprintId) return;
+    setBulkAssignLoading(true);
+    await Promise.all(
+      cardIds.map((id) =>
+        dispatch(updateCard({ id, payload: { SprintId: sprintId } }))
+      )
+    );
+    if (projectId) dispatch(fetchProductBacklog({ projectId }));
+    if (projectId) dispatch(fetchSprintBacklog({ projectId, sprintId }));
+    setSelectedProductIds([]);
+    setBulkAssignLoading(false);
+  }
+
+  async function handleBulkRemoveFromSprint(cardIds, sprintId) {
+    if (!cardIds?.length || !sprintId) return;
+    setBulkAssignLoading(true);
+    await Promise.all(
+      cardIds.map((id) =>
+        dispatch(updateCard({ id, payload: { SprintId: null } }))
+      )
+    );
+    if (projectId) dispatch(fetchSprintBacklog({ projectId, sprintId }));
+    if (projectId) dispatch(fetchProductBacklog({ projectId }));
+    setSelectedSprintIds([]);
+    setBulkAssignLoading(false);
+  }
+
+  function openPlanSprint(sprintId) {
+    if (!projectId || !sprintId) return;
+    setPlanSprintId(sprintId);
+    setSelectedProductIds([]);
+    setSelectedSprintIds([]);
+    setShowPlanSprint(true);
+    dispatch(fetchProductBacklog({ projectId }));
+    dispatch(fetchSprintBacklog({ projectId, sprintId }));
+  }
+
+  function closePlanSprint() {
+    setShowPlanSprint(false);
+    setPlanSprintId("");
+    setSelectedProductIds([]);
+    setSelectedSprintIds([]);
+  }
+
+  function openEditSprint(sprint) {
+    if (!sprint) return;
+    setEditSprintId(sprint.Id);
+    editSprintForm.reset({
+      Name: sprint.Name || "",
+      StartDate: sprint.StartDate ? sprint.StartDate.slice(0, 10) : "",
+      EndDate: sprint.EndDate ? sprint.EndDate.slice(0, 10) : "",
+      Goal: sprint.Goal || "",
+      CapacitySnapshot: sprint.CapacitySnapshot || {},
+      Status: sprint.Status || "planned",
+    });
+    setShowEditSprint(true);
+  }
+
+  function closeEditSprint() {
+    setShowEditSprint(false);
+    setEditSprintId("");
+    editSprintForm.reset();
+  }
+
+  function requestDeleteSprint(sprintId) {
+    setSprintToDeleteId(sprintId);
+  }
+
+  function confirmDeleteSprint() {
+    if (!sprintToDeleteId) return;
+    dispatch(
+      deleteSprint({
+        id: sprintToDeleteId,
+        successCallBack: () => {
+          if (projectId) dispatch(fetchSprints({ projectId }));
+          setSprintToDeleteId(null);
+        },
+      })
+    );
+  }
+
   const handleMoveCardAt = useCallback(
     (cardId, targetListId, targetIndex) => {
-      const lists = currentBoard?.Lists || [];
+      const lists = currentProject?.Lists || [];
       const sourceList = lists.find((l) => (l.Cards || []).some((c) => c.Id === cardId));
       const sourceListId = sourceList?.Id;
       const sourceIndex = sourceList
@@ -173,7 +452,7 @@ export default function useBoardDetail(boardId) {
         })
       );
     },
-    [dispatch, currentBoard?.Lists]
+    [dispatch, currentProject?.Lists]
   );
 
   const handleReorderLists = useCallback(
@@ -196,10 +475,10 @@ export default function useBoardDetail(boardId) {
 
   const lists = useMemo(
     () =>
-      [...(currentBoard?.Lists || [])].sort(
+      [...(currentProject?.Lists || [])].sort(
         (a, b) => (a.Position ?? 0) - (b.Position ?? 0),
       ),
-    [currentBoard?.Lists],
+    [currentProject?.Lists],
   );
   const listIds = useMemo(() => lists.map((l) => l.Id), [lists]);
 
@@ -226,16 +505,16 @@ export default function useBoardDetail(boardId) {
   }
 
   function handleCardClick(card) {
-    router.push(`/projects/${boardId}/cards/${card.Id}`);
+    router.push(`/projects/${projectId}/cards/${card.Id}`);
   }
 
   function closeCardDetail() {
     setSelectedCard(null);
   }
 
-  const refetchBoard = useCallback(() => {
-    if (boardId) dispatch(fetchBoardById(boardId));
-  }, [boardId, dispatch]);
+  const refetchProject = useCallback(() => {
+    if (projectId) dispatch(fetchProjectById(projectId));
+  }, [projectId, dispatch]);
 
   async function handleAddAttachment(url, fileName) {
     if (!selectedCard?.Id || !orgId) return;
@@ -244,7 +523,7 @@ export default function useBoardDetail(boardId) {
       { Type: "link", Url: url, FileName: fileName || null },
       orgId
     );
-    if (res?.success) refetchBoard();
+    if (res?.success) refetchProject();
   }
 
   async function handleRemoveAttachment(attachmentId) {
@@ -254,7 +533,7 @@ export default function useBoardDetail(boardId) {
       attachmentId,
       orgId
     );
-    if (res?.success) refetchBoard();
+    if (res?.success) refetchProject();
   }
 
   async function handleAddComment(content) {
@@ -264,7 +543,7 @@ export default function useBoardDetail(boardId) {
       { Content: content },
       orgId
     );
-    if (res?.success) refetchBoard();
+    if (res?.success) refetchProject();
   }
 
   async function handleAddChecklist(title) {
@@ -274,7 +553,7 @@ export default function useBoardDetail(boardId) {
       { Title: title },
       orgId
     );
-    if (res?.success) refetchBoard();
+    if (res?.success) refetchProject();
   }
 
   async function handleAddChecklistItem(checklistId, title) {
@@ -285,7 +564,7 @@ export default function useBoardDetail(boardId) {
       { Title: title },
       orgId
     );
-    if (res?.success) refetchBoard();
+    if (res?.success) refetchProject();
   }
 
   async function handleToggleChecklistItem(checklistId, itemId, isCompleted) {
@@ -297,7 +576,7 @@ export default function useBoardDetail(boardId) {
       { IsCompleted: isCompleted },
       orgId
     );
-    if (res?.success) refetchBoard();
+    if (res?.success) refetchProject();
   }
 
   async function handleDeleteChecklist(checklistId) {
@@ -307,7 +586,7 @@ export default function useBoardDetail(boardId) {
       checklistId,
       orgId
     );
-    if (res?.success) refetchBoard();
+    if (res?.success) refetchProject();
   }
 
   async function handleDeleteChecklistItem(checklistId, itemId) {
@@ -318,11 +597,11 @@ export default function useBoardDetail(boardId) {
       itemId,
       orgId
     );
-    if (res?.success) refetchBoard();
+    if (res?.success) refetchProject();
   }
 
   return {
-    currentBoard,
+    currentProject,
     fetchState,
     deleteCardState,
     deleteListState,
@@ -341,6 +620,7 @@ export default function useBoardDetail(boardId) {
     listForm,
     lists,
     listIds,
+    orgMembers,
     listToDeleteId,
     setListToDeleteId,
     cardToDeleteId,
@@ -352,10 +632,57 @@ export default function useBoardDetail(boardId) {
     handleReorderLists,
     handleDeleteList,
     handleDeleteCard,
+    handleAssignSprint,
+    handleUpdateCardFields,
+    handleBulkAssignToSprint,
+    handleBulkRemoveFromSprint,
     requestDeleteList,
     requestDeleteCard,
     confirmDeleteCard,
     confirmDeleteList,
     handleCardClick,
+    activeView,
+    setActiveView,
+    activeBacklogTab,
+    setActiveBacklogTab,
+    productBacklog,
+    sprintBacklog,
+    bugBacklog,
+    blockedBacklog,
+    sprints,
+    fetchSprintsState,
+    createSprintState,
+    updateSprintState,
+    deleteSprintState,
+    showCreateSprint,
+    setShowCreateSprint,
+    showEditSprint,
+    setShowEditSprint,
+    showPlanSprint,
+    sprintForm,
+    editSprintForm,
+    handleCreateSprint,
+    handleUpdateSprint,
+    openPlanSprint,
+    closePlanSprint,
+    openEditSprint,
+    closeEditSprint,
+    editSprintId,
+    requestDeleteSprint,
+    confirmDeleteSprint,
+    sprintError,
+    selectedSprintId,
+    setSelectedSprintId,
+    planSprintId,
+    selectedProductIds,
+    setSelectedProductIds,
+    selectedSprintIds,
+    setSelectedSprintIds,
+    bulkAssignLoading,
+    currentUserRole,
+    isReadOnly,
+    sprintToDeleteId,
+    setSprintToDeleteId,
+    setSprintToDeleteId,
   };
 }

@@ -20,12 +20,12 @@ export const ENDPOINT = {
     register: { method: "POST", path: "/auth/register" },
     login: { method: "POST", path: "/auth/login" },
   },
-  boards: {
-    list: { method: "GET", path: "/boards" },
-    get: { method: "GET", path: "/boards/:id" },
-    create: { method: "POST", path: "/boards" },
-    update: { method: "PUT", path: "/boards/:id" },
-    delete: { method: "DELETE", path: "/boards/:id" },
+  projects: {
+    list: { method: "GET", path: "/projects" },
+    get: { method: "GET", path: "/projects/:id" },
+    create: { method: "POST", path: "/projects" },
+    update: { method: "PUT", path: "/projects/:id" },
+    delete: { method: "DELETE", path: "/projects/:id" },
   },
   lists: {
     list: { method: "GET", path: "/lists" },
@@ -40,11 +40,27 @@ export const ENDPOINT = {
     update: { method: "PUT", path: "/cards/:id" },
     delete: { method: "DELETE", path: "/cards/:id" },
   },
+  bids: {
+    list: { method: "GET", path: "/bids" },
+    get: { method: "GET", path: "/bids/:id" },
+    create: { method: "POST", path: "/bids" },
+    update: { method: "PUT", path: "/bids/:id" },
+    transition: { method: "POST", path: "/bids/:id/transition" },
+    delete: { method: "DELETE", path: "/bids/:id" },
+  },
   kpis: {
     list: { method: "GET", path: "/kpis" },
     get: { method: "GET", path: "/kpis/:id" },
     create: { method: "POST", path: "/kpis" },
     update: { method: "PUT", path: "/kpis/:id" },
     delete: { method: "DELETE", path: "/kpis/:id" },
+  },
+  bids: {
+    list: { method: "GET", path: "/bids" },
+    get: { method: "GET", path: "/bids/:id" },
+    create: { method: "POST", path: "/bids" },
+    update: { method: "PUT", path: "/bids/:id" },
+    transition: { method: "POST", path: "/bids/:id/transition" },
+    delete: { method: "DELETE", path: "/bids/:id" },
   },
 };

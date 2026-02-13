@@ -13,7 +13,7 @@ export default function BoardDetailPage({ params }) {
     <Auth
       component={<BoardDetail boardId={id} />}
       type={AUTH.PRIVATE}
-      title={NAVBAR_TITLE.BOARD_DETAIL}
+      title={NAVBAR_TITLE.PROJECT_DETAIL}
     />
   );
 }

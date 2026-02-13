@@ -42,6 +42,7 @@ export default function useBoardDnd({
   setActiveCard,
   setActiveListId,
   setActiveDropTarget,
+  wipByListId,
 }) {
   // Trello-style: 5px activation distance for snappier feel; TouchSensor for mobile
   const pointerSensor = useSensor(PointerSensor, {
@@ -77,7 +78,7 @@ export default function useBoardDnd({
   const lastTargetRef = useRef(null);
   const onDragOver = useCallback(
     (event) => {
-      const { over } = event;
+      const { active, over } = event;
       let nextTarget = null;
       if (over) {
         const overId = String(over.id);
@@ -95,6 +96,20 @@ export default function useBoardDnd({
           }
         }
       }
+      if (nextTarget && typeof active?.id === "string" && active.id.startsWith(CARD_PREFIX)) {
+        const cardId = active.id.slice(CARD_PREFIX.length);
+        const sourceList = lists.find((l) => (l.Cards || []).some((c) => c.Id === cardId));
+        const sourceListId = sourceList?.Id;
+        const wipInfo = wipByListId?.[nextTarget.listId];
+        const isBlocked =
+          !!wipInfo?.isBlocked && sourceListId && sourceListId !== nextTarget.listId;
+        if (isBlocked) {
+          lastTargetRef.current = null;
+          setActiveDropTarget?.(null);
+          return;
+        }
+      }
+
       const prev = lastTargetRef.current;
       const same =
         prev &&
@@ -106,7 +121,7 @@ export default function useBoardDnd({
         setActiveDropTarget?.(nextTarget);
       }
     },
-    [lists, setActiveDropTarget]
+    [lists, setActiveDropTarget, wipByListId]
   );
 
   const onDragEnd = useCallback(
@@ -138,6 +153,7 @@ export default function useBoardDnd({
         const sourceList = lists.find((l) => (l.Cards || []).some((c) => c.Id === cardId));
         const sourceIndex = sourceList?.Cards?.findIndex((c) => c.Id === cardId) ?? -1;
         if (sourceIndex < 0) return;
+        const sourceListId = sourceList?.Id;
 
         let targetListId = null;
         let targetIndex = null;
@@ -159,13 +175,25 @@ export default function useBoardDnd({
           const sameList = sourceList?.Id === targetListId;
           const sameIndex = sameList && sourceIndex === targetIndex;
           const nextIndexSameList = sameList && sourceIndex === targetIndex - 1;
-          if (!sameIndex && !nextIndexSameList) {
+          const targetWip = wipByListId?.[targetListId];
+          const wipBlocked =
+            !!targetWip?.isBlocked && sourceListId && sourceListId !== targetListId;
+          if (!sameIndex && !nextIndexSameList && !wipBlocked) {
             onMoveCardAt(cardId, targetListId, targetIndex);
           }
         }
       }
     },
-    [listIds, lists, onMoveCardAt, onReorderLists, setActiveCard, setActiveListId, setActiveDropTarget]
+    [
+      listIds,
+      lists,
+      onMoveCardAt,
+      onReorderLists,
+      setActiveCard,
+      setActiveListId,
+      setActiveDropTarget,
+      wipByListId,
+    ]
   );
 
   const onDragCancel = useCallback(() => {

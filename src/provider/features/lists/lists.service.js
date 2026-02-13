@@ -1,7 +1,7 @@
 import api from "@/common/utils/api";
 
-const fetchListsByBoardId = async (boardId) => {
-  const response = await api().get("/lists", { params: { boardId } });
+const fetchListsByProjectId = async (projectId) => {
+  const response = await api().get("/lists", { params: { projectId } });
   return response.data;
 };
 
@@ -21,7 +21,7 @@ const deleteList = async (id) => {
 };
 
 const listsService = {
-  fetchListsByBoardId,
+  fetchListsByProjectId,
   createList,
   updateList,
   deleteList,

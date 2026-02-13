@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { forwardRef } from "react";
+import { forwardRef, useEffect, useRef, useState } from "react";
 import useSimpleSelect from "./use-simple-select";
 import CustomInput from "../../custom-input/custom-input.component";
 import FieldLabel from "../../field-label/field-label.component";
@@ -36,6 +36,7 @@ const SimpleSelect = forwardRef(function SimpleSelect(
     options = [],
     isMulti = false,
     isSearchable = false,
+    onSearch: onSearchProp = null,
     onChange,
     defaultValue,
     value,
@@ -50,12 +51,14 @@ const SimpleSelect = forwardRef(function SimpleSelect(
     inlineLabel = false,
     labelClassName = "",
     maxHeight = "15rem", // 240px
+    menuPosition = "bottom",
+    menuStrategy = "fixed",
     clearable = false,
     loading = false,
     noOptionsMessage = "No options found",
     showPillsBelow = false,
   },
-  ref
+  ref,
 ) {
   const {
     inputRef,
@@ -64,7 +67,7 @@ const SimpleSelect = forwardRef(function SimpleSelect(
     getSelectedPills,
     onTagRemove,
     showMenu,
-    onSearch,
+    onSearch: handleSearch,
     searchValue,
     searchRef,
     getOptions,
@@ -106,7 +109,9 @@ const SimpleSelect = forwardRef(function SimpleSelect(
 
     // State classes
     const stateClasses = hasError ? "form-input-error" : "";
-    const disabledClasses = disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer";
+    const disabledClasses = disabled
+      ? "opacity-60 cursor-not-allowed"
+      : "cursor-pointer";
     return `${baseClasses} ${sizeClasses[size] || sizeClasses.md} ${variantClasses[variant]} ${stateClasses} ${disabledClasses} outline-none focus:outline-none focus:ring-0 ${className}`.trim();
   };
 
@@ -115,14 +120,79 @@ const SimpleSelect = forwardRef(function SimpleSelect(
     ? "grid w-full grid-cols-[130px_1fr] items-start gap-4"
     : "form-group";
 
-  // Get dropdown position classes (high z-index so open menu stacks above other dropdowns)
+  const [menuStyles, setMenuStyles] = useState(null);
+  const openRowRef = useRef(null);
+  const prevRowStylesRef = useRef({ position: "", zIndex: "" });
+
   const getDropdownClasses = () => {
     const baseClasses =
-      "absolute left-0 right-0 z-[100] w-full bg-white border border-neutral-200 rounded-sm shadow-2xl overflow-hidden";
-    const positionClasses = "top-full mt-1";
+      "z-[2147483647] bg-white border border-neutral-200 rounded-sm shadow-2xl overflow-hidden";
+    const positionClasses =
+      menuStrategy === "fixed"
+        ? "fixed"
+        : menuPosition === "top"
+          ? "absolute bottom-full mb-1 left-0 right-0"
+          : "absolute top-full mt-1 left-0 right-0";
 
     return `${baseClasses} ${positionClasses}`;
   };
+
+  useEffect(() => {
+    if (menuStrategy !== "fixed" || !showMenu) return;
+    const updatePosition = () => {
+      const rect = inputRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const offset = 4;
+      if (menuPosition === "top") {
+        setMenuStyles({
+          left: rect.left,
+          width: rect.width,
+          bottom: window.innerHeight - rect.top + offset,
+        });
+      } else {
+        setMenuStyles({
+          left: rect.left,
+          width: rect.width,
+          top: rect.bottom + offset,
+        });
+      }
+    };
+    updatePosition();
+    window.addEventListener("resize", updatePosition);
+    window.addEventListener("scroll", updatePosition, true);
+    return () => {
+      window.removeEventListener("resize", updatePosition);
+      window.removeEventListener("scroll", updatePosition, true);
+    };
+  }, [menuStrategy, menuPosition, showMenu, inputRef]);
+
+  useEffect(() => {
+    const row = inputRef.current?.closest("tr");
+    if (!row) return undefined;
+
+    if (showMenu) {
+      prevRowStylesRef.current = {
+        position: row.style.position,
+        zIndex: row.style.zIndex,
+      };
+      row.style.position = row.style.position || "relative";
+      row.style.zIndex = "2147483646";
+      openRowRef.current = row;
+      return () => {
+        row.style.position = prevRowStylesRef.current.position;
+        row.style.zIndex = prevRowStylesRef.current.zIndex;
+        openRowRef.current = null;
+      };
+    }
+
+    if (openRowRef.current) {
+      openRowRef.current.style.position = prevRowStylesRef.current.position;
+      openRowRef.current.style.zIndex = prevRowStylesRef.current.zIndex;
+      openRowRef.current = null;
+    }
+
+    return undefined;
+  }, [showMenu, inputRef]);
 
   // Handle keyboard navigation
   const handleKeyDown = (e) => {
@@ -153,7 +223,8 @@ const SimpleSelect = forwardRef(function SimpleSelect(
       )}
 
       <div
-        className={`relative w-full ${showMenu && !disabled ? "z-[100]" : "z-[1]"}`}
+        className={`relative isolate w-full ${showMenu && !disabled ? "z-[2147483647]" : "z-[1]"}`}
+        style={showMenu && !disabled ? { zIndex: 2147483647 } : undefined}
       >
         {/* Main Select Input */}
         <div
@@ -172,7 +243,11 @@ const SimpleSelect = forwardRef(function SimpleSelect(
             <div className="flex-1 truncate pr-2">
               {loading ? (
                 <span className="flex items-center text-neutral-500">
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24">
+                  <svg
+                    className="animate-spin -ml-1 mr-2 h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
                     <circle
                       className="opacity-25"
                       cx="12"
@@ -190,7 +265,11 @@ const SimpleSelect = forwardRef(function SimpleSelect(
                   Loading...
                 </span>
               ) : (
-                <span className={isPlaceholder ? "text-neutral-400" : "text-neutral-800"}>
+                <span
+                  className={
+                    isPlaceholder ? "text-neutral-400" : "text-neutral-800"
+                  }
+                >
                   {displayValue}
                 </span>
               )}
@@ -208,7 +287,12 @@ const SimpleSelect = forwardRef(function SimpleSelect(
                   className="p-1 hover:bg-neutral-100 rounded text-neutral-400 hover:text-neutral-600 transition-colors"
                   aria-label="Clear selection"
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -230,14 +314,24 @@ const SimpleSelect = forwardRef(function SimpleSelect(
 
         {/* Dropdown Menu */}
         {showMenu && !disabled && (
-          <div className={getDropdownClasses()}>
+          <div
+            className={getDropdownClasses()}
+            style={
+              menuStrategy === "fixed"
+                ? { ...menuStyles, zIndex: 2147483647 }
+                : undefined
+            }
+          >
             {/* Search Input */}
             {isSearchable && (
               <div className="p-3 border-b border-neutral-100 bg-neutral-50">
                 <CustomInput
                   ref={searchRef}
                   name="search"
-                  onChange={onSearch}
+                  onChange={(event) => {
+                    handleSearch(event);
+                    onSearchProp?.(event.target.value);
+                  }}
                   value={searchValue}
                   placeholder="Search options..."
                   size="sm"
@@ -258,7 +352,7 @@ const SimpleSelect = forwardRef(function SimpleSelect(
                   <div
                     key={`${option.value}-${index}`}
                     onClick={() => onItemClick(option)}
-                    className={`cursor-pointer px-4 py-3 typography-body transition-colors hover:bg-primary-50 ${
+                    className={`cursor-pointer px-4 py-2 typography-body transition-colors hover:bg-primary-50 ${
                       isSelected(option)
                         ? "bg-primary-100 text-primary-700 font-medium"
                         : "text-neutral-700"
@@ -302,7 +396,11 @@ const SimpleSelect = forwardRef(function SimpleSelect(
             {errorMessage ? (
               <FieldError className="normal-case" error={errorMessage} />
             ) : (
-              helperText && <p className="typography-caption text-neutral-500">{helperText}</p>
+              helperText && (
+                <p className="typography-caption text-neutral-500">
+                  {helperText}
+                </p>
+              )
             )}
           </div>
         )}
@@ -318,22 +416,28 @@ SimpleSelect.propTypes = {
   options: PropTypes.arrayOf(
     PropTypes.shape({
       label: PropTypes.string.isRequired,
-      value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+      value: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+        .isRequired,
       disabled: PropTypes.bool,
-    })
+    }),
   ).isRequired,
   isMulti: PropTypes.bool,
   isSearchable: PropTypes.bool,
+  onSearch: PropTypes.func,
   onChange: PropTypes.func,
   defaultValue: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.number,
-    PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number])),
+    PropTypes.arrayOf(
+      PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    ),
   ]),
   value: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.number,
-    PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PropTypes.number])),
+    PropTypes.arrayOf(
+      PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    ),
   ]),
   disabled: PropTypes.bool,
   isRequired: PropTypes.bool,
@@ -349,6 +453,8 @@ SimpleSelect.propTypes = {
   loading: PropTypes.bool,
   noOptionsMessage: PropTypes.string,
   showPillsBelow: PropTypes.bool,
+  menuPosition: PropTypes.oneOf(["bottom", "top"]),
+  menuStrategy: PropTypes.oneOf(["fixed", "absolute"]),
 };
 
 // Export size and variant constants for easy usage

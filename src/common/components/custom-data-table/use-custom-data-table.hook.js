@@ -201,17 +201,8 @@ export const useCustomDataTable = ({
 
   // Handle selection
   const handleSelectAll = (checked) => {
-    if (checked) {
-      const allIds = paginatedData.map((row) => row.id);
-      const newSelectedIds = [...new Set([...selectedIds, ...allIds])];
-      onSelectionChange?.(newSelectedIds);
-    } else {
-      const currentPageIds = paginatedData.map((row) => row.id);
-      const newSelectedIds = selectedIds.filter(
-        (id) => !currentPageIds.includes(id),
-      );
-      onSelectionChange?.(newSelectedIds);
-    }
+    const currentPageIds = paginatedData.map((row) => row.id);
+    onSelectionChange?.(checked ? currentPageIds : []);
   };
 
   const handleRowSelect = (id, checked) => {
@@ -223,6 +214,18 @@ export const useCustomDataTable = ({
       );
     }
   };
+
+  useEffect(() => {
+    if (selectedIds.length > 0) {
+      onSelectionChange?.([]);
+    }
+  }, [
+    internalCurrentPage,
+    internalPageSize,
+    sortConfig.key,
+    sortConfig.direction,
+    searchValue,
+  ]);
 
   const handleActionClick = (actionKey, row, onActionClick) => {
     onActionClick?.(actionKey, row);

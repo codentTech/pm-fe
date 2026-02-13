@@ -20,3 +20,24 @@ export const locationOptions = [
   { value: "Los Angeles, CA", label: "Los Angeles, CA" },
   { value: "Chicago, IL", label: "Chicago, IL" },
 ];
+
+export const currencyOptions = [
+  { value: "USD", label: "USD" },
+  { value: "EUR", label: "EUR" },
+  { value: "GBP", label: "GBP" },
+  { value: "JPY", label: "JPY" },
+  { value: "CAD", label: "CAD" },
+  { value: "AUD", label: "AUD" },
+  { value: "CHF", label: "CHF" },
+  { value: "INR", label: "INR" },
+  { value: "BRL", label: "BRL" },
+  { value: "MXN", label: "MXN" },
+  { value: "SGD", label: "SGD" },
+  { value: "HKD", label: "HKD" },
+  { value: "SEK", label: "SEK" },
+  { value: "NOK", label: "NOK" },
+  { value: "DKK", label: "DKK" },
+  { value: "PLN", label: "PLN" },
+  { value: "TRY", label: "TRY" },
+  { value: "ZAR", label: "ZAR" },
+];

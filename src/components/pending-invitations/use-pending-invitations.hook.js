@@ -8,7 +8,8 @@ import {
   declineInvitation,
 } from "@/provider/features/invitations/invitations.slice";
 import { fetchOrganizations } from "@/provider/features/organizations/organizations.slice";
-import { fetchBoards } from "@/provider/features/boards/boards.slice";
+import { fetchProjects } from "@/provider/features/projects/projects.slice";
+import { fetchBids } from "@/provider/features/bids/bids.slice";
 import { fetchKpis } from "@/provider/features/kpis/kpis.slice";
 import { setCurrentOrganization } from "@/provider/features/organizations/organizations.slice";
 
@@ -47,7 +48,8 @@ export default function usePendingInvitations() {
           dispatch(fetchOrganizations());
           if (invitation.Organization?.Id) {
             dispatch(setCurrentOrganization(invitation.Organization.Id));
-            dispatch(fetchBoards());
+            dispatch(fetchProjects());
+            dispatch(fetchBids());
             dispatch(fetchKpis());
           }
           setOpen(false);

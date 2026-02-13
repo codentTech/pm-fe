@@ -16,6 +16,9 @@ export default function SelectWithModel({
   placeholder,
   name = null,
   onChange = null,
+  onInputChange = null,
+  loading = false,
+  noOptionsText = "No options",
   defaultValue = null,
   value = null,
   className = "",
@@ -222,8 +225,11 @@ export default function SelectWithModel({
           className={`select !p-0 ${className}    `}
           disabled={disabled}
           readOnly={readOnly}
+          loading={loading}
+          noOptionsText={noOptionsText}
           {...(value && { value })}
           {...(onChange && { onChange })}
+          {...(onInputChange && { onInputChange })}
           defaultValue={defaultValue}
           isOptionEqualToValue={(option, valuee) =>
             option && option.label === valuee && valuee.label
@@ -267,6 +273,9 @@ SelectWithModel.propTypes = {
   placeholder: PropTypes.string,
   name: PropTypes.string,
   onChange: PropTypes.func,
+  onInputChange: PropTypes.func,
+  loading: PropTypes.bool,
+  noOptionsText: PropTypes.string,
   defaultValue: PropTypes.shape({
     label: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
     value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),

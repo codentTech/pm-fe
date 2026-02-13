@@ -12,7 +12,7 @@ const generalState = {
 const emptyResults = {
   cards: [],
   todos: [],
-  boards: [],
+  projects: [],
   kpis: [],
   workspaces: [],
 };
@@ -69,7 +69,7 @@ export const searchSlice = createSlice({
       state.results = action.payload;
     },
     clearResults: (state) => {
-      state.results = { cards: [], todos: [], boards: [] };
+      state.results = { cards: [], todos: [], projects: [], kpis: [], workspaces: [] };
     },
   },
   extraReducers: (builder) => {

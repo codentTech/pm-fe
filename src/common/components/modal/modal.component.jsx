@@ -37,12 +37,7 @@ export default function Modal({
   closeOnBackdropClick = true,
   showDivider = true,
 }) {
-  const {
-    getModalSizeClasses,
-    getModalHeightClasses,
-    getHeaderClasses,
-    handleBackdropClick,
-  } = useModal({
+  const { getModalSizeClasses, getModalHeightClasses, getHeaderClasses } = useModal({
     size,
     height,
     customHeight,
@@ -64,7 +59,6 @@ export default function Modal({
     <Dialog
       open={show}
       onClose={closeOnBackdropClick ? onClose : undefined}
-      onClick={handleBackdropClick}
       className={`custom-modal ${variant}`}
       PaperProps={{
         className: getModalClasses(),

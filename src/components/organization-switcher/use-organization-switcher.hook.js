@@ -8,8 +8,9 @@ import {
   fetchOrEnsureDefault,
   createOrganization,
 } from "@/provider/features/organizations/organizations.slice";
-import { fetchBoards } from "@/provider/features/boards/boards.slice";
+import { fetchProjects } from "@/provider/features/projects/projects.slice";
 import { fetchKpis } from "@/provider/features/kpis/kpis.slice";
+import { fetchBids } from "@/provider/features/bids/bids.slice";
 import { createInvitation } from "@/provider/features/invitations/invitations.slice";
 import { useForm } from "react-hook-form";
 
@@ -59,7 +60,8 @@ export default function useOrganizationSwitcher() {
 
   function handleSwitch(orgId) {
     dispatch(setCurrentOrganization(orgId));
-    dispatch(fetchBoards());
+    dispatch(fetchProjects());
+    dispatch(fetchBids());
     dispatch(fetchKpis());
     setOpen(false);
   }

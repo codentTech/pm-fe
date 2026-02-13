@@ -2,8 +2,9 @@ import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import { persistReducer, persistStore, createTransform } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import authReducer from "./features/auth/auth.slice";
-import boardsReducer from "./features/boards/boards.slice";
+import projectsReducer from "./features/projects/projects.slice";
 import kpisReducer from "./features/kpis/kpis.slice";
+import bidsReducer from "./features/bids/bids.slice";
 import organizationsReducer from "./features/organizations/organizations.slice";
 import invitationsReducer from "./features/invitations/invitations.slice";
 import todosReducer from "./features/todos/todos.slice";
@@ -11,6 +12,9 @@ import labelsReducer from "./features/labels/labels.slice";
 import notificationsReducer from "./features/notifications/notifications.slice";
 import usersReducer from "./features/users/users.slice";
 import searchReducer from "./features/search/search.slice";
+import sprintsReducer from "./features/sprints/sprints.slice";
+import dailyUpdatesReducer from "./features/daily-updates/daily-updates.slice";
+import wikiReducer from "./features/wiki/wiki.slice";
 
 const orgGeneralState = {
   isLoading: false,
@@ -51,8 +55,9 @@ const persistConfig = {
 
 const rootReducer = combineReducers({
   auth: authReducer,
-  boards: boardsReducer,
+  projects: projectsReducer,
   kpis: kpisReducer,
+  bids: bidsReducer,
   organizations: organizationsReducer,
   invitations: invitationsReducer,
   todos: todosReducer,
@@ -60,6 +65,9 @@ const rootReducer = combineReducers({
   notifications: notificationsReducer,
   users: usersReducer,
   search: searchReducer,
+  sprints: sprintsReducer,
+  dailyUpdates: dailyUpdatesReducer,
+  wiki: wikiReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

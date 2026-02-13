@@ -5,7 +5,8 @@ import { Building2, Pencil, Trash2 } from "lucide-react";
 import { formatDateTime } from "@/common/utils/date.util";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchBoards } from "@/provider/features/boards/boards.slice";
+import { fetchProjects } from "@/provider/features/projects/projects.slice";
+import { fetchBids } from "@/provider/features/bids/bids.slice";
 import { fetchKpis } from "@/provider/features/kpis/kpis.slice";
 import {
   cancelInvitation,
@@ -248,7 +249,8 @@ export default function useWorkspaceSettings() {
 
   function handleSwitchWorkspace(orgId) {
     dispatch(setCurrentOrganization(orgId));
-    dispatch(fetchBoards());
+    dispatch(fetchProjects());
+    dispatch(fetchBids());
     dispatch(fetchKpis());
     setSelectedOrgId(orgId);
   }
@@ -337,7 +339,8 @@ export default function useWorkspaceSettings() {
     if (result.meta?.requestStatus === "fulfilled" && wasCurrentOrg) {
       await dispatch(fetchOrEnsureDefault());
       dispatch(fetchOrganizations());
-      dispatch(fetchBoards());
+      dispatch(fetchProjects());
+      dispatch(fetchBids());
       dispatch(fetchKpis());
     }
   }

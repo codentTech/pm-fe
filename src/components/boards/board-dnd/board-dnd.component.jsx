@@ -39,6 +39,7 @@ export default function BoardDnd({
   setActiveCard,
   setActiveListId,
   setActiveDropTarget,
+  wipByListId,
   children,
 }) {
   const { sensors, onDragStart, onDragOver, onDragEnd, onDragCancel } = useBoardDnd({
@@ -49,6 +50,7 @@ export default function BoardDnd({
     setActiveCard,
     setActiveListId,
     setActiveDropTarget,
+    wipByListId,
   });
 
   return (
