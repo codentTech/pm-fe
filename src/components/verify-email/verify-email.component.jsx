@@ -35,7 +35,7 @@ export default function VerifyEmail() {
               text="Sign in"
               variant="primary"
               className="w-full rounded-lg py-2.5 sm:w-auto sm:min-w-[140px]"
-              onClick={() => router.push(signInHref)}
+              onClick={() => router.push("/login")}
             />
           </div>
         </div>
