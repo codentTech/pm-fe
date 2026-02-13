@@ -28,7 +28,6 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 const navItems = [
-  { href: "/projects", label: "Projects", icon: PanelsTopLeft },
   { href: "/todos", label: "Todo Tracker", icon: CheckSquare },
   { href: "/kpis", label: "KPI Tracker", icon: BarChart3 },
 ];
