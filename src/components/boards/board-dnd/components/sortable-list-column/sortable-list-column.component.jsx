@@ -88,15 +88,14 @@ export default function SortableListColumn({
     <div
       ref={setNodeRef}
       style={style}
-      className={`min-w-[240px] max-w-[240px] shrink-0 overflow-hidden rounded-xl bg-gradient-to-br sm:min-w-[280px] sm:max-w-[280px] ${getListColor(listIndex)}`}
+      className={`min-w-[240px] max-w-[240px] shrink-0 overflow-hidden rounded-lg bg-gradient-to-br sm:min-w-[280px] sm:max-w-[280px] ${getListColor(listIndex)}`}
     >
-      <div className="flex h-full flex-col rounded-[10px] border border-neutral-200 bg-neutral-100/80 p-2.5 sm:p-3">
+      <div className="flex h-full flex-col rounded-lg border border-neutral-200 bg-neutral-100/80 p-2.5 sm:p-3">
         <div
           className="mb-2 flex cursor-grab flex-col active:cursor-grabbing"
           {...attributes}
           {...listeners}
         >
-          <div className={`h-2 rounded-t-[10px] ${getListColor(listIndex)}`} />
           <div className="flex items-center justify-between gap-2">
             <h3 className="flex-1 truncate font-bold text-neutral-800 typography-h4">
               {list.Title}
@@ -104,19 +103,16 @@ export default function SortableListColumn({
             <div className="flex items-center gap-2">
               {wipInfo?.limit ? (
                 <span
-                  className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+                  className={`rounded-lg px-2 py-0.5 text-[11px] font-semibold ${
                     wipInfo.isBlocked
                       ? "bg-danger-100 text-danger-700"
-                      : "bg-neutral-100 text-neutral-600"
+                      : "bg-black text-white"
                   }`}
                   title={`WIP limit ${wipInfo.count}/${wipInfo.limit}`}
                 >
                   {wipInfo.count}/{wipInfo.limit}
                 </span>
               ) : null}
-              <span className="typography-caption font-medium text-neutral-600">
-                {cards.length}
-              </span>
             </div>
             <div
               className="relative shrink-0"
@@ -250,7 +246,7 @@ export default function SortableListColumn({
                 <button
                   type="button"
                   onClick={onAddCard}
-                  className="flex w-full items-center gap-2 rounded-lg bg-white/80 py-2.5 pl-3 text-left font-medium text-neutral-600 typography-body transition-colors hover:bg-white hover:text-neutral-800 focus:outline-none"
+                  className="flex w-full items-center gap-2 rounded-lg bg-white/80 py-1.5 pl-3 text-left font-medium text-neutral-600 typography-body transition-colors hover:bg-white hover:text-neutral-800 focus:outline-none"
                 >
                   <Plus className="h-4 w-4 shrink-0" />
                   Add a card

@@ -32,7 +32,7 @@ function DropdownIcon({ isOpen, className = "" }) {
 const SimpleSelect = forwardRef(function SimpleSelect(
   {
     label,
-    placeholder = "Select an option...",
+    placeholder = "Select an option",
     options = [],
     isMulti = false,
     isSearchable = false,
@@ -95,9 +95,9 @@ const SimpleSelect = forwardRef(function SimpleSelect(
 
     // Size classes
     const sizeClasses = {
-      sm: "text-sm py-2 px-3 h-9",
-      md: "text-sm py-3 px-4 h-11", // default
-      lg: "text-base py-4 px-4 h-12",
+      sm: "text-sm px-3 h-9",
+      md: "text-sm px-4 h-11",
+      lg: "text-base px-4 h-12",
     };
 
     // Variant classes
@@ -126,7 +126,7 @@ const SimpleSelect = forwardRef(function SimpleSelect(
 
   const getDropdownClasses = () => {
     const baseClasses =
-      "z-[2147483647] bg-white border border-neutral-200 rounded-sm shadow-2xl overflow-hidden";
+      "z-[2147483647] bg-white border border-neutral-200 rounded-lg shadow-2xl overflow-hidden";
     const positionClasses =
       menuStrategy === "fixed"
         ? "fixed"
@@ -210,7 +210,7 @@ const SimpleSelect = forwardRef(function SimpleSelect(
   // Check if we should show placeholder
   const displayValue = getDisplay(showPillsBelow);
   const isPlaceholder =
-    displayValue === placeholder || displayValue === "Select an option...";
+    displayValue === placeholder || displayValue === "Select an option";
 
   return (
     <div className={containerClasses}>
@@ -239,8 +239,8 @@ const SimpleSelect = forwardRef(function SimpleSelect(
           aria-invalid={hasError}
           tabIndex={disabled ? -1 : 0}
         >
-          <div className="flex items-center justify-between w-full">
-            <div className="flex-1 truncate pr-2">
+          <div className="flex justify-between w-full h-full">
+            <div className="flex-1 text-sm flex items-center truncate pr-2">
               {loading ? (
                 <span className="flex items-center text-neutral-500">
                   <svg
@@ -262,7 +262,7 @@ const SimpleSelect = forwardRef(function SimpleSelect(
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     />
                   </svg>
-                  Loading...
+                  Loading
                 </span>
               ) : (
                 <span
@@ -302,12 +302,6 @@ const SimpleSelect = forwardRef(function SimpleSelect(
                   </svg>
                 </button>
               )}
-
-              {/* Dropdown Arrow */}
-              {/* <DropdownIcon
-                isOpen={showMenu}
-                className={`w-4 h-4 ${disabled ? "text-neutral-300" : "text-neutral-500"}`}
-              /> */}
             </div>
           </div>
         </div>
@@ -352,10 +346,10 @@ const SimpleSelect = forwardRef(function SimpleSelect(
                   <div
                     key={`${option.value}-${index}`}
                     onClick={() => onItemClick(option)}
-                    className={`cursor-pointer px-4 py-2 typography-body transition-colors hover:bg-primary-50 ${
+                    className={`cursor-pointer m-2 rounded-lg px-4 py-0.5 typography-body transition-colors ${
                       isSelected(option)
-                        ? "bg-primary-100 text-primary-700 font-medium"
-                        : "text-neutral-700"
+                        ? "bg-primary-600 text-white font-medium"
+                        : "bg-neutral-100 text-neutral-700"
                     }`}
                     role="option"
                     aria-selected={isSelected(option)}

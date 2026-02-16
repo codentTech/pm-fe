@@ -1,25 +1,26 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useFieldArray, useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
+import { useAppNavbarLogic } from "@/common/components/app-navbar/use-app-navbar.component";
 import {
-  createDailyUpdate,
-  fetchDailyUpdateById,
-  updateDailyUpdate,
-} from "@/provider/features/daily-updates/daily-updates.slice";
-import {
+  BLOCKER_TYPE_OPTIONS,
   DAILY_UPDATE_CUTOFF_HOURS,
   DAILY_UPDATE_ROLE_OPTIONS,
   DAILY_UPDATE_STATUS_OPTIONS,
   WORK_ITEM_STATUS_OPTIONS,
   WORK_ITEM_TYPES_BY_ROLE,
-  BLOCKER_TYPE_OPTIONS,
 } from "@/common/constants/daily-update.constant";
-import { DAILY_UPDATE_FORM_SCHEMA, WORK_ITEM_SCHEMA } from "@/common/constants/schema.constant";
+import { DAILY_UPDATE_FORM_SCHEMA } from "@/common/constants/schema.constant";
 import { getDisplayUser } from "@/common/utils/users.util";
+import {
+  createDailyUpdate,
+  fetchDailyUpdateById,
+  updateDailyUpdate,
+} from "@/provider/features/daily-updates/daily-updates.slice";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { useFieldArray, useForm } from "react-hook-form";
+import { useDispatch, useSelector } from "react-redux";
 
 function createEmptyWorkItem() {
   return {
@@ -39,6 +40,8 @@ function createEmptyWorkItem() {
 export default function useDailyUpdateForm(updateId) {
   // stats
   const dispatch = useDispatch();
+  const { roleLabel } = useAppNavbarLogic();
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const {
@@ -54,7 +57,7 @@ export default function useDailyUpdateForm(updateId) {
   const form = useForm({
     defaultValues: {
       Date: "",
-      Role: "",
+      Role: roleLabel,
       OverallStatus: "",
       TotalTimeSpent: "",
       Notes: "",
@@ -70,7 +73,6 @@ export default function useDailyUpdateForm(updateId) {
     name: "WorkItems",
   });
 
-  const roleValue = form.watch("Role");
   const statusValue = form.watch("OverallStatus");
   const dateValue = form.watch("Date");
   const totalTimeValue = form.watch("TotalTimeSpent");
@@ -78,8 +80,8 @@ export default function useDailyUpdateForm(updateId) {
   const nextDayPlanValue = form.watch("NextDayPlan");
 
   const workItemTypeOptions = useMemo(() => {
-    return WORK_ITEM_TYPES_BY_ROLE[roleValue] || [];
-  }, [roleValue]);
+    return WORK_ITEM_TYPES_BY_ROLE[roleLabel] || [];
+  }, [roleLabel]);
 
   const hasBlockedItems = useMemo(() => {
     const watched = form.watch("WorkItems") || [];
@@ -117,7 +119,7 @@ export default function useDailyUpdateForm(updateId) {
     if (!currentUpdate || !updateId) return;
     form.reset({
       Date: currentUpdate.Date || new Date().toISOString().slice(0, 10),
-      Role: currentUpdate.Role || "developer",
+      Role: roleLabel,
       OverallStatus: currentUpdate.OverallStatus || "on_track",
       TotalTimeSpent:
         currentUpdate.TotalTimeSpent != null
@@ -160,10 +162,12 @@ export default function useDailyUpdateForm(updateId) {
   function handleSubmit(values) {
     const payload = {
       Date: values.Date,
-      Role: values.Role,
+      Role: roleLabel,
       OverallStatus: hasBlockedItems ? "blocked" : values.OverallStatus,
       TotalTimeSpent:
-        values.TotalTimeSpent !== "" ? Number(values.TotalTimeSpent) : undefined,
+        values.TotalTimeSpent !== ""
+          ? Number(values.TotalTimeSpent)
+          : undefined,
       Notes: values.Notes || undefined,
       NextDayPlan: values.NextDayPlan || undefined,
       WorkItems: (values.WorkItems || []).map((item) => ({
@@ -185,7 +189,7 @@ export default function useDailyUpdateForm(updateId) {
           id: updateId,
           payload,
           successCallBack: (data) => router.push(`/daily-updates/${data.Id}`),
-        })
+        }),
       );
       return;
     }
@@ -194,7 +198,7 @@ export default function useDailyUpdateForm(updateId) {
       createDailyUpdate({
         payload,
         successCallBack: () => router.push("/daily-updates/updates"),
-      })
+      }),
     );
   }
 
@@ -211,7 +215,7 @@ export default function useDailyUpdateForm(updateId) {
     dailyUpdateStatusOptions: DAILY_UPDATE_STATUS_OPTIONS,
     workItemStatusOptions: WORK_ITEM_STATUS_OPTIONS,
     blockerTypeOptions: BLOCKER_TYPE_OPTIONS,
-    roleValue,
+    roleLabel,
     statusValue,
     dateValue,
     totalTimeValue,

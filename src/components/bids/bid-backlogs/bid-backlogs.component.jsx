@@ -115,7 +115,7 @@ export default function BidBacklogs() {
               className={`rounded-lg px-3.5 py-1 text-xs font-semibold transition-all ${
                 activeView === view.key
                   ? "bg-indigo-600 text-white shadow-md ring-1 ring-indigo-500/40"
-                  : "bg-neutral-100 text-neutral-600 hover:bg-indigo-50 hover:text-indigo-700"
+                  : "bg-neutral-200 text-neutral-600 hover:bg-indigo-50 hover:text-indigo-700"
               }`}
             >
               {view.label}
@@ -126,12 +126,6 @@ export default function BidBacklogs() {
 
       {loading ? (
         <KpiTableSkeleton />
-      ) : !bids?.length ? (
-        <NoResultFound
-          icon={Briefcase}
-          title="Nothing here"
-          description="No bids match this backlog view right now."
-        />
       ) : (
         <div className="mt-6 w-full overflow-x-auto px-4 sm:px-5">
           {selectedIds.length > 0 && (

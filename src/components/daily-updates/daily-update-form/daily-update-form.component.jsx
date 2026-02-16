@@ -22,13 +22,13 @@ export default function DailyUpdateForm({ updateId }) {
     createState,
     updateState,
     workItemTypeOptions,
-    dailyUpdateRoleOptions,
     dailyUpdateStatusOptions,
     workItemStatusOptions,
     blockerTypeOptions,
     handleAddWorkItem,
     handleRemoveWorkItem,
     handleSubmit,
+    roleLabel,
   } = useDailyUpdateForm(updateId);
 
   if (fetchState?.isLoading && isEditMode) {
@@ -41,7 +41,7 @@ export default function DailyUpdateForm({ updateId }) {
 
   if (isEditMode && !canEdit) {
     return (
-      <div className="p-4 sm:p-6">
+      <div className="p-4 sm:p-5">
         <NoResultFound
           icon={ClipboardCheck}
           title="Update is locked"
@@ -60,31 +60,45 @@ export default function DailyUpdateForm({ updateId }) {
 
   return (
     <div className="min-h-full">
-      <div className="page-header-bar p-4 sm:p-5">
-        <Link
-          href="/daily-updates/updates"
-          className="flex shrink-0 items-center gap-1.5 rounded-md px-2 py-1.5 typography-body font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Daily updates
-        </Link>
-        <div className="page-header-divider" />
-        <div className="min-w-0 flex-1">
-          <h1 className="page-header-title">
-            {isEditMode ? "Edit daily update" : "Submit daily update"}
-          </h1>
-          <p className="page-header-subtitle">
-            Log your work items, blockers, and next day plan.
-          </p>
+      <div className="page-header-bar flex items-center justify-between px-4 sm:px-5">
+        <div className="flex items-center justify-between">
+          <Link
+            href="/daily-updates/updates"
+            className="group flex h-7 w-7 items-center justify-center rounded-full 
+             bg-black shadow-md transition-all duration-200 ease-in-out
+             hover:scale-105 hover:bg-neutral-900 active:scale-95"
+            aria-label="Back"
+          >
+            <ArrowLeft
+              className="h-4 w-4 text-white transition-transform duration-200 
+               group-hover:-translate-x-0.5"
+            />
+          </Link>
+          <div className="page-header-divider mx-2" />
+          <div className="min-w-0 flex-1">
+            <h1 className="page-header-title">
+              {isEditMode ? "Edit daily update" : "Submit daily update"}
+            </h1>
+            <p className="page-header-subtitle">
+              Log your work items, blockers, and next day plan.
+            </p>
+          </div>
         </div>
+        <CustomButton
+          type="submit"
+          form="daily-update-form"
+          text={isEditMode ? "Save update" : "Submit update"}
+          loading={createState?.isLoading || updateState?.isLoading}
+        />
       </div>
 
       <form
+        id="daily-update-form"
         onSubmit={form.handleSubmit(handleSubmit)}
-        className="p-4 sm:p-6 space-y-6"
+        className="p-4 sm:p-5 space-y-4"
       >
         <div className="rounded-lg border border-neutral-200 bg-white p-4 space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <CustomInput
               label="Date"
               name="Date"
@@ -93,22 +107,7 @@ export default function DailyUpdateForm({ updateId }) {
               errors={form.formState.errors}
               isRequired
             />
-            <Controller
-              control={form.control}
-              name="Role"
-              render={({ field }) => (
-                <SimpleSelect
-                  label="Role"
-                  name="Role"
-                  options={dailyUpdateRoleOptions}
-                  value={field.value}
-                  onChange={field.onChange}
-                  placeholder="Select role…"
-                  errors={form.formState.errors}
-                  isRequired
-                />
-              )}
-            />
+
             <Controller
               control={form.control}
               name="OverallStatus"
@@ -119,7 +118,7 @@ export default function DailyUpdateForm({ updateId }) {
                   options={dailyUpdateStatusOptions}
                   value={field.value}
                   onChange={field.onChange}
-                  placeholder="Select status…"
+                  placeholder="Select status"
                   errors={form.formState.errors}
                   isRequired
                 />
@@ -154,7 +153,7 @@ export default function DailyUpdateForm({ updateId }) {
           </div>
         </div>
 
-        {form.watch("Role") && (
+        {roleLabel && (
           <div className="rounded-lg border border-neutral-200 bg-white p-4 space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-semibold text-neutral-800">
@@ -165,9 +164,7 @@ export default function DailyUpdateForm({ updateId }) {
                 text="Add item"
                 variant="primary"
                 size="sm"
-                startIcon={<Plus className="h-4 w-4" />}
                 onClick={handleAddWorkItem}
-                className="bg-indigo-600 text-white hover:bg-indigo-700"
               />
             </div>
 
@@ -336,24 +333,6 @@ export default function DailyUpdateForm({ updateId }) {
             })}
           </div>
         )}
-
-        <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end sm:gap-3">
-          <Link href="/daily-updates/updates" className="w-full sm:w-auto">
-            <CustomButton
-              type="button"
-              text="Cancel"
-              variant="cancel"
-              className="w-full"
-            />
-          </Link>
-          <CustomButton
-            type="submit"
-            text={isEditMode ? "Save update" : "Submit update"}
-            variant="primary"
-            loading={createState?.isLoading || updateState?.isLoading}
-            className="w-full sm:w-auto"
-          />
-        </div>
       </form>
     </div>
   );

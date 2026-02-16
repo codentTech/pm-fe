@@ -15,6 +15,7 @@ import { Button } from "@mui/material";
  * @param startIcon icon to be displayed at start of button
  * @param loading loading state for button
  * @returns component
+ * @param form id of form to submit
  */
 
 export default function CustomButton({
@@ -30,6 +31,7 @@ export default function CustomButton({
   endIcon = null,
   startIcon = null,
   loading = false,
+  form = null,
 }) {
   // Get the theme-based button classes
   const getButtonClasses = () => {
@@ -87,6 +89,7 @@ export default function CustomButton({
   return (
     <Button
       id={id}
+      form={form}
       type={type}
       onClick={onClick}
       variant="text" // Use text variant to avoid MUI default styling
@@ -108,7 +111,14 @@ CustomButton.propTypes = {
   onClick: PropTypes.func,
   className: PropTypes.string,
   type: PropTypes.oneOf(["button", "submit", "reset"]),
-  variant: PropTypes.oneOf(["primary", "secondary", "outline", "danger", "ghost", "cancel"]),
+  variant: PropTypes.oneOf([
+    "primary",
+    "secondary",
+    "outline",
+    "danger",
+    "ghost",
+    "cancel",
+  ]),
   size: PropTypes.oneOf(["sm", "md", "lg"]),
   disabled: PropTypes.bool,
   href: PropTypes.string,
@@ -116,6 +126,7 @@ CustomButton.propTypes = {
   startIcon: PropTypes.element,
   id: PropTypes.string,
   loading: PropTypes.bool,
+  form: PropTypes.string,
 };
 
 // Export variant constants for easy usage

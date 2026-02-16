@@ -39,7 +39,7 @@ export default function DailyUpdatesBacklogs() {
 
   return (
     <div className="min-h-full">
-      <div className="page-header-bar p-4 sm:p-5">
+      <div className="page-header-bar px-4 sm:px-5">
         <div className="page-header-divider" />
         <div className="min-w-0 flex-1 overflow-hidden">
           <h1 className="page-header-title">Backlogs</h1>
@@ -65,7 +65,7 @@ export default function DailyUpdatesBacklogs() {
         <span className="h-px flex-1 bg-gradient-to-r from-transparent via-neutral-300 to-transparent" />
       </div>
 
-      <div className="px-4 sm:px-6 space-y-3">
+      <div className="px-4 sm:px-5 space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap gap-2 rounded-lg border border-neutral-200 bg-white/70 p-2 shadow-sm">
             {[
@@ -80,7 +80,7 @@ export default function DailyUpdatesBacklogs() {
                 className={`rounded-lg px-3.5 py-1 text-xs font-semibold transition-all ${
                   activeBacklogTab === tab.key
                     ? "bg-indigo-600 text-white shadow-md ring-1 ring-indigo-500/40"
-                    : "bg-neutral-100 text-neutral-600 hover:bg-indigo-50 hover:text-indigo-700"
+                    : "bg-neutral-200 text-neutral-600 hover:bg-indigo-50 hover:text-indigo-700"
                 }`}
               >
                 {tab.label}
@@ -91,7 +91,13 @@ export default function DailyUpdatesBacklogs() {
             <button
               type="button"
               onClick={() => setShowFilters((prev) => !prev)}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-indigo-600 text-white shadow-sm transition-colors hover:bg-indigo-700"
+              className={`inline-flex h-9 w-9 items-center justify-center rounded-full shadow-sm transition-all duration-200
+                ${
+                  showFilters
+                    ? "bg-indigo-600 text-white hover:bg-indigo-700"
+                    : "bg-indigo-100 text-indigo-600 hover:bg-indigo-200"
+                }
+              `}
             >
               <Filter className="h-4 w-4" />
             </button>
@@ -107,27 +113,25 @@ export default function DailyUpdatesBacklogs() {
           </div>
         </div>
         {showFilters && (
-          <div className="rounded-lg border border-neutral-200 bg-white p-3 shadow-sm">
-            <DailyUpdatesFilterBar
-              selectedFromDate={selectedFromDate}
-              selectedToDate={selectedToDate}
-              selectedUserId={selectedUserId}
-              selectedRole={selectedRole}
-              selectedStatus={selectedStatus}
-              memberOptions={memberOptions}
-              roleOptions={roleOptions}
-              statusOptions={statusOptions}
-              setSelectedFromDate={setSelectedFromDate}
-              setSelectedToDate={setSelectedToDate}
-              setSelectedUserId={setSelectedUserId}
-              setSelectedRole={setSelectedRole}
-              setSelectedStatus={setSelectedStatus}
-            />
-          </div>
+          <DailyUpdatesFilterBar
+            selectedFromDate={selectedFromDate}
+            selectedToDate={selectedToDate}
+            selectedUserId={selectedUserId}
+            selectedRole={selectedRole}
+            selectedStatus={selectedStatus}
+            memberOptions={memberOptions}
+            roleOptions={roleOptions}
+            statusOptions={statusOptions}
+            setSelectedFromDate={setSelectedFromDate}
+            setSelectedToDate={setSelectedToDate}
+            setSelectedUserId={setSelectedUserId}
+            setSelectedRole={setSelectedRole}
+            setSelectedStatus={setSelectedStatus}
+          />
         )}
       </div>
 
-      <div className="px-4 py-6 sm:px-6">
+      <div className="px-4 py-4 sm:px-5">
         <CustomDataTable
           columns={backlogColumns}
           data={backlogData.map((item) => ({

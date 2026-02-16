@@ -170,16 +170,6 @@ export default function BidTracker() {
 
       {loading ? (
         <KpiTableSkeleton />
-      ) : !bids?.length ? (
-        <NoResultFound
-          icon={Briefcase}
-          title={activeView === "all" ? "No bids yet" : "Nothing here"}
-          description={
-            activeView === "all"
-              ? "Log your first bid to track pipeline and outcomes."
-              : "No bids match this backlog view right now."
-          }
-        />
       ) : (
         <div className="mt-6 w-full overflow-x-auto px-4 sm:px-5">
           {/* Bulk Action Bar */}

@@ -20,7 +20,7 @@ export default function CreateBidModal({
     <Modal show={show} onClose={onClose} title="Log bid" size="xl">
       <form
         onSubmit={createForm.handleSubmit(onSubmit)}
-        className="max-h-[70vh] overflow-y-auto p-3"
+        className="max-h-[70vh] overflow-y-auto"
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {/* Platform */}

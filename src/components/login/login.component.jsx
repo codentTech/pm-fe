@@ -101,7 +101,7 @@ export default function Login() {
                 />
               </div>
 
-              <p className="mt-4 text-center typography-caption text-neutral-500">
+              {/* <p className="mt-4 text-center typography-caption text-neutral-500">
                 Create an account?{" "}
                 <Link
                   href="/sign-up"
@@ -109,7 +109,7 @@ export default function Login() {
                 >
                   Sign up
                 </Link>
-              </p>
+              </p> */}
             </form>
           </div>
         </div>

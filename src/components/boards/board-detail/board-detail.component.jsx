@@ -379,7 +379,7 @@ export default function BoardDetail({ projectId }) {
 
   if (!currentProject) {
     return (
-      <div className="p-4 sm:p-6">
+      <div className="px-4 sm:px-5">
         <div className="flex flex-col items-center gap-4">
           <NoResultFound
             icon={LayoutGrid}
@@ -400,7 +400,7 @@ export default function BoardDetail({ projectId }) {
   }
 
   return (
-    <div className="min-h-full ">
+    <div className="min-h-full">
       <div className="sticky top-0 z-10 page-header-bar">
         <Link
           href="/projects"
@@ -415,27 +415,23 @@ export default function BoardDetail({ projectId }) {
             {currentProject.Name}
           </h1>
           {currentProject.Description && (
-            <p className="page-header-subtitle">{currentProject.Description}</p>
+            <p className="page-header-subtitle max-w-[500px] truncate">
+              {currentProject.Description}
+            </p>
           )}
         </div>
         <div className="flex items-center gap-2">
-          <Link
-            href={`/projects/${projectId}/wiki`}
-            className="inline-flex items-center gap-2 rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-700 shadow-sm transition-colors hover:bg-neutral-50"
-          >
-            <BookOpen className="h-3.5 w-3.5 text-indigo-600" />
-            Wiki
-          </Link>
           {projectStatusLabel && (
-            <span className="rounded-full bg-neutral-100 px-3 py-1 text-xs font-semibold text-neutral-700">
+            <span className="rounded-lg bg-black px-3 py-[5px] text-xs font-semibold text-white">
               {projectStatusLabel}
             </span>
           )}
-          {currentUserRole && (
-            <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">
-              {currentUserRole}
-            </span>
-          )}
+          <CustomButton
+            text="Create Wiki for this project"
+            variant="primary"
+            size="sm"
+            onClick={() => router.push(`/projects/${projectId}/wiki`)}
+          />
         </div>
       </div>
 
@@ -452,14 +448,6 @@ export default function BoardDetail({ projectId }) {
         <span className="page-separator-line" />
       </div>
 
-      {/* {(isProjectReadOnly || !canManageSprints) && (
-        <div className="mx-4 mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800 sm:mx-5">
-          {isProjectReadOnly
-            ? "Project is paused or closed. Changes are disabled."
-            : "Sprints are available only when project status is Active."}
-        </div>
-      )} */}
-
       <div className="px-4 sm:px-5">
         <div className="flex flex-wrap gap-2 rounded-lg border border-neutral-200 bg-white/70 p-2 shadow-sm">
           {[
@@ -471,10 +459,10 @@ export default function BoardDetail({ projectId }) {
               key={view.key}
               type="button"
               onClick={() => setActiveView(view.key)}
-              className={`rounded-lg px-3.5 py-2 text-xs font-semibold transition-all ${
+              className={`rounded-lg px-3.5 py-1 text-xs font-semibold transition-all ${
                 activeView === view.key
                   ? "bg-indigo-600 text-white shadow-md ring-1 ring-indigo-500/40"
-                  : "text-neutral-600 hover:bg-indigo-50 hover:text-indigo-700"
+                  : "bg-neutral-200 text-neutral-600 hover:bg-indigo-50 hover:text-indigo-700"
               }`}
             >
               {view.label}
@@ -484,7 +472,7 @@ export default function BoardDetail({ projectId }) {
       </div>
 
       {activeView === "kanban" && (
-        <div className="flex gap-3 overflow-x-auto p-3 pb-6 scrollbar-thin sm:gap-4 sm:p-4 [-webkit-overflow-scrolling:touch]">
+        <div className="flex gap-3 overflow-x-auto px-4 sm:px-5 pb-6 scrollbar-thin sm:gap-4 sm:p-4 [-webkit-overflow-scrolling:touch]">
           <BoardDnd
             listIds={listIds}
             lists={lists}
@@ -566,9 +554,9 @@ export default function BoardDetail({ projectId }) {
       )}
 
       {activeView === "backlogs" && (
-        <div className="p-4 sm:p-6">
+        <div className="px-4 sm:px-5 mt-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 rounded-lg border border-neutral-200 bg-white/70 p-2 shadow-sm">
               {[
                 { key: "product", label: "Product backlog" },
                 { key: "sprint", label: "Sprint backlog" },
@@ -579,10 +567,10 @@ export default function BoardDetail({ projectId }) {
                   key={tab.key}
                   type="button"
                   onClick={() => setActiveBacklogTab(tab.key)}
-                  className={`rounded-lg px-3 py-2 text-xs font-semibold transition-all ${
+                  className={`rounded-lg px-3.5 py-1 text-xs font-semibold transition-all ${
                     activeBacklogTab === tab.key
                       ? "bg-indigo-600 text-white shadow-md ring-1 ring-indigo-500/40"
-                      : "text-neutral-600 hover:bg-indigo-50 hover:text-indigo-700"
+                      : "bg-neutral-200 text-neutral-600 hover:bg-indigo-50 hover:text-indigo-700"
                   }`}
                 >
                   {tab.label}
@@ -593,14 +581,14 @@ export default function BoardDetail({ projectId }) {
             {activeBacklogTab === "sprint" && (
               <div className="min-w-[240px]">
                 <SimpleSelect
-                  label="Sprint"
                   options={(sprints || []).map((s) => ({
                     value: s.Id,
                     label: s.Name,
                   }))}
                   value={selectedSprintId}
                   onChange={(value) => setSelectedSprintId(value)}
-                  placeholder="Select sprint…"
+                  placeholder="Select sprint"
+                  size="sm"
                 />
               </div>
             )}
@@ -701,18 +689,25 @@ export default function BoardDetail({ projectId }) {
       )}
 
       {activeView === "sprints" && (
-        <div className="p-4 sm:p-6">
-          <div className="flex items-center justify-between">
-            <h2 className="typography-h5 font-semibold text-neutral-900">
-              Sprints
-            </h2>
+        <div className="px-4 sm:px-5 mt-3">
+          <div
+            className={`${isProjectReadOnly || !canManageSprints ? "hidden" : "flex items-center justify-end"}`}
+          >
             <CustomButton
               text="Create sprint"
               variant="primary"
               onClick={() => setShowCreateSprint(true)}
               disabled={!canManageSprints}
+              size="sm"
             />
           </div>
+          {(isProjectReadOnly || !canManageSprints) && (
+            <div className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+              {isProjectReadOnly
+                ? "Project is paused or closed. Changes are disabled."
+                : "Sprints are available only when project status is Active."}
+            </div>
+          )}
 
           <div className="mt-4">
             <CustomDataTable

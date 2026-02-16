@@ -89,7 +89,7 @@ export default function DailyUpdatesUpdates() {
 
   return (
     <div className="min-h-full">
-      <div className="page-header-bar p-4 sm:p-5">
+      <div className="page-header-bar px-4 sm:px-5">
         <div className="page-header-divider" />
         <div className="min-w-0 flex-1 overflow-hidden">
           <h1 className="page-header-title">Daily updates</h1>
@@ -131,17 +131,24 @@ export default function DailyUpdatesUpdates() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               startIcon={<Search className="h-4 w-4 text-neutral-400" />}
-              className="w-full max-w-lg h-10"
+              className="w-full max-w-md h-9"
             />
           </div>
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={() => setShowFilters((prev) => !prev)}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-indigo-600 text-white shadow-sm transition-colors hover:bg-indigo-700"
+              className={`inline-flex h-9 w-9 items-center justify-center rounded-full shadow-sm transition-all duration-200
+    ${
+      showFilters
+        ? "bg-indigo-600 text-white hover:bg-indigo-700"
+        : "bg-indigo-100 text-indigo-600 hover:bg-indigo-200"
+    }
+  `}
             >
-              <Filter className="h-5 w-5" />
+              <Filter className="h-4 w-4" />
             </button>
+
             {hasActiveFilters && (
               <button
                 type="button"
@@ -154,23 +161,21 @@ export default function DailyUpdatesUpdates() {
           </div>
         </div>
         {showFilters && (
-          <div className="rounded-lg border border-neutral-200 bg-white p-3 shadow-sm">
-            <DailyUpdatesFilterBar
-              selectedFromDate={selectedFromDate}
-              selectedToDate={selectedToDate}
-              selectedUserId={selectedUserId}
-              selectedRole={selectedRole}
-              selectedStatus={selectedStatus}
-              memberOptions={memberOptions}
-              roleOptions={roleOptions}
-              statusOptions={statusOptions}
-              setSelectedFromDate={setSelectedFromDate}
-              setSelectedToDate={setSelectedToDate}
-              setSelectedUserId={setSelectedUserId}
-              setSelectedRole={setSelectedRole}
-              setSelectedStatus={setSelectedStatus}
-            />
-          </div>
+          <DailyUpdatesFilterBar
+            selectedFromDate={selectedFromDate}
+            selectedToDate={selectedToDate}
+            selectedUserId={selectedUserId}
+            selectedRole={selectedRole}
+            selectedStatus={selectedStatus}
+            memberOptions={memberOptions}
+            roleOptions={roleOptions}
+            statusOptions={statusOptions}
+            setSelectedFromDate={setSelectedFromDate}
+            setSelectedToDate={setSelectedToDate}
+            setSelectedUserId={setSelectedUserId}
+            setSelectedRole={setSelectedRole}
+            setSelectedStatus={setSelectedStatus}
+          />
         )}
       </div>
 

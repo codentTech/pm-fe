@@ -61,7 +61,7 @@ export default function BoardsList() {
 
   return (
     <div className="min-h-full">
-      <div className="page-header-bar p-4 sm:p-5">
+      <div className="page-header-bar px-4 sm:px-5">
         <div className="page-header-divider" />
         <div className="min-w-0 flex-1 overflow-hidden">
           <h1 className="page-header-title">Your projects</h1>
@@ -73,9 +73,7 @@ export default function BoardsList() {
           text="Create project"
           onClick={() => setShowCreateModal(true)}
           variant="primary"
-          startIcon={<Plus className="h-3.5 w-3.5 shrink-0" />}
           size="sm"
-          className="shrink-0 rounded-lg px-3 py-1.5 typography-caption font-medium sm:px-4 sm:py-2 sm:typography-button"
         />
       </div>
 
@@ -105,7 +103,7 @@ export default function BoardsList() {
           description="Create your first project to organize tasks with lists and cards."
         />
       ) : (
-        <div className="grid gap-4 p-4 sm:p-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+        <div className="grid gap-4 px-4 sm:px-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
           {projects.map((project, index) => (
             <div
               key={project.Id}
@@ -117,10 +115,10 @@ export default function BoardsList() {
                   className="flex-1 block outline-none rounded-t-lg"
                 >
                   <div
-                    className={`relative flex h-20 items-end bg-gradient-to-br p-3 ${getProjectColor(index)}`}
+                    className={`relative flex h-20 items-start bg-gradient-to-br p-3 ${getProjectColor(index)}`}
                   >
                     <h3 className="card-title-gradient">{project.Name}</h3>
-                    <span className="absolute right-3 top-3 rounded-lg bg-white/90 px-2 py-0.5 text-xs font-semibold text-neutral-700">
+                    <span className="absolute right-3 bottom-3 rounded-lg bg-white/90 px-2 py-0.5 text-[12px] font-semibold text-neutral-700">
                       {getProjectStatusLabel(project.Status)}
                     </span>
                   </div>
@@ -306,7 +304,7 @@ export default function BoardsList() {
       >
         <form
           onSubmit={handleEditSubmit(onSubmitEdit)}
-          className="grid grid-cols-1sm:grid-cols-2lg:grid-cols-3xl:grid-cols-4gap-4p-4"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 px-4 sm:px-5"
         >
           <CustomInput
             label="Project name"
