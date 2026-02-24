@@ -4,7 +4,7 @@ import { use } from "react";
 import Auth from "@/auth/auth.component";
 import AUTH from "@/common/constants/auth.constant";
 import NAVBAR_TITLE from "@/common/constants/navbar-title.constant";
-import DailyUpdateDetail from "@/components/daily-updates/daily-update-detail/daily-update-detail.component";
+import DailyUpdateDetail from "@/components/daily-updates/detail/detail.component";
 
 export default function DailyUpdateDetailPage({ params }) {
   const { id } = use(params);

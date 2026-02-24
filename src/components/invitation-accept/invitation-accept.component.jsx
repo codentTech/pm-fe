@@ -82,7 +82,6 @@ export default function InvitationAcceptPage({
               <CustomButton
                 text={isLoggedIn ? "Go to Dashboard" : "Go to Sign in"}
                 variant="primary"
-                className="mt-6 w-full rounded-lg py-2.5 sm:w-auto sm:min-w-[140px]"
                 onClick={isLoggedIn ? handleGoToDashboard : handleGoToLogin}
               />
             </div>
@@ -95,36 +94,36 @@ export default function InvitationAcceptPage({
           <div className="form-container">
             <div className="form-card">
               <div className="mb-6 flex justify-center">
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary-100">
-                  <Mail className="h-7 w-7 text-primary-600" />
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary-600">
+                  <Mail className="h-7 w-7 text-white" />
                 </div>
               </div>
               <div className="form-header text-center">
-                <p className="form-header-p">
+                <p className="bg-primary-600 text-white rounded-lg p-2">
                   You&apos;ve been invited to join{" "}
-                  <span className="font-semibold text-primary-600">
+                  <span className="font-semibold text-yellow-200">
                     {displayData.organizationName}
-                  </span>
+                  </span>{" "}
+                  as a {displayData.role}
                 </p>
-                <p className="mt-2 flex flex-wrap items-center justify-center gap-x-1 typography-caption text-neutral-900">
-                  <span className="inline-flex items-center gap-1.5">
-                    <Users className="h-4 w-4 shrink-0" />
-                    <span>{displayData.inviterName}</span>
-                  </span>
-                  <span>invited you as a</span>
-                  <span className="font-medium capitalize">
-                    {displayData.role}
-                  </span>
-                  .
-                </p>
+                {displayData.inviterName && (
+                  <p className="my-4 flex flex-wrap items-center justify-center gap-x-1 typography-caption text-neutral-900">
+                    <span className="inline-flex items-center gap-1.5">
+                      <Users className="h-4 w-4 shrink-0 text-primary-600" />
+                      <span className="text-primary-600">
+                        {displayData.inviterName}
+                      </span>
+                    </span>
+                    <span>sent this invitation</span>
+                  </p>
+                )}
               </div>
 
               {isLoggedIn ? (
-                <div className="mt-8 flex flex-col gap-3">
+                <div className="mt-4 flex flex-col gap-3">
                   <CustomButton
                     text="Accept invitation"
                     variant="primary"
-                    className="w-full rounded-lg py-2.5"
                     loading={!!acceptingToken}
                     disabled={!!acceptingToken || !!decliningToken}
                     onClick={onAccept}
@@ -132,29 +131,27 @@ export default function InvitationAcceptPage({
                   <CustomButton
                     text="Decline"
                     variant="outline"
-                    className="w-full rounded-lg py-2.5"
                     loading={!!decliningToken}
                     disabled={!!acceptingToken || !!decliningToken}
                     onClick={onDecline}
                   />
                 </div>
               ) : (
-                <div className="mt-8 flex flex-col gap-3">
-                  <p className="text-center typography-caption text-neutral-500">
-                    Sign in or create an account to accept this invitation.
-                  </p>
+                <div className="mt-4 flex flex-col gap-3">
                   <CustomButton
                     text="Sign in"
-                    variant="primary"
-                    className="w-full rounded-lg py-2.5"
+                    variant="outline"
                     onClick={handleGoToSignIn}
                   />
                   <CustomButton
                     text="Create account"
-                    variant="outline"
-                    className="w-full rounded-lg py-2.5"
+                    variant="primary"
                     onClick={handleGoToSignUp}
                   />
+                  <p className="text-center typography-caption text-neutral-500">
+                    Sign in or create an account to accept or decline this
+                    invitation.
+                  </p>
                 </div>
               )}
             </div>

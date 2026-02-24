@@ -15,11 +15,16 @@ const initialState = {
   fetchOrganizations: generalState,
   fetchOrEnsureDefault: generalState,
   createOrganization: generalState,
+  createOrganizationWithOwner: generalState,
   updateOrganization: generalState,
   deleteOrganization: generalState,
   fetchMembers: generalState,
   updateMemberRole: generalState,
   removeMember: generalState,
+  /** Super Admin: all organizations list */
+  listAllOrganizations: generalState,
+  /** Single org fetch (e.g. for super admin edit) */
+  fetchOrganization: generalState,
 };
 
 export const fetchOrganizations = createAsyncThunk(
@@ -66,6 +71,19 @@ export const createOrganization = createAsyncThunk(
     } catch (error) {
       return thunkAPI.rejectWithValue({ payload: error });
     }
+  }
+);
+
+/** Super Admin: create workspace with designated org admin by email */
+export const createOrganizationWithOwner = createAsyncThunk(
+  "organizations/createOrganizationWithOwner",
+  async ({ payload, successCallBack }, thunkAPI) => {
+    const response = await organizationsService.createWithOwner(payload);
+    if (response?.success && response?.data) {
+      successCallBack?.(response.data);
+      return response.data;
+    }
+    return thunkAPI.rejectWithValue(response);
   }
 );
 
@@ -153,6 +171,34 @@ export const removeMember = createAsyncThunk(
   }
 );
 
+/** Super Admin only: fetch all organizations */
+export const fetchListAllOrganizations = createAsyncThunk(
+  "organizations/fetchListAllOrganizations",
+  async (_, thunkAPI) => {
+    try {
+      const response = await organizationsService.listAllForSuperAdmin();
+      if (response?.success && response?.data) {
+        return response.data;
+      }
+      return thunkAPI.rejectWithValue(response);
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ payload: error });
+    }
+  }
+);
+
+/** Fetch single organization by id (Super Admin can fetch any) */
+export const fetchOrganization = createAsyncThunk(
+  "organizations/fetchOrganization",
+  async (orgId, thunkAPI) => {
+    const response = await organizationsService.getOrganization(orgId);
+    if (response?.success && response?.data) {
+      return response.data;
+    }
+    return thunkAPI.rejectWithValue(response);
+  }
+);
+
 const setPending = (state, key) => {
   if (!state[key]) state[key] = { ...generalState };
   state[key].isLoading = true;
@@ -185,6 +231,9 @@ export const organizationsSlice = createSlice({
     clearOrganizations: (state) => {
       state.organizations = [];
       state.currentOrganizationId = null;
+    },
+    clearFetchOrganization: (state) => {
+      state.fetchOrganization = { ...generalState };
     },
   },
   extraReducers: (builder) => {
@@ -222,6 +271,15 @@ export const organizationsSlice = createSlice({
       })
       .addCase(createOrganization.rejected, (state, action) =>
         setRejected(state, "createOrganization", action.payload?.message)
+      )
+      .addCase(createOrganizationWithOwner.pending, (state) =>
+        setPending(state, "createOrganizationWithOwner")
+      )
+      .addCase(createOrganizationWithOwner.fulfilled, (state, action) =>
+        setFulfilled(state, "createOrganizationWithOwner", action.payload)
+      )
+      .addCase(createOrganizationWithOwner.rejected, (state, action) =>
+        setRejected(state, "createOrganizationWithOwner", action.payload?.message)
       )
       .addCase(updateOrganization.pending, (state) => setPending(state, "updateOrganization"))
       .addCase(updateOrganization.fulfilled, (state, action) => {
@@ -266,9 +324,31 @@ export const organizationsSlice = createSlice({
       )
       .addCase(removeMember.rejected, (state, action) =>
         setRejected(state, "removeMember", action.payload?.message)
+      )
+      .addCase(fetchListAllOrganizations.pending, (state) =>
+        setPending(state, "listAllOrganizations")
+      )
+      .addCase(fetchListAllOrganizations.fulfilled, (state, action) =>
+        setFulfilled(state, "listAllOrganizations", action.payload)
+      )
+      .addCase(fetchListAllOrganizations.rejected, (state, action) =>
+        setRejected(state, "listAllOrganizations", action.payload?.message)
+      )
+      .addCase(fetchOrganization.pending, (state) =>
+        setPending(state, "fetchOrganization")
+      )
+      .addCase(fetchOrganization.fulfilled, (state, action) =>
+        setFulfilled(state, "fetchOrganization", action.payload)
+      )
+      .addCase(fetchOrganization.rejected, (state, action) =>
+        setRejected(state, "fetchOrganization", action.payload?.message)
       );
   },
 });
 
-export const { setCurrentOrganization, clearOrganizations } = organizationsSlice.actions;
+export const {
+  setCurrentOrganization,
+  clearOrganizations,
+  clearFetchOrganization,
+} = organizationsSlice.actions;
 export default organizationsSlice.reducer;

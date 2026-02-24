@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import useDailyUpdatesTracker from "../daily-updates-tracker/use-daily-updates-tracker.hook";
+import useDailyUpdatesTracker from "../tracker/use-daily-updates-tracker.hook";
 
 export default function useDailyUpdatesBacklogs() {
   const {
@@ -25,6 +25,7 @@ export default function useDailyUpdatesBacklogs() {
     setSelectedRole,
     selectedStatus,
     setSelectedStatus,
+    showUserFilter,
     memberOptions,
     roleOptions,
     statusOptions,
@@ -39,10 +40,10 @@ export default function useDailyUpdatesBacklogs() {
   const defaultDate = useMemo(() => new Date().toISOString().slice(0, 10), []);
   const hasActiveFilters = Boolean(
     selectedUserId ||
-      selectedRole ||
-      selectedStatus ||
-      selectedFromDate !== defaultDate ||
-      selectedToDate !== defaultDate,
+    selectedRole ||
+    selectedStatus ||
+    selectedFromDate !== defaultDate ||
+    selectedToDate !== defaultDate,
   );
 
   const handleClearFilters = useCallback(() => {
@@ -81,6 +82,7 @@ export default function useDailyUpdatesBacklogs() {
     setSelectedRole,
     selectedStatus,
     setSelectedStatus,
+    showUserFilter,
     memberOptions,
     roleOptions,
     statusOptions,

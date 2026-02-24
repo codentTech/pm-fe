@@ -64,7 +64,7 @@ export default function useWorkspaceDetail(orgId) {
   const [changeRoleValue, setChangeRoleValue] = useState("");
   const [showChangeRoleModal, setShowChangeRoleModal] = useState(false);
 
-  const inviteForm = useForm({ defaultValues: { Email: "", Role: "member" } });
+  const inviteForm = useForm({ defaultValues: { Email: "", Role: "developer" } });
   const labelForm = useForm({ defaultValues: { Name: "", Color: "#6b7280" } });
 
   const selectedOrg = organizations?.find((o) => o.Id === orgId);
@@ -198,7 +198,7 @@ export default function useWorkspaceDetail(orgId) {
   }
 
   function handleOpenChangeRole(member) {
-    const role = (member?.Role || "member").toLowerCase();
+    const role = (member?.Role || "developer").toLowerCase();
     setMemberToEditRole(member);
     setChangeRoleValue(role);
     setShowChangeRoleModal(true);
@@ -259,7 +259,7 @@ export default function useWorkspaceDetail(orgId) {
     dispatch(
       createInvitation({
         orgId,
-        payload: { Email: values.Email, Role: values.Role || "member" },
+        payload: { Email: values.Email, Role: values.Role || "developer" },
         successCallBack: () => {
           setShowInviteForm(false);
           inviteForm.reset();

@@ -6,8 +6,8 @@ import { KPI_SEPARATOR_COLORS } from "@/common/constants/colors.constant";
 import { formatDate, formatDateTime } from "@/common/utils/date.util";
 import { ArrowLeft, ClipboardCheck, Pencil } from "lucide-react";
 import Link from "next/link";
-import useDailyUpdateDetail from "./use-daily-update-detail.hook";
-import useDailyUpdateDetailView from "./use-daily-update-detail-view.hook";
+import useDailyUpdateDetail from "./use-detail.hook";
+import useDailyUpdateDetailView from "./use-detail-view.hook";
 import { WORK_ITEM_TYPES_BID } from "@/common/constants/daily-update.constant";
 
 export default function DailyUpdateDetail({ updateId }) {
@@ -149,7 +149,9 @@ export default function DailyUpdateDetail({ updateId }) {
 
           {currentUpdate.NextDayPlan && (
             <div className="rounded-lg border border-neutral-200 bg-white p-4 space-y-3">
-              <h3 className="text-sm font-bold text-indigo-600">Next day plan</h3>
+              <h3 className="text-sm font-bold text-indigo-600">
+                Next day plan
+              </h3>
               <p className="text-sm text-neutral-600">
                 {currentUpdate.NextDayPlan}
               </p>

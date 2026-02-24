@@ -23,17 +23,20 @@ export default function useInvitationAccept({
     (isLoggedIn && !fetchState?.isLoading && !invitation && token) ||
     (!isLoggedIn && !previewLoading && !preview && token);
 
-  const displayData = hasInvitation
-    ? {
-        organizationName: invitation?.Organization?.Name ?? "Workspace",
-        inviterName: invitation?.CreatedBy?.FullName ?? "Someone",
-        role: invitation?.Role ?? "member",
-      }
-    : hasPreview
+  const inviterName =
+    invitation?.CreatedBy?.FullName?.trim() ||
+    preview?.inviterName?.trim() ||
+    null;
+  const organizationName =
+    invitation?.Organization?.Name ?? preview?.organizationName ?? "Workspace";
+  const role = invitation?.Role ?? preview?.role ?? "developer";
+
+  const displayData =
+    hasInvitation || hasPreview
       ? {
-          organizationName: preview?.organizationName ?? "Workspace",
-          inviterName: preview?.inviterName ?? "Someone",
-          role: preview?.role ?? "member",
+          organizationName,
+          inviterName,
+          role,
         }
       : null;
 

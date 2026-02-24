@@ -111,7 +111,7 @@ export default function useCardDetail(projectId, cardId) {
     const member = orgMembers.find(
       (m) => m.User?.Id === user.Id || m.UserId === user.Id
     );
-    setCurrentUserRole((member?.Role || "").toLowerCase() || null);
+    setCurrentUserRole((member?.Role ?? "").toString().toLowerCase() || null);
   }, [orgMembers]);
 
   useEffect(() => {

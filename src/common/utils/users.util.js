@@ -82,8 +82,10 @@ export const is2FAEnabled = (data) => {
 
 export const isSuperAdmin = (data) => {
   if ((typeof window === 'object' && window?.localStorage?.getItem('user')) || data) {
-    const user = data ?? getUser();
-    return user.role === ROLES.SUPER_ADMIN.toString();
+    const raw = data ?? getUser();
+    const user = raw?.user ?? raw;
+    const role = user?.systemRole ?? user?.SystemRole ?? user?.role ?? user?.Role;
+    return role === ROLES.SUPER_ADMIN || role === ROLES.SUPER_ADMIN.toString();
   }
   return false;
 };

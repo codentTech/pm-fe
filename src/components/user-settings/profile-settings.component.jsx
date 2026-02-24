@@ -35,7 +35,7 @@ export default function ProfileSettings() {
 
   return (
     <div className="min-h-full">
-      <div className="page-header-bar mt-4">
+      <div className="page-header-bar">
         <div className="page-header-divider" />
         <div className="min-w-0 flex-1 overflow-hidden">
           <h1 className="page-header-title">Profile</h1>
@@ -56,7 +56,7 @@ export default function ProfileSettings() {
         </span>
         <span className="page-separator-line" />
       </div>
-      <div className="max-w-xl px-4">
+      <div className="max-w-xl px-4 sm:px-5">
         <div className="rounded-lg border border-neutral-200 bg-white p-6 shadow-sm">
           <form onSubmit={onProfileSubmit} className="space-y-4">
             <CustomInput

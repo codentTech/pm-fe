@@ -108,6 +108,16 @@ export default function useDailyUpdatesTracker() {
     return [...base, ...mapped];
   }, [orgMembers]);
 
+  /** Org admin and project managers can filter by user; others see only their own updates (enforced by backend). */
+  const showUserFilter = useMemo(() => {
+    if (!currentUserId || !orgMembers?.length) return false;
+    const myMembership = (orgMembers || []).find(
+      (m) => (m.User?.Id || m.UserId) === currentUserId,
+    );
+    const role = (myMembership?.Role || "").toLowerCase();
+    return role === "org_admin" || role === "project_manager";
+  }, [currentUserId, orgMembers]);
+
   const roleOptions = useMemo(
     () => [{ value: "", label: "All roles" }, ...DAILY_UPDATE_ROLE_OPTIONS],
     [],
@@ -622,6 +632,7 @@ export default function useDailyUpdatesTracker() {
     setSelectedRole,
     selectedStatus,
     setSelectedStatus,
+    showUserFilter,
     memberOptions,
     roleOptions,
     statusOptions,

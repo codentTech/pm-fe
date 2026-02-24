@@ -5,14 +5,14 @@ const getHeaders = (orgId) => (orgId ? { "X-Organization-Id": orgId } : {});
 const createInvitation = async (orgId, payload) => {
   const response = await api(getHeaders(orgId)).post(
     `/invitations/organizations/${orgId}`,
-    payload
+    payload,
   );
   return response.data;
 };
 
 const findPendingByOrg = async (orgId) => {
   const response = await api(getHeaders(orgId)).get(
-    `/invitations/organizations/${orgId}`
+    `/invitations/organizations/${orgId}`,
   );
   return response.data;
 };
@@ -39,14 +39,14 @@ const declineInvitation = async (token) => {
 
 const cancelInvitation = async (orgId, invitationId) => {
   const response = await api(getHeaders(orgId)).delete(
-    `/invitations/organizations/${orgId}/${invitationId}`
+    `/invitations/organizations/${orgId}/${invitationId}`,
   );
   return response.data;
 };
 
 const resendInvitation = async (orgId, invitationId) => {
   const response = await api(getHeaders(orgId)).post(
-    `/invitations/organizations/${orgId}/${invitationId}/resend`
+    `/invitations/organizations/${orgId}/${invitationId}/resend`,
   );
   return response.data;
 };
@@ -58,6 +58,7 @@ const invitationsService = {
   getInvitationPreview,
   acceptInvitation,
   declineInvitation,
+
   cancelInvitation,
   resendInvitation,
 };

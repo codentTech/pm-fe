@@ -3,7 +3,7 @@
 import Auth from "@/auth/auth.component";
 import AUTH from "@/common/constants/auth.constant";
 import NAVBAR_TITLE from "@/common/constants/navbar-title.constant";
-import DailyUpdatesBacklogs from "@/components/daily-updates/daily-updates-backlogs/daily-updates-backlogs.component";
+import DailyUpdatesBacklogs from "@/components/daily-updates/backlogs/backlogs.component";
 
 export default function DailyUpdatesBacklogsPage() {
   return (

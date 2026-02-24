@@ -1,34 +1,34 @@
 "use client";
 
-import { useMemo, useState, useRef, useEffect } from "react";
-import CustomButton from "@/common/components/custom-button/custom-button.component";
-import NoResultFound from "@/common/components/no-result-found/no-result-found.jsx";
 import ConfirmationModal from "@/common/components/confirmation-modal/confirmation-modal.component";
-import Modal from "@/common/components/modal/modal.component";
+import CustomButton from "@/common/components/custom-button/custom-button.component";
 import CustomInput from "@/common/components/custom-input/custom-input.component";
+import SimpleSelect from "@/common/components/dropdowns/simple-select/simple-select.jsx";
+import Modal from "@/common/components/modal/modal.component";
+import NoResultFound from "@/common/components/no-result-found/no-result-found.jsx";
 import TodoTrackerSkeleton from "@/common/components/skeleton/todo-tracker-skeleton.component";
 import TextArea from "@/common/components/text-area/text-area.component";
-import SimpleSelect from "@/common/components/dropdowns/simple-select/simple-select.jsx";
+import { LIST_CARD_COLORS } from "@/common/constants/colors.constant";
 import {
   Calendar,
   Check,
-  Filter,
-  Plus,
   CheckSquare,
-  Pencil,
-  Trash2,
+  Filter,
   Loader2,
+  Pencil,
+  Plus,
   Search,
+  Trash2,
   X,
 } from "lucide-react";
+import { useMemo, useState } from "react";
 import { Controller } from "react-hook-form";
-import { LIST_CARD_COLORS } from "@/common/constants/colors.constant";
 import useTodoTracker, {
-  PRIORITY_OPTIONS,
-  STATUS_OPTIONS,
   DUE_FILTER_OPTIONS,
+  PRIORITY_OPTIONS,
   SORT_OPTIONS,
   SORT_ORDER_OPTIONS,
+  STATUS_OPTIONS,
 } from "./use-todo-tracker.hook";
 
 export default function TodoTracker() {
@@ -90,7 +90,7 @@ export default function TodoTracker() {
 
   return (
     <div className="min-h-full">
-      <div className="page-header-bar p-4 sm:p-5">
+      <div className="page-header-bar px-4 sm:px-5">
         <div className="page-header-divider" />
         <div className="min-w-0 flex-1 overflow-hidden">
           <h1 className="page-header-title">Todo Tracker</h1>
@@ -147,7 +147,11 @@ export default function TodoTracker() {
             <Filter className="h-4 w-4" />
             {hasActiveFilters && (
               <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-indigo-500 px-1 text-[10px] font-bold text-white">
-                {[filters.status, filters.due, filters.priority].filter(Boolean).length}
+                {
+                  [filters.status, filters.due, filters.priority].filter(
+                    Boolean,
+                  ).length
+                }
               </span>
             )}
           </button>
@@ -178,9 +182,9 @@ export default function TodoTracker() {
           {todoLists.map((list, listIndex) => (
             <div
               key={list.Id}
-              className={`group rounded-xl bg-gradient-to-br p-[2px] ${getListColor(listIndex)}`}
+              className={`group rounded-lg bg-gradient-to-br p-[2px] ${getListColor(listIndex)}`}
             >
-              <div className="flex h-full min-w-0 flex-col overflow-hidden rounded-[10px] bg-white">
+              <div className="flex h-full min-w-0 flex-col overflow-hidden rounded-lg bg-white">
                 <div
                   className={`relative flex h-16 items-end bg-gradient-to-br p-3 ${getListColor(listIndex)}`}
                 >
@@ -273,41 +277,29 @@ export default function TodoTracker() {
                       onSubmit={itemForm.handleSubmit((v) =>
                         handleCreateItem(list.Id, v),
                       )}
-                      className="mt-2 space-y-2 rounded-md border border-neutral-200 bg-neutral-50/50 p-2.5"
+                      className="w-full mt-2 space-y-1"
                     >
                       <CustomInput
                         name="Title"
-                        placeholder="Task title…"
+                        placeholder="Task title"
                         register={itemForm.register}
                         errors={itemForm.formState.errors}
                         isRequired
+                        size="sm"
+                        escapeKey={() => setAddingItemListId(null)}
                       />
-                      <div className="flex gap-2">
-                        <CustomButton
-                          type="submit"
-                          text="Add"
-                          variant="primary"
-                          loading={createItemState?.isLoading}
-                          className="flex-1"
-                        />
-                        <CustomButton
-                          type="button"
-                          text="Cancel"
-                          variant="cancel"
-                          onClick={() => {
-                            setAddingItemListId(null);
-                            itemForm.reset();
-                          }}
-                        />
-                      </div>
+                      <p className="text-[10px] text-neutral-500">
+                        Press <span className="font-bold">Enter</span> to add
+                        the task or <span className="font-bold">Escape</span> to
+                        cancel
+                      </p>
                     </form>
                   ) : (
                     <button
                       type="button"
                       onClick={() => setAddingItemListId(list.Id)}
-                      className="mt-2 flex w-full items-center justify-center gap-2 rounded-md border-2 border-dashed border-neutral-200 py-2 typography-body-sm text-neutral-500 transition-colors hover:border-neutral-300 hover:bg-neutral-50 hover:text-neutral-600"
+                      className="mt-2 flex w-full items-center justify-center gap-2 rounded-md border-2 border-dashed border-neutral-200 py-1 typography-body-sm text-neutral-500 transition-colors hover:border-neutral-300 hover:bg-neutral-50 hover:text-neutral-600"
                     >
-                      <Plus className="h-4 w-4 shrink-0" />
                       Add task
                     </button>
                   )}

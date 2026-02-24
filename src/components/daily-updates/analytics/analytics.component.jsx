@@ -11,8 +11,8 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import DailyUpdatesFilterBar from "../daily-updates-filter-bar/daily-updates-filter-bar.component";
-import useDailyUpdatesTracker from "../daily-updates-tracker/use-daily-updates-tracker.hook";
+import DailyUpdatesFilterBar from "../filter-bar/filter-bar.component";
+import useDailyUpdatesTracker from "../tracker/use-daily-updates-tracker.hook";
 import { KPI_SEPARATOR_COLORS } from "@/common/constants/colors.constant";
 import {
   DAILY_UPDATE_ROLE_OPTIONS,
@@ -61,6 +61,7 @@ export default function DailyUpdatesAnalytics() {
     setSelectedRole,
     selectedStatus,
     setSelectedStatus,
+    showUserFilter,
     memberOptions,
     roleOptions,
     statusOptions,
@@ -484,6 +485,7 @@ export default function DailyUpdatesAnalytics() {
             setSelectedUserId={setSelectedUserId}
             setSelectedRole={setSelectedRole}
             setSelectedStatus={setSelectedStatus}
+            showUserFilter={showUserFilter}
           />
         </div>
       </div>

@@ -5,7 +5,10 @@ import { useRouter } from "next/navigation";
 import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchOrganizations, fetchOrEnsureDefault } from "@/provider/features/organizations/organizations.slice";
+import {
+  fetchOrganizations,
+  fetchOrEnsureDefault,
+} from "@/provider/features/organizations/organizations.slice";
 import AppNavbar from "@/common/components/app-navbar/app-navbar.component";
 import AppSidebar from "@/common/components/app-sidebar/app-sidebar.component";
 import ErrorBoundary from "@/common/components/error-boundary/error-boundary.component";
@@ -22,7 +25,7 @@ export default function Private({ component, title = NAVBAR_TITLE.DOCUMENTS }) {
   useNotificationsSocket();
   const { logoutLoader } = useSelector((state) => state?.auth);
   const { organizations, currentOrganizationId } = useSelector(
-    (state) => state?.organizations || {}
+    (state) => state?.organizations || {},
   );
   const router = useRouter();
 
@@ -70,7 +73,10 @@ export default function Private({ component, title = NAVBAR_TITLE.DOCUMENTS }) {
         role="main"
       >
         <div className="navbar-main">
-          <AppNavbar title={title} onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
+          <AppNavbar
+            title={title}
+            onMenuClick={() => setSidebarOpen(!sidebarOpen)}
+          />
         </div>
         <div className="scroll-content scrollbar-thin min-h-0 flex-1 bg-background-secondary">
           <ErrorBoundary

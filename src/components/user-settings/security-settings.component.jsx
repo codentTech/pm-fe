@@ -34,7 +34,7 @@ export default function SecuritySettings() {
 
   return (
     <div className="min-h-full">
-      <div className="page-header-bar mt-4">
+      <div className="page-header-bar">
         <div className="page-header-divider" />
         <div className="min-w-0 flex-1 overflow-hidden">
           <h1 className="page-header-title">Security</h1>
@@ -55,10 +55,10 @@ export default function SecuritySettings() {
         </span>
         <span className="page-separator-line" />
       </div>
-      <div className="max-w-xl px-4">
+      <div className="max-w-xl px-4 sm:px-5">
         <div className="rounded-lg border border-neutral-200 bg-white p-6 shadow-sm">
-          <h2 className="mb-4 flex items-center gap-2 font-semibold text-neutral-900">
-            <Lock className="h-5 w-5 text-neutral-600" />
+          <h2 className="mb-4 flex items-center gap-2 font-bold text-indigo-600">
+            <Lock className="h-5 w-5" />
             Change password
           </h2>
           <form onSubmit={onPasswordSubmit} className="space-y-4">

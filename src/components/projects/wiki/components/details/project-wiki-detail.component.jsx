@@ -8,8 +8,8 @@ import { BookOpen, Pencil, Trash2 } from "lucide-react";
 import CustomButton from "@/common/components/custom-button/custom-button.component";
 import ConfirmationModal from "@/common/components/confirmation-modal/confirmation-modal.component";
 import NoResultFound from "@/common/components/no-result-found/no-result-found.jsx";
-import useProjectWiki from "../use-project-wiki.hook";
-import ProjectWikiAttachments from "../components/wiki-attachments/project-wiki-attachments.component";
+import useProjectWiki from "../../use-project-wiki.hook";
+import ProjectWikiAttachments from "../attachments/project-wiki-attachments.component";
 
 export default function ProjectWikiDetail({ projectId, slug }) {
   const router = useRouter();

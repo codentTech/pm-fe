@@ -1,10 +1,10 @@
 "use client";
 
 import CustomDataTable from "@/common/components/custom-data-table/custom-data-table.component";
-import DailyUpdatesFilterBar from "../daily-updates-filter-bar/daily-updates-filter-bar.component";
+import DailyUpdatesFilterBar from "../filter-bar/filter-bar.component";
 import { Filter } from "lucide-react";
 import { KPI_SEPARATOR_COLORS } from "@/common/constants/colors.constant";
-import useDailyUpdatesBacklogs from "./use-daily-updates-backlogs.hook";
+import useDailyUpdatesBacklogs from "./use-backlogs.hook";
 
 export default function DailyUpdatesBacklogs() {
   const {
@@ -127,6 +127,7 @@ export default function DailyUpdatesBacklogs() {
             setSelectedUserId={setSelectedUserId}
             setSelectedRole={setSelectedRole}
             setSelectedStatus={setSelectedStatus}
+            showUserFilter={showUserFilter}
           />
         )}
       </div>

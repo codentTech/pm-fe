@@ -40,6 +40,7 @@ import {
   SPRINT_STATUS_TRANSITIONS,
 } from "@/common/constants/sprint.constant";
 import { formatDate } from "@/common/utils/date.util";
+import ReadMore from "@/common/components/readmore/readmore.component";
 
 export default function BoardDetail({ projectId }) {
   const [bulkTargetSprintId, setBulkTargetSprintId] = useState("");
@@ -411,14 +412,9 @@ export default function BoardDetail({ projectId }) {
         </Link>
         <div className="page-header-divider" />
         <div className="min-w-0 flex-1 overflow-hidden">
-          <h1 className="truncate font-bold !text-indigo-600 typography-h4 sm:typography-h3">
+          <h1 className="font-bold !text-indigo-600 typography-h4 sm:typography-h3 max-w-[500px] truncate">
             {currentProject.Name}
           </h1>
-          {currentProject.Description && (
-            <p className="page-header-subtitle max-w-[500px] truncate">
-              {currentProject.Description}
-            </p>
-          )}
         </div>
         <div className="flex items-center gap-2">
           {projectStatusLabel && (
@@ -446,6 +442,14 @@ export default function BoardDetail({ projectId }) {
           ))}
         </span>
         <span className="page-separator-line" />
+      </div>
+
+      <div className="px-4 sm:px-5 mb-4 ">
+        {currentProject.Description && (
+          <p className="max-w-full break-words rounded-lg border border-neutral-200 p-2">
+            <ReadMore text={currentProject.Description} size={300} />
+          </p>
+        )}
       </div>
 
       <div className="px-4 sm:px-5">

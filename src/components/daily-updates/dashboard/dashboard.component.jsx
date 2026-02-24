@@ -12,8 +12,8 @@ import {
   Legend,
 } from "chart.js";
 import CustomButton from "@/common/components/custom-button/custom-button.component";
-import DailyUpdatesFilterBar from "../daily-updates-filter-bar/daily-updates-filter-bar.component";
-import useDailyUpdatesTracker from "../daily-updates-tracker/use-daily-updates-tracker.hook";
+import DailyUpdatesFilterBar from "../filter-bar/filter-bar.component";
+import useDailyUpdatesTracker from "../tracker/use-daily-updates-tracker.hook";
 import {
   AlertTriangle,
   CalendarX,
@@ -51,6 +51,7 @@ export default function DailyUpdatesDashboard() {
     setSelectedRole,
     selectedStatus,
     setSelectedStatus,
+    showUserFilter,
     memberOptions,
     roleOptions,
     statusOptions,
@@ -268,6 +269,7 @@ export default function DailyUpdatesDashboard() {
           setSelectedUserId={setSelectedUserId}
           setSelectedRole={setSelectedRole}
           setSelectedStatus={setSelectedStatus}
+          showUserFilter={showUserFilter}
         />
       </div>
 

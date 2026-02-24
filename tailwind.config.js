@@ -133,6 +133,7 @@ module.exports = {
         },
 
         border: {
+          primary: "#FFFFFF",
           light: "#E5E7EB",
           medium: "#D1D5DB",
           dark: "#9CA3AF",
@@ -252,8 +253,7 @@ module.exports = {
         },
 
         ".btn-ghost": {
-          "@apply btn text-neutral-600 hover:bg-neutral-100":
-            {},
+          "@apply btn text-neutral-600 hover:bg-neutral-100": {},
         },
 
         ".card": {
@@ -321,7 +321,8 @@ module.exports = {
 
         /* Boards-list aesthetics - page header bar */
         ".page-header-bar": {
-          "@apply flex items-center gap-2 bg-gradient-to-l from-indigo-100 via-white to-neutral-100 px-3 py-2 sm:gap-3 sm:px-4 sm:py-3": {},
+          "@apply flex items-center gap-2 bg-gradient-to-l from-indigo-100 via-white to-neutral-100 px-3 py-2 sm:gap-3 sm:px-4 sm:py-3":
+            {},
         },
         ".page-header-divider": {
           "@apply h-4 w-px shrink-0 bg-indigo-600 sm:h-5": {},
@@ -335,10 +336,11 @@ module.exports = {
 
         /* Page separator with colored dots */
         ".page-separator": {
-          "@apply mb-5 flex items-center gap-1 px-3 py-2 sm:mb-6 sm:px-4": {},
+          "@apply flex items-center gap-1 px-3 py-2 mb-4 sm:px-4": {},
         },
         ".page-separator-line": {
-          "@apply h-px flex-1 bg-gradient-to-r from-transparent via-neutral-300 to-transparent": {},
+          "@apply h-px flex-1 bg-gradient-to-r from-transparent via-neutral-300 to-transparent":
+            {},
         },
         ".page-separator-dot": {
           "@apply h-1.5 w-1.5 rounded-full bg-gradient-to-br": {},
@@ -346,11 +348,13 @@ module.exports = {
 
         /* Card title on gradient (white text) */
         ".card-title-gradient": {
-          "@apply truncate text-lg font-extrabold text-white drop-shadow-md": {},
+          "@apply truncate text-lg font-extrabold text-white drop-shadow-md":
+            {},
         },
         /* Card body text */
         ".card-body-text": {
-          "@apply line-clamp-2 typography-body font-medium text-neutral-700": {},
+          "@apply line-clamp-2 typography-body font-medium text-neutral-700":
+            {},
         },
         ".card-meta-text": {
           "@apply typography-caption font-bold text-neutral-600": {},
@@ -358,10 +362,12 @@ module.exports = {
 
         /* Action icon buttons */
         ".action-icon-edit": {
-          "@apply flex h-7 w-7 items-center justify-center rounded text-neutral-600 hover:bg-neutral-100 hover:text-neutral-800 outline-none": {},
+          "@apply flex h-7 w-7 items-center justify-center rounded text-neutral-600 hover:bg-neutral-100 hover:text-neutral-800 outline-none":
+            {},
         },
         ".action-icon-delete": {
-          "@apply flex h-7 w-7 items-center justify-center rounded text-danger-600 hover:bg-danger-50 hover:text-danger-700 outline-none": {},
+          "@apply flex h-7 w-7 items-center justify-center rounded text-danger-600 hover:bg-danger-50 hover:text-danger-700 outline-none":
+            {},
         },
       });
 

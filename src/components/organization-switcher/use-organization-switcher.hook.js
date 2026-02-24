@@ -16,8 +16,11 @@ import { useForm } from "react-hook-form";
 
 export default function useOrganizationSwitcher() {
   const dispatch = useDispatch();
-  const { organizations, currentOrganizationId, createOrganization: createState } =
-    useSelector((state) => state?.organizations ?? {});
+  const {
+    organizations,
+    currentOrganizationId,
+    createOrganization: createState,
+  } = useSelector((state) => state?.organizations ?? {});
   const [open, setOpen] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
@@ -27,7 +30,7 @@ export default function useOrganizationSwitcher() {
     defaultValues: { Name: "" },
   });
   const inviteForm = useForm({
-    defaultValues: { Email: "", Role: "member" },
+    defaultValues: { Email: "", Role: "developer" },
   });
 
   const currentOrg = organizations?.find((o) => o.Id === currentOrganizationId);
@@ -36,7 +39,7 @@ export default function useOrganizationSwitcher() {
   useEffect(() => {
     if (!organizations?.length) {
       if (!currentOrganizationId) {
-        dispatch(fetchOrEnsureDefault());
+        // dispatch(fetchOrEnsureDefault());
       } else {
         dispatch(fetchOrganizations());
       }
@@ -84,7 +87,7 @@ export default function useOrganizationSwitcher() {
           setShowCreateModal(false);
           createForm.reset();
         },
-      })
+      }),
     );
   }
 
@@ -93,12 +96,12 @@ export default function useOrganizationSwitcher() {
     dispatch(
       createInvitation({
         orgId: currentOrganizationId,
-        payload: { Email: values.Email, Role: values.Role || "member" },
+        payload: { Email: values.Email, Role: values.Role || "developer" },
         successCallBack: () => {
           setShowInviteModal(false);
           inviteForm.reset();
         },
-      })
+      }),
     );
   }
 

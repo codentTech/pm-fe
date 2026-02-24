@@ -93,7 +93,14 @@
   }
 }
 
-/* Component layer - OfficeHQ Design System */
+@layer components {
+  .btn-outline {
+    border: 1px solid theme("colors.primary.500") !important;
+    color: theme("colors.primary.600") !important;
+  }
+}
+
+/* Component layer - Design System */
 @layer components {
   /* === TYPOGRAPHY SYSTEM ===
    * Use these classes for consistent typography across all modules.
@@ -165,7 +172,7 @@
   }
 
   .btn-outline {
-    @apply btn bg-transparent border-primary-500 text-primary-600 
+    @apply btn bg-transparent border border-primary-500 text-primary-600 
            hover:bg-primary-50;
   }
 

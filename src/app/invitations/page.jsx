@@ -28,7 +28,7 @@ export default function InvitationsPage() {
   const token = searchParams?.get("token");
   const dispatch = useDispatch();
   const { pendingForMe, fetchPendingForMe: fetchState } = useSelector(
-    (state) => state.invitations
+    (state) => state.invitations,
   );
   const [acceptingToken, setAcceptingToken] = useState(null);
   const [decliningToken, setDecliningToken] = useState(null);
@@ -89,9 +89,9 @@ export default function InvitationsPage() {
             dispatch(fetchBids());
             dispatch(fetchKpis());
           }
-          router.replace("/dashboard");
+          router.replace("/projects");
         },
-      })
+      }),
     );
     setAcceptingToken(null);
   }
@@ -102,8 +102,8 @@ export default function InvitationsPage() {
     await dispatch(
       declineInvitation({
         token,
-        successCallBack: () => router.replace("/dashboard"),
-      })
+        successCallBack: () => router.replace("/projects"),
+      }),
     );
     setDecliningToken(null);
   }

@@ -4,8 +4,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import CustomButton from "@/common/components/custom-button/custom-button.component";
 import CustomDataTable from "@/common/components/custom-data-table/custom-data-table.component";
 import CustomInput from "@/common/components/custom-input/custom-input.component";
-import DailyUpdatesFilterBar from "../daily-updates-filter-bar/daily-updates-filter-bar.component";
-import useDailyUpdatesTracker from "../daily-updates-tracker/use-daily-updates-tracker.hook";
+import DailyUpdatesFilterBar from "../filter-bar/filter-bar.component";
+import useDailyUpdatesTracker from "../tracker/use-daily-updates-tracker.hook";
 import { Filter, Search, Eye } from "lucide-react";
 import { KPI_SEPARATOR_COLORS } from "@/common/constants/colors.constant";
 
@@ -25,6 +25,7 @@ export default function DailyUpdatesUpdates() {
     setSelectedRole,
     selectedStatus,
     setSelectedStatus,
+    showUserFilter,
     memberOptions,
     roleOptions,
     statusOptions,
@@ -175,6 +176,7 @@ export default function DailyUpdatesUpdates() {
             setSelectedUserId={setSelectedUserId}
             setSelectedRole={setSelectedRole}
             setSelectedStatus={setSelectedStatus}
+            showUserFilter={showUserFilter}
           />
         )}
       </div>

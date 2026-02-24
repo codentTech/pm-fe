@@ -4,18 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { getDisplayUser } from "@/common/utils/users.util";
+import { isSuperAdmin } from "@/common/utils/users.util";
 import { logout } from "@/provider/features/auth/auth.slice";
 import { fetchMembers } from "@/provider/features/organizations/organizations.slice";
-
-export const ROLE_LABELS = {
-  SUPER_ADMIN: "Super Admin",
-  BUSINESS_OWNER: "Business Owner",
-  ADMIN: "Admin",
-  admin: "Admin",
-  owner: "Owner",
-  member: "Member",
-  guest: "Guest",
-};
+import ROLES, { ROLE_LABELS } from "@/common/constants/role.constant";
 
 export function useAppNavbarLogic() {
   const router = useRouter();
@@ -24,6 +16,7 @@ export function useAppNavbarLogic() {
   const currentOrganizationId = useSelector(
     (s) => s.organizations?.currentOrganizationId,
   );
+
   const unreadCount = useSelector((s) => s.notifications?.unreadCount) ?? 0;
 
   const [profileOpen, setProfileOpen] = useState(false);
@@ -41,6 +34,7 @@ export function useAppNavbarLogic() {
 
   /* ---------- Org Role ---------- */
   useEffect(() => {
+    if (!currentOrganizationId) return;
     dispatch(
       fetchMembers({
         orgId: currentOrganizationId,
@@ -48,7 +42,7 @@ export function useAppNavbarLogic() {
           const me = (data || []).find(
             (m) => m.UserId === (user.Id || user.id),
           );
-          setOrgRole(me?.Role ?? null);
+          setOrgRole(me?.Role);
         },
         errorCallBack: () => setOrgRole(null),
       }),
@@ -94,7 +88,13 @@ export function useAppNavbarLogic() {
     (user?.Email || user?.email)?.split("@")[0] ||
     "Account";
 
-  const roleLabel = orgRole ? ROLE_LABELS[orgRole] || orgRole : null;
+  const roleLabel =
+    user?.SystemRole === ROLES.SUPER_ADMIN
+      ? "Super Admin"
+      : orgRole
+        ? ROLE_LABELS[(orgRole || "").toLowerCase()] || orgRole
+        : null;
+  const superAdmin = isSuperAdmin();
 
   return {
     // state
@@ -103,6 +103,7 @@ export function useAppNavbarLogic() {
     unreadCount,
     displayName,
     roleLabel,
+    superAdmin,
 
     // setters
     setProfileOpen,

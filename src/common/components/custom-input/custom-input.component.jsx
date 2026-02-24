@@ -66,6 +66,7 @@ export default function CustomInput({
   size = "md",
   variant = "default",
   helperText = null,
+  escapeKey = null,
 }) {
   const {
     inputChangeHandler,
@@ -117,7 +118,8 @@ export default function CustomInput({
   const hasEndIcon = !!endIcon || !!getInputEndAdornment();
 
   // Match input line-height to size so placeholder/text are vertically centered
-  const inputLineHeight = { sm: "2.25rem", md: "2.75rem", lg: "3rem" }[size] ?? "2.75rem";
+  const inputLineHeight =
+    { sm: "2.25rem", md: "2.75rem", lg: "3rem" }[size] ?? "2.75rem";
 
   return (
     <div className={containerClasses}>
@@ -142,17 +144,27 @@ export default function CustomInput({
         <Input
           {...(register &&
             register(name, {
-              required: isRequired ? `${label || "This field"} is required` : false,
+              required: isRequired
+                ? `${label || "This field"} is required`
+                : false,
             }))}
           {...(onClick && { onClick })}
           {...(onKeyPress && { onKeyPress })}
           {...(onKeyDown && { onKeyDown })}
+          {...(escapeKey && {
+            onKeyDown: (e) => {
+              if (e.key === "Escape") {
+                escapeKey();
+              }
+            },
+          })}
           name={name}
           onFocus={onFocus}
           type={showPassword ? "text" : type}
           placeholder={placeholder}
           className={getInputClasses()}
-          {...(defaultValue !== null && defaultValue !== undefined && { defaultValue })}
+          {...(defaultValue !== null &&
+            defaultValue !== undefined && { defaultValue })}
           {...(value !== null && value !== undefined && { value })}
           {...(customRef && { inputRef: customRef })}
           disabled={disabled}
@@ -160,14 +172,20 @@ export default function CustomInput({
           disableUnderline={true}
           startAdornment={
             startIcon ? (
-              <InputAdornment position="start" sx={{ marginRight: 0, marginLeft: "4px" }}>
+              <InputAdornment
+                position="start"
+                sx={{ marginRight: 0, marginLeft: "4px" }}
+              >
                 {startIcon}
               </InputAdornment>
             ) : null
           }
           endAdornment={
             getInputEndAdornment() ? (
-              <InputAdornment position="end" sx={{ marginLeft: 0, marginRight: "4px" }}>
+              <InputAdornment
+                position="end"
+                sx={{ marginLeft: 0, marginRight: "4px" }}
+              >
                 {getInputEndAdornment()}
               </InputAdornment>
             ) : null
@@ -196,7 +214,11 @@ export default function CustomInput({
               boxShadow: "none",
               lineHeight: inputLineHeight,
               "&:focus": { outline: "none", border: "none", boxShadow: "none" },
-              "&:focus-visible": { outline: "none", border: "none", boxShadow: "none" },
+              "&:focus-visible": {
+                outline: "none",
+                border: "none",
+                boxShadow: "none",
+              },
             },
             "& .MuiOutlinedInput-notchedOutline": { display: "none" },
             "& fieldset": { display: "none" },
@@ -250,7 +272,10 @@ CustomInput.propTypes = {
   inlineLabel: PropTypes.bool,
   labelClassName: PropTypes.string,
   readOnly: PropTypes.bool,
-  customRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })]),
+  customRef: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.shape({ current: PropTypes.any }),
+  ]),
   size: PropTypes.oneOf(["sm", "md", "lg"]),
   variant: PropTypes.oneOf(["default", "bordered", "minimal"]),
   helperText: PropTypes.string,

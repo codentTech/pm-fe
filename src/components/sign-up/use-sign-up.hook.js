@@ -1,11 +1,12 @@
 "use client";
 
+import { signUp } from "@/provider/features/auth/auth.slice";
+import { yupResolver } from "@hookform/resolvers/yup";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
-import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
-import { signUp } from "@/provider/features/auth/auth.slice";
 
 const validationSchema = Yup.object().shape({
   FullName: Yup.string().required("Full name is required"),
@@ -19,6 +20,7 @@ export default function useSignUp() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const dispatch = useDispatch();
+  const [loading, setLoading] = useState(false);
 
   const {
     register,
@@ -31,6 +33,7 @@ export default function useSignUp() {
 
   // functions
   function onSubmit(values) {
+    setLoading(true);
     const returnUrl = searchParams?.get("returnUrl");
     const checkEmailRedirect =
       returnUrl && typeof returnUrl === "string"
@@ -42,11 +45,11 @@ export default function useSignUp() {
           FullName: values.FullName,
           Email: values.Email,
           Password: values.Password,
-          Role: "USER",
         },
         successCallBack: () => router.push(checkEmailRedirect),
-      })
+      }),
     );
+    setLoading(false);
   }
 
   return {
@@ -54,5 +57,6 @@ export default function useSignUp() {
     handleSubmit,
     errors,
     onSubmit,
+    loading,
   };
 }

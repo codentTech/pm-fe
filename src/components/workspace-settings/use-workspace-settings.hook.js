@@ -29,6 +29,8 @@ import {
   setCurrentOrganization,
   updateOrganization,
 } from "@/provider/features/organizations/organizations.slice";
+import { getDisplayUser } from "@/common/utils/users.util";
+import { canManageWorkspace } from "@/common/constants/workspace-role.constant";
 
 export default function useWorkspaceSettings() {
   // stats
@@ -74,7 +76,7 @@ export default function useWorkspaceSettings() {
   const [showLabelDeleteModal, setShowLabelDeleteModal] = useState(false);
   const [labelToDelete, setLabelToDelete] = useState(null);
 
-  const inviteForm = useForm({ defaultValues: { Email: "", Role: "member" } });
+  const inviteForm = useForm({ defaultValues: { Email: "", Role: "developer" } });
   const createForm = useForm({ defaultValues: { Name: "" } });
   const labelForm = useForm({ defaultValues: { Name: "", Color: "#6b7280" } });
 
@@ -455,6 +457,14 @@ export default function useWorkspaceSettings() {
     [organizations]
   );
 
+  const displayUser = getDisplayUser();
+  const canManageWorkspaceMembers = useMemo(() => {
+    const me = (members || []).find(
+      (m) => m.UserId === displayUser?.Id || m.UserId === displayUser?.id
+    );
+    return canManageWorkspace(me?.Role);
+  }, [members, displayUser?.Id, displayUser?.id]);
+
   const handleWorkspaceActionClick = (actionKey, row) => {
     if (actionKey === "edit") openEditOrgModal(row);
     if (actionKey === "delete") openDeleteOrgModal(row.Id);
@@ -473,6 +483,7 @@ export default function useWorkspaceSettings() {
     setEditWorkspaceNameValue,
     members,
     membersLoading,
+    canManageWorkspaceMembers,
     cancellingId,
     resendingId,
     showInviteForm,

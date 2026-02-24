@@ -17,6 +17,24 @@ const createOrganization = async (payload) => {
   return response.data;
 };
 
+/** Super Admin only: create workspace and set owner by email */
+const createWithOwner = async (payload) => {
+  const response = await api().post("/organizations/create-with-owner", payload);
+  return response.data;
+};
+
+/** Super Admin only: list all organizations */
+const listAllForSuperAdmin = async () => {
+  const response = await api().get("/organizations/list-all");
+  return response.data;
+};
+
+/** Get one organization by id (Super Admin can get any org; others require membership) */
+const getOrganization = async (orgId) => {
+  const response = await api().get(`/organizations/${orgId}`);
+  return response.data;
+};
+
 const getMembers = async (orgId) => {
   const response = await api(getHeaders(orgId)).get(`/organizations/${orgId}/members`);
   return response.data;
@@ -51,6 +69,9 @@ const organizationsService = {
   fetchOrganizations,
   getOrEnsureDefault,
   createOrganization,
+  createWithOwner,
+  listAllForSuperAdmin,
+  getOrganization,
   getMembers,
   updateMemberRole,
   removeMember,

@@ -46,7 +46,7 @@ export default function KpiTracker() {
 
   return (
     <div className="min-h-full">
-      <div className="page-header-bar p-4 sm:p-5">
+      <div className="page-header-bar px-4 sm:px-5">
         <div className="page-header-divider" />
         <div className="min-w-0 flex-1 overflow-hidden">
           <h1 className="page-header-title">KPI Tracker</h1>
@@ -65,7 +65,7 @@ export default function KpiTracker() {
       </div>
 
       <div
-        className="my-4 flex items-center gap-1 px-4 sm:mb-6 sm:px-5"
+        className="mb-4 flex items-center gap-1 px-4 sm:mb-6 sm:px-5"
         aria-hidden
       >
         <span className="h-px flex-1 bg-gradient-to-r from-transparent via-neutral-300 to-transparent" />
@@ -117,8 +117,9 @@ export default function KpiTracker() {
       >
         <form
           onSubmit={createForm.handleSubmit(handleCreate)}
-          className="space-y-4"
+          className="grid grid-cols-1 sm:grid-cols-2 gap-4"
         >
+          {/* Row 1 */}
           <CustomInput
             label="Name"
             name="Name"
@@ -127,6 +128,7 @@ export default function KpiTracker() {
             errors={createForm.formState.errors}
             isRequired
           />
+
           <CustomInput
             label="Value"
             name="Value"
@@ -135,6 +137,8 @@ export default function KpiTracker() {
             register={createForm.register}
             errors={createForm.formState.errors}
           />
+
+          {/* Row 2 */}
           <Controller
             name="Period"
             control={createForm.control}
@@ -150,6 +154,7 @@ export default function KpiTracker() {
               />
             )}
           />
+
           <CustomInput
             label="Due date (optional)"
             name="DueDate"
@@ -157,27 +162,31 @@ export default function KpiTracker() {
             register={createForm.register}
             errors={createForm.formState.errors}
           />
-          <TextArea
-            label="Notes (optional)"
-            name="Notes"
-            placeholder="Notes"
-            register={createForm.register}
-            errors={createForm.formState.errors}
-          />
-          <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
+
+          {/* Full width row */}
+          <div className="sm:col-span-2">
+            <TextArea
+              label="Notes (optional)"
+              name="Notes"
+              placeholder="Notes"
+              register={createForm.register}
+              errors={createForm.formState.errors}
+            />
+          </div>
+
+          {/* Actions - right aligned */}
+          <div className="sm:col-span-2 flex justify-end gap-2 pt-4">
             <CustomButton
               type="button"
               text="Cancel"
               variant="cancel"
               onClick={() => setShowCreateModal(false)}
-              className="w-full sm:w-auto"
             />
             <CustomButton
               type="submit"
               text="Create"
               variant="primary"
               loading={createKpiState?.isLoading}
-              className="w-full sm:w-auto"
             />
           </div>
         </form>

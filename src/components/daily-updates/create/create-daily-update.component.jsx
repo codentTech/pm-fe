@@ -10,7 +10,7 @@ import { ArrowLeft, ClipboardCheck, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { Controller } from "react-hook-form";
 import WorkItemReferenceSelect from "./components/work-item-reference-select/work-item-reference-select.component";
-import useDailyUpdateForm from "./use-daily-update-form.hook";
+import useDailyUpdateForm from "./use-create=daily-update.hook";
 
 export default function DailyUpdateForm({ updateId }) {
   const {

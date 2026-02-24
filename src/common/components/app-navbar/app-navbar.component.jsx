@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Building2, ChevronDown, LogOut, Menu, User } from "lucide-react";
+import { Bell, Building2, ChevronDown, LogOut, Menu, Shield, User } from "lucide-react";
 import Link from "next/link";
 import PropTypes from "prop-types";
 
@@ -16,6 +16,7 @@ export default function AppNavbar({ title, onMenuClick }) {
     unreadCount,
     displayName,
     roleLabel,
+    superAdmin,
     setProfileOpen,
     setNotificationsOpen,
     profileDropdownRef,
@@ -109,6 +110,16 @@ export default function AppNavbar({ title, onMenuClick }) {
               </div>
 
               <div className="border-t border-neutral-100">
+                {superAdmin && (
+                  <Link
+                    href="/super-admin/dashboard"
+                    onClick={() => setProfileOpen(false)}
+                    className="flex items-center gap-2 px-2.5 py-1.5 text-sm text-neutral-700 hover:bg-neutral-50"
+                  >
+                    <Shield className="h-3.5 w-3.5 text-neutral-500" />
+                    Create workspace
+                  </Link>
+                )}
                 <Link
                   href="/settings/account"
                   onClick={() => setProfileOpen(false)}

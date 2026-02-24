@@ -40,6 +40,7 @@ export default function WorkspaceSettings() {
     setEditWorkspaceNameValue,
     members,
     membersLoading,
+    canManageWorkspaceMembers,
     cancellingId,
     resendingId,
     showInviteForm,
@@ -111,7 +112,7 @@ export default function WorkspaceSettings() {
       <div>
         {view === "list" ? (
           <>
-            <div className="page-header-bar mt-4">
+            <div className="page-header-bar">
               <div className="page-header-divider" />
               <div className="min-w-0 flex-1 overflow-hidden">
                 <h1 className="page-header-title">Manage workspaces</h1>
@@ -124,7 +125,6 @@ export default function WorkspaceSettings() {
                 text="Create workspace"
                 variant="primary"
                 size="sm"
-                startIcon={<Plus className="h-4 w-4" />}
                 onClick={openCreateModal}
                 className="shrink-0"
               />
@@ -160,7 +160,7 @@ export default function WorkspaceSettings() {
                 />
               </div>
             ) : (
-              <div className="w-full overflow-hidden px-4">
+              <div className="w-full overflow-hidden px-4 sm:px-5">
                 <CustomDataTable
                   className="w-full"
                   columns={workspaceTableColumns}
@@ -251,7 +251,6 @@ export default function WorkspaceSettings() {
               }}
               title="Create workspace"
               size="md"
-              variant="neutral"
             >
               <form
                 onSubmit={createForm.handleSubmit(onSubmitCreate)}
@@ -265,7 +264,7 @@ export default function WorkspaceSettings() {
                   errors={createForm.formState.errors}
                   isRequired
                 />
-                <div className="flex justify-end gap-2">
+                <div className="flex justify-end gap-2 border-t border-neutral-200 pt-2">
                   <CustomButton
                     type="button"
                     text="Cancel"
@@ -323,22 +322,26 @@ export default function WorkspaceSettings() {
                       onClick={() => handleSwitchWorkspace(selectedOrgId)}
                     />
                   )}
-                  <CustomButton
-                    type="button"
-                    text="Edit"
-                    variant="outline"
-                    size="sm"
-                    startIcon={<Pencil className="h-4 w-4" />}
-                    onClick={handleStartWorkspaceRename}
-                  />
-                  <CustomButton
-                    type="button"
-                    text="Delete"
-                    variant="danger"
-                    size="sm"
-                    startIcon={<Trash2 className="h-4 w-4" />}
-                    onClick={() => openDeleteOrgModal(selectedOrgId)}
-                  />
+                  {canManageWorkspaceMembers && (
+                    <>
+                      <CustomButton
+                        type="button"
+                        text="Edit"
+                        variant="outline"
+                        size="sm"
+                        startIcon={<Pencil className="h-4 w-4" />}
+                        onClick={handleStartWorkspaceRename}
+                      />
+                      <CustomButton
+                        type="button"
+                        text="Delete"
+                        variant="danger"
+                        size="sm"
+                        startIcon={<Trash2 className="h-4 w-4" />}
+                        onClick={() => openDeleteOrgModal(selectedOrgId)}
+                      />
+                    </>
+                  )}
                 </div>
               )}
             </div>
@@ -366,18 +369,27 @@ export default function WorkspaceSettings() {
             <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
               <section className="rounded-lg border border-neutral-200 bg-white">
                 <div className="flex items-center justify-between border-b border-neutral-100 px-4 py-3">
-                  <h3 className="flex items-center gap-2 typography-body font-semibold text-primary-600">
-                    <Users className="h-4 w-4 text-primary-500" />
-                    Members
-                  </h3>
-                  <CustomButton
-                    type="button"
-                    text="Invite"
-                    variant="primary"
-                    size="sm"
-                    startIcon={<UserPlus className="h-4 w-4" />}
-                    onClick={toggleShowInviteForm}
-                  />
+                  <div>
+                    <h3 className="flex items-center gap-2 typography-body font-semibold text-primary-600">
+                      <Users className="h-4 w-4 text-primary-500" />
+                      Members
+                    </h3>
+                    {!canManageWorkspaceMembers && (
+                      <p className="mt-0.5 text-xs text-neutral-500">
+                        Only the org admin can invite members and edit workspace.
+                      </p>
+                    )}
+                  </div>
+                  {canManageWorkspaceMembers && (
+                    <CustomButton
+                      type="button"
+                      text="Invite"
+                      variant="primary"
+                      size="sm"
+                      startIcon={<UserPlus className="h-4 w-4" />}
+                      onClick={toggleShowInviteForm}
+                    />
+                  )}
                 </div>
 
                 {showInviteForm && (

@@ -18,9 +18,10 @@ export default function DailyUpdatesFilterBar({
   setSelectedUserId,
   setSelectedRole,
   setSelectedStatus,
+  showUserFilter = true,
 }) {
   return (
-    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+    <div className={`grid gap-3 sm:grid-cols-2 ${showUserFilter ? "lg:grid-cols-5" : "lg:grid-cols-4"}`}>
       <div className="w-full">
         <CustomInput
           label="From"
@@ -47,18 +48,20 @@ export default function DailyUpdatesFilterBar({
           startIcon={<CalendarDays className="h-4 w-4 text-neutral-400" />}
         />
       </div>
-      <div className="w-full">
-        <SimpleSelect
-          label="User"
-          size="sm"
-          labelClassName="text-[11px] font-semibold uppercase tracking-wide text-neutral-500"
-          variant="bordered"
-          placeholder="All users"
-          value={selectedUserId}
-          options={memberOptions}
-          onChange={(value) => setSelectedUserId(value)}
-        />
-      </div>
+      {showUserFilter && (
+        <div className="w-full">
+          <SimpleSelect
+            label="User"
+            size="sm"
+            labelClassName="text-[11px] font-semibold uppercase tracking-wide text-neutral-500"
+            variant="bordered"
+            placeholder="All users"
+            value={selectedUserId}
+            options={memberOptions}
+            onChange={(value) => setSelectedUserId(value)}
+          />
+        </div>
+      )}
       <div className="w-full">
         <SimpleSelect
           label="Role"

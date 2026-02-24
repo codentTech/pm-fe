@@ -3,7 +3,7 @@
 import Auth from "@/auth/auth.component";
 import AUTH from "@/common/constants/auth.constant";
 import NAVBAR_TITLE from "@/common/constants/navbar-title.constant";
-import DailyUpdatesUpdates from "@/components/daily-updates/daily-updates-updates/daily-updates-updates.component";
+import DailyUpdatesUpdates from "@/components/daily-updates/list/list.component";
 
 export default function DailyUpdatesUpdatesPage() {
   return (

@@ -19,7 +19,9 @@ const NAVBAR_TITLE = Object.freeze({
   WORKSPACE_MEMBERS: 'Members',
   WORKSPACE_INVITES: 'Pending invites',
   WORKSPACE_LABELS: 'Labels',
-  CLOUD: 'Cloud'
+  CLOUD: 'Cloud',
+  CREATE_WORKSPACE: 'Create workspace',
+  ORGANIZATIONS: 'Organizations',
 });
 
 export default NAVBAR_TITLE;

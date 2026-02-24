@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { BookOpen, Plus } from "lucide-react";
 import CustomButton from "@/common/components/custom-button/custom-button.component";
 import NoResultFound from "@/common/components/no-result-found/no-result-found.jsx";
-import useProjectWiki from "../use-project-wiki.hook";
+import useProjectWiki from "../../use-project-wiki.hook";
 
 export default function ProjectWikiList({ projectId }) {
   const router = useRouter();

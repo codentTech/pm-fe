@@ -101,7 +101,7 @@ export default function OrganizationSwitcher() {
             errors={createForm.formState.errors}
             isRequired
           />
-          <div className="flex justify-end gap-3 pt-1">
+          <div className="flex justify-end gap-3 pt-1 border-t border-neutral-200">
             <CustomButton
               type="button"
               text="Cancel"
@@ -146,9 +146,11 @@ export default function OrganizationSwitcher() {
               {...inviteForm.register("Role")}
               className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2.5 typography-body text-neutral-800 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
             >
-              <option value="member">Member</option>
-              <option value="admin">Admin</option>
-              <option value="guest">Guest</option>
+              <option value="developer">Developer</option>
+              <option value="project_manager">Project Manager</option>
+              <option value="quality_assurance_engineer">QA Engineer</option>
+              <option value="seo_specialist">SEO Specialist</option>
+              <option value="business_developer">Business Developer</option>
             </select>
           </div>
           <div className="flex justify-end gap-3 pt-1">

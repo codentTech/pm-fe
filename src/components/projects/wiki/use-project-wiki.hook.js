@@ -374,7 +374,7 @@ export default function useProjectWiki({ projectId, slug, pageId }) {
     return (member?.Role || "").toLowerCase() || null;
   }, [orgMembers]);
 
-  const isAdmin = currentUserRole === "admin" || currentUserRole === "owner";
+  const isAdmin = currentUserRole === "project_manager";
 
   return {
     currentProject,
