@@ -5,6 +5,14 @@ const fetchWikiPages = async (projectId) => {
   return response.data;
 };
 
+const searchWikiPages = async (projectId, q) => {
+  const params = q ? { q: q.trim() } : {};
+  const response = await api().get(`/projects/${projectId}/wiki/search`, {
+    params,
+  });
+  return response.data;
+};
+
 const fetchWikiPage = async (projectId, slug) => {
   const response = await api().get(`/projects/${projectId}/wiki/${slug}`);
   return response.data;
@@ -55,6 +63,7 @@ const deleteWikiAttachment = async (projectId, pageId, attachmentId) => {
 
 const wikiService = {
   fetchWikiPages,
+  searchWikiPages,
   fetchWikiPage,
   createWikiPage,
   updateWikiPage,

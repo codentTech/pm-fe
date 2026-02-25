@@ -3,7 +3,7 @@
 import Auth from "@/auth/auth.component";
 import AUTH from "@/common/constants/auth.constant";
 import NAVBAR_TITLE from "@/common/constants/navbar-title.constant";
-import BoardsList from "@/components/boards/boards-list.component";
+import BoardsList from "@/components/projects/projects-list.component";
 
 export default function BoardsPage() {
   return (

@@ -4,7 +4,7 @@ import { use } from "react";
 import Auth from "@/auth/auth.component";
 import AUTH from "@/common/constants/auth.constant";
 import NAVBAR_TITLE from "@/common/constants/navbar-title.constant";
-import ProjectWikiList from "@/components/projects/wiki/project-wiki-list.component";
+import ProjectWikiList from "@/components/projects/wiki/wiki-list.component";
 
 export default function ProjectWikiListPage({ params }) {
   const { id } = use(params);

@@ -126,7 +126,7 @@ export const fetchMembers = createAsyncThunk(
       const response = await organizationsService.getMembers(orgId);
       if (response?.success && response?.data) {
         successCallBack?.(response.data);
-        return response.data;
+        return { data: response.data, orgId };
       }
       errorCallBack?.();
       return thunkAPI.rejectWithValue(response);
@@ -305,9 +305,14 @@ export const organizationsSlice = createSlice({
         setRejected(state, "deleteOrganization", action.payload?.message)
       )
       .addCase(fetchMembers.pending, (state) => setPending(state, "fetchMembers"))
-      .addCase(fetchMembers.fulfilled, (state, action) =>
-        setFulfilled(state, "fetchMembers", action.payload)
-      )
+      .addCase(fetchMembers.fulfilled, (state, action) => {
+        const payload = action.payload;
+        const data = payload?.data ?? (Array.isArray(payload) ? payload : null);
+        setFulfilled(state, "fetchMembers", data);
+        if (payload && typeof payload === "object" && "orgId" in payload) {
+          state.fetchMembers.orgId = payload.orgId;
+        }
+      })
       .addCase(fetchMembers.rejected, (state, action) =>
         setRejected(state, "fetchMembers", action.payload?.message)
       )

@@ -1,16 +1,16 @@
 "use client";
 
-import { useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import Auth from "@/auth/auth.component";
+import WorkspaceDetail from "@/components/workspace-settings/detail/workspace-detail.component";
+import AUTH from "@/common/constants/auth.constant";
+import NAVBAR_TITLE from "@/common/constants/navbar-title.constant";
 
 export default function WorkspaceDetailPage() {
-  const router = useRouter();
-  const params = useParams();
-  const id = params?.id;
-
-  useEffect(() => {
-    if (id) router.replace(`/settings/workspace/${id}/members`);
-  }, [id, router]);
-
-  return null;
+  return (
+    <Auth
+      component={<WorkspaceDetail />}
+      type={AUTH.PRIVATE}
+      title={NAVBAR_TITLE.WORKSPACE_SETTINGS}
+    />
+  );
 }

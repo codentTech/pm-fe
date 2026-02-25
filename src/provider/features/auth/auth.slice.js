@@ -41,7 +41,7 @@ export const login = createAsyncThunk(
     } catch (error) {
       return thunkAPI.rejectWithValue({ payload: error });
     }
-  }
+  },
 );
 // signUp user
 export const signUp = createAsyncThunk(
@@ -58,7 +58,7 @@ export const signUp = createAsyncThunk(
     } catch (error) {
       return thunkAPI.rejectWithValue({ payload: error });
     }
-  }
+  },
 );
 
 export const loginAndSignUpWithOAuth = createAsyncThunk(
@@ -79,7 +79,7 @@ export const loginAndSignUpWithOAuth = createAsyncThunk(
     } catch (error) {
       return thunkAPI.rejectWithValue({ payload: error });
     }
-  }
+  },
 );
 
 export const loginAndSignUpWithLinkedin = createAsyncThunk(
@@ -95,7 +95,7 @@ export const loginAndSignUpWithLinkedin = createAsyncThunk(
     } catch (error) {
       return thunkAPI.rejectWithValue({ payload: error });
     }
-  }
+  },
 );
 
 export const verifyEmail = createAsyncThunk(
@@ -113,7 +113,7 @@ export const verifyEmail = createAsyncThunk(
       errorCallBack?.();
       return thunkAPI.rejectWithValue({ payload: error });
     }
-  }
+  },
 );
 
 export const forgotPassword = createAsyncThunk(
@@ -129,7 +129,7 @@ export const forgotPassword = createAsyncThunk(
     } catch (error) {
       return thunkAPI.rejectWithValue({ payload: error });
     }
-  }
+  },
 );
 
 export const resetPassword = createAsyncThunk(
@@ -145,26 +145,29 @@ export const resetPassword = createAsyncThunk(
     } catch (error) {
       return thunkAPI.rejectWithValue({ payload: error });
     }
-  }
+  },
 );
 
-export const logout = createAsyncThunk("auth/logout", async (payload, thunkAPI) => {
-  try {
-    const response = await authService.logout();
-    removeUser();
-    thunkAPI.dispatch(clearOrganizations());
-    thunkAPI.dispatch(clearPendingForMe());
-    if (response.success ?? response.Succeeded) {
-      return response;
+export const logout = createAsyncThunk(
+  "auth/logout",
+  async (payload, thunkAPI) => {
+    try {
+      const response = await authService.logout();
+      removeUser();
+      thunkAPI.dispatch(clearOrganizations());
+      thunkAPI.dispatch(clearPendingForMe());
+      if (response.success ?? response.Succeeded) {
+        return response;
+      }
+      return thunkAPI.rejectWithValue(response);
+    } catch (error) {
+      removeUser();
+      thunkAPI.dispatch(clearOrganizations());
+      thunkAPI.dispatch(clearPendingForMe());
+      return thunkAPI.rejectWithValue({ payload: error });
     }
-    return thunkAPI.rejectWithValue(response);
-  } catch (error) {
-    removeUser();
-    thunkAPI.dispatch(clearOrganizations());
-    thunkAPI.dispatch(clearPendingForMe());
-    return thunkAPI.rejectWithValue({ payload: error });
-  }
-});
+  },
+);
 
 export const authSlice = createSlice({
   name: "auth",
@@ -314,7 +317,11 @@ export const authSlice = createSlice({
   },
 });
 
-export const { reset, setIsCreatorModeMode, setSidebarToggleItem, setLogoutLoader } =
-  authSlice.actions;
+export const {
+  reset,
+  setIsCreatorModeMode,
+  setSidebarToggleItem,
+  setLogoutLoader,
+} = authSlice.actions;
 
 export default authSlice.reducer;

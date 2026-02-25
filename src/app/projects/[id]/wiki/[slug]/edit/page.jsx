@@ -4,7 +4,7 @@ import { use } from "react";
 import Auth from "@/auth/auth.component";
 import AUTH from "@/common/constants/auth.constant";
 import NAVBAR_TITLE from "@/common/constants/navbar-title.constant";
-import ProjectWikiForm from "@/components/projects/wiki/project-wiki-form.component";
+import ProjectWikiForm from "@/components/projects/wiki/components/create/project-wiki-form.component";
 
 export default function ProjectWikiEditPage({ params }) {
   const { id, slug } = use(params);

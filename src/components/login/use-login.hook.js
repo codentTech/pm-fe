@@ -1,18 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useDispatch, useSelector } from "react-redux";
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as Yup from "yup";
-import { AES, enc } from "crypto-js";
+import ROLES from "@/common/constants/role.constant";
+import { isSafeReturnUrl } from "@/common/utils/is-safe-return-url.util";
 import {
   login,
   loginAndSignUpWithOAuth,
 } from "@/provider/features/auth/auth.slice";
-import { isLoginVerified } from "@/common/utils/access-token.util";
-import { isSafeReturnUrl } from "@/common/utils/is-safe-return-url.util";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { AES, enc } from "crypto-js";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { useDispatch, useSelector } from "react-redux";
+import * as Yup from "yup";
 
 const validationSchema = Yup.object().shape({
   email: Yup.string()
@@ -48,9 +48,11 @@ export default function useLogin() {
 
   // useEffect
   useEffect(() => {
-    if (isLoginVerified()) {
-    }
-  }, [router]);
+    const remember =
+      localStorage.getItem("rememberedUsername") &&
+      localStorage.getItem("rememberedPassword");
+    setIsChecked(remember);
+  }, []);
 
   useEffect(() => {
     loadRememberedCredentials();
@@ -61,12 +63,20 @@ export default function useLogin() {
     setShowPassword((prev) => !prev);
   }
 
-  function moveRouter() {
+  function moveRouter(user) {
     const returnUrl = searchParams?.get("returnUrl");
-    if (returnUrl && typeof window !== "undefined" && isSafeReturnUrl(returnUrl)) {
+    if (
+      returnUrl &&
+      typeof window !== "undefined" &&
+      isSafeReturnUrl(returnUrl)
+    ) {
       router.push(returnUrl);
     } else {
-      router.push("/projects");
+      router.push(
+        user?.SystemRole === ROLES.SUPER_ADMIN
+          ? "/super-admin/organizations"
+          : "/projects",
+      );
     }
   }
 
@@ -77,10 +87,11 @@ export default function useLogin() {
       localStorage?.getItem("rememberedPassword")
     ) {
       const storedUsername = localStorage.getItem("rememberedUsername");
-      const storedEncryptedPassword = localStorage.getItem("rememberedPassword");
+      const storedEncryptedPassword =
+        localStorage.getItem("rememberedPassword");
       const bytes = AES.decrypt(
         storedEncryptedPassword,
-        process.env.NEXT_PUBLIC_MAIN_URL_SECRET_KEY
+        process.env.NEXT_PUBLIC_MAIN_URL_SECRET_KEY,
       );
       const decryptedPassword = bytes.toString(enc.Utf8);
       setValue("email", storedUsername);
@@ -93,16 +104,17 @@ export default function useLogin() {
     const response = await dispatch(
       login({
         payload: { Email: values.email, Password: values.password },
-        successCallBack: moveRouter,
+        successCallBack: (data) => moveRouter(data?.user),
         setLoading,
-      })
+      }),
     );
+
     response && setLoading(false);
     if (typeof window === "object" && localStorage) {
       if (isChecked) {
         const encryptedPassword = AES.encrypt(
           values.password,
-          process.env.NEXT_PUBLIC_MAIN_URL_SECRET_KEY
+          process.env.NEXT_PUBLIC_MAIN_URL_SECRET_KEY,
         ).toString();
         localStorage.setItem("rememberedUsername", values.email);
         localStorage.setItem("rememberedPassword", encryptedPassword);
@@ -120,7 +132,7 @@ export default function useLogin() {
         email,
         accessToken,
         successCallBack: moveRouter,
-      })
+      }),
     );
   }
 

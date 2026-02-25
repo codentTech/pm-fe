@@ -26,12 +26,17 @@ import {
   updateSprint,
   deleteSprint,
 } from "@/provider/features/sprints/sprints.slice";
-import { fetchLabels } from "@/provider/features/labels/labels.slice";
 import { fetchMembers } from "@/provider/features/organizations/organizations.slice";
 import { getDisplayUser } from "@/common/utils/users.util";
 import useProjectSocket from "@/common/hooks/use-project-socket.hook";
+import { PROJECT_STATUS_OPTIONS } from "@/common/constants/project.constant";
+import {
+  TICKET_PRIORITY_OPTIONS,
+  TICKET_STATUS_BY_LIST_TITLE,
+  TICKET_WIP_LIMITS_BY_STATUS,
+} from "@/common/constants/ticket.constant";
 
-export default function useBoardDetail(projectId) {
+export default function useProjectDetail(projectId) {
   useProjectSocket(projectId);
   const router = useRouter();
   const dispatch = useDispatch();
@@ -42,7 +47,6 @@ export default function useBoardDetail(projectId) {
     deleteList: deleteListState,
     createList: createListState,
     createCard: createCardState,
-    updateCard: updateCardState,
     productBacklog,
     sprintBacklog,
     bugBacklog,
@@ -55,10 +59,8 @@ export default function useBoardDetail(projectId) {
     updateSprint: updateSprintState,
     deleteSprintState,
   } = useSelector((state) => state.sprints ?? {});
-  const labels = useSelector((state) => state.labels?.labels || []);
   const [showAddList, setShowAddList] = useState(false);
   const [addingCardListId, setAddingCardListId] = useState(null);
-  const [selectedCard, setSelectedCard] = useState(null);
   const [activeCard, setActiveCard] = useState(null);
   const [activeListId, setActiveListId] = useState(null);
   const [activeDropTarget, setActiveDropTarget] = useState(null);
@@ -75,6 +77,7 @@ export default function useBoardDetail(projectId) {
   const [selectedProductIds, setSelectedProductIds] = useState([]);
   const [selectedSprintIds, setSelectedSprintIds] = useState([]);
   const [bulkAssignLoading, setBulkAssignLoading] = useState(false);
+  const [bulkTargetSprintId, setBulkTargetSprintId] = useState("");
   const [sprintError, setSprintError] = useState("");
   const [selectedSprintId, setSelectedSprintId] = useState("");
   const [currentUserRole, setCurrentUserRole] = useState(null);
@@ -100,15 +103,6 @@ export default function useBoardDetail(projectId) {
       Status: "planned",
     },
   });
-  const cardDetailForm = useForm({
-    defaultValues: {
-      Title: "",
-      Description: "",
-      DueDate: "",
-      LabelIds: [],
-      AssigneeIds: [],
-    },
-  });
 
   const orgId = currentProject?.OrganizationId;
   const isReadOnly = currentUserRole === "guest";
@@ -123,17 +117,13 @@ export default function useBoardDetail(projectId) {
   }, [projectId, dispatch]);
 
   useEffect(() => {
-    if (orgId) dispatch(fetchLabels(orgId));
-  }, [orgId, dispatch]);
-
-  useEffect(() => {
     if (!orgId) return;
     dispatch(
       fetchMembers({
         orgId,
         successCallBack: (data) => setOrgMembers(data || []),
         errorCallBack: () => setOrgMembers([]),
-      })
+      }),
     );
   }, [orgId, dispatch]);
 
@@ -144,36 +134,10 @@ export default function useBoardDetail(projectId) {
       return;
     }
     const member = orgMembers.find(
-      (m) => m.User?.Id === user.Id || m.UserId === user.Id
+      (m) => m.User?.Id === user.Id || m.UserId === user.Id,
     );
     setCurrentUserRole((member?.Role || "").toLowerCase() || null);
   }, [orgMembers]);
-
-  useEffect(() => {
-    if (selectedCard) {
-      cardDetailForm.reset({
-        Title: selectedCard.Title || "",
-        Description: selectedCard.Description || "",
-        DueDate: selectedCard.DueDate ? selectedCard.DueDate.slice(0, 10) : "",
-        LabelIds: (selectedCard.CardLabels || []).map((cl) => cl.LabelId),
-        AssigneeIds: (selectedCard.CardAssignees || []).map((ca) => ca.UserId),
-      });
-    }
-  }, [selectedCard]);
-
-  useEffect(() => {
-    if (selectedCard?.Id && orgId) {
-      dispatch(
-        fetchMembers({
-          orgId,
-          successCallBack: (data) => setOrgMembers(data || []),
-          errorCallBack: () => setOrgMembers([]),
-        })
-      );
-    } else {
-      setOrgMembers([]);
-    }
-  }, [selectedCard?.Id, orgId, dispatch]);
 
   useEffect(() => {
     if (activeView !== "backlogs" || !projectId) return;
@@ -189,22 +153,7 @@ export default function useBoardDetail(projectId) {
     if (activeBacklogTab === "blocked") {
       dispatch(fetchBlockedBacklog({ projectId }));
     }
-  }, [
-    activeView,
-    activeBacklogTab,
-    projectId,
-    selectedSprintId,
-    dispatch,
-  ]);
-
-  useEffect(() => {
-    if (selectedCard?.Id && currentProject?.Lists) {
-      const card = currentProject.Lists.flatMap((l) => l.Cards || []).find(
-        (c) => c.Id === selectedCard.Id
-      );
-      if (card) setSelectedCard(card);
-    }
-  }, [currentProject?.Lists, selectedCard?.Id]);
+  }, [activeView, activeBacklogTab, projectId, selectedSprintId, dispatch]);
 
   // functions
   function handleCreateList(values) {
@@ -215,7 +164,7 @@ export default function useBoardDetail(projectId) {
           setShowAddList(false);
           listForm.reset();
         },
-      })
+      }),
     );
   }
 
@@ -241,7 +190,7 @@ export default function useBoardDetail(projectId) {
           sprintForm.reset();
           dispatch(fetchSprints({ projectId }));
         },
-      })
+      }),
     );
   }
 
@@ -253,9 +202,13 @@ export default function useBoardDetail(projectId) {
     if (values?.StartDate !== undefined) payload.StartDate = values.StartDate;
     if (values?.EndDate !== undefined) payload.EndDate = values.EndDate;
     if (values?.Goal !== undefined) payload.Goal = values.Goal || undefined;
-    if (values && Object.prototype.hasOwnProperty.call(values, "CapacitySnapshot")) {
+    if (
+      values &&
+      Object.prototype.hasOwnProperty.call(values, "CapacitySnapshot")
+    ) {
       const hasCapacity =
-        values.CapacitySnapshot && Object.keys(values.CapacitySnapshot).length > 0;
+        values.CapacitySnapshot &&
+        Object.keys(values.CapacitySnapshot).length > 0;
       payload.CapacitySnapshot = hasCapacity ? values.CapacitySnapshot : null;
     }
     if (values?.Status !== undefined) payload.Status = values.Status;
@@ -267,7 +220,7 @@ export default function useBoardDetail(projectId) {
           onSuccess?.(data);
           if (projectId) dispatch(fetchSprints({ projectId }));
         },
-      })
+      }),
     );
   }
 
@@ -287,7 +240,7 @@ export default function useBoardDetail(projectId) {
       createCard({
         payload: body,
         successCallBack: () => setAddingCardListId(null),
-      })
+      }),
     );
   }
 
@@ -303,14 +256,19 @@ export default function useBoardDetail(projectId) {
         payload: { SprintId: sprintId || null },
         successCallBack: () => {
           if (!projectId) return;
-          if (activeBacklogTab === "product") dispatch(fetchProductBacklog({ projectId }));
+          if (activeBacklogTab === "product")
+            dispatch(fetchProductBacklog({ projectId }));
           if (activeBacklogTab === "sprint" && selectedSprintId) {
-            dispatch(fetchSprintBacklog({ projectId, sprintId: selectedSprintId }));
+            dispatch(
+              fetchSprintBacklog({ projectId, sprintId: selectedSprintId }),
+            );
           }
-          if (activeBacklogTab === "bugs") dispatch(fetchBugBacklog({ projectId }));
-          if (activeBacklogTab === "blocked") dispatch(fetchBlockedBacklog({ projectId }));
+          if (activeBacklogTab === "bugs")
+            dispatch(fetchBugBacklog({ projectId }));
+          if (activeBacklogTab === "blocked")
+            dispatch(fetchBlockedBacklog({ projectId }));
         },
-      })
+      }),
     );
   }
 
@@ -322,14 +280,19 @@ export default function useBoardDetail(projectId) {
         payload,
         successCallBack: () => {
           if (!refetchBacklog || !projectId) return;
-          if (activeBacklogTab === "product") dispatch(fetchProductBacklog({ projectId }));
+          if (activeBacklogTab === "product")
+            dispatch(fetchProductBacklog({ projectId }));
           if (activeBacklogTab === "sprint" && selectedSprintId) {
-            dispatch(fetchSprintBacklog({ projectId, sprintId: selectedSprintId }));
+            dispatch(
+              fetchSprintBacklog({ projectId, sprintId: selectedSprintId }),
+            );
           }
-          if (activeBacklogTab === "bugs") dispatch(fetchBugBacklog({ projectId }));
-          if (activeBacklogTab === "blocked") dispatch(fetchBlockedBacklog({ projectId }));
+          if (activeBacklogTab === "bugs")
+            dispatch(fetchBugBacklog({ projectId }));
+          if (activeBacklogTab === "blocked")
+            dispatch(fetchBlockedBacklog({ projectId }));
         },
-      })
+      }),
     );
   }
 
@@ -338,8 +301,8 @@ export default function useBoardDetail(projectId) {
     setBulkAssignLoading(true);
     await Promise.all(
       cardIds.map((id) =>
-        dispatch(updateCard({ id, payload: { SprintId: sprintId } }))
-      )
+        dispatch(updateCard({ id, payload: { SprintId: sprintId } })),
+      ),
     );
     if (projectId) dispatch(fetchProductBacklog({ projectId }));
     if (projectId) dispatch(fetchSprintBacklog({ projectId, sprintId }));
@@ -352,8 +315,8 @@ export default function useBoardDetail(projectId) {
     setBulkAssignLoading(true);
     await Promise.all(
       cardIds.map((id) =>
-        dispatch(updateCard({ id, payload: { SprintId: null } }))
-      )
+        dispatch(updateCard({ id, payload: { SprintId: null } })),
+      ),
     );
     if (projectId) dispatch(fetchSprintBacklog({ projectId, sprintId }));
     if (projectId) dispatch(fetchProductBacklog({ projectId }));
@@ -411,14 +374,16 @@ export default function useBoardDetail(projectId) {
           if (projectId) dispatch(fetchSprints({ projectId }));
           setSprintToDeleteId(null);
         },
-      })
+      }),
     );
   }
 
   const handleMoveCardAt = useCallback(
     (cardId, targetListId, targetIndex) => {
       const lists = currentProject?.Lists || [];
-      const sourceList = lists.find((l) => (l.Cards || []).some((c) => c.Id === cardId));
+      const sourceList = lists.find((l) =>
+        (l.Cards || []).some((c) => c.Id === cardId),
+      );
       const sourceListId = sourceList?.Id;
       const sourceIndex = sourceList
         ? (sourceList.Cards || []).findIndex((c) => c.Id === cardId)
@@ -432,7 +397,7 @@ export default function useBoardDetail(projectId) {
           sourceListId,
           targetListId,
           targetIndex,
-        })
+        }),
       );
 
       dispatch(
@@ -446,13 +411,13 @@ export default function useBoardDetail(projectId) {
                 sourceListId,
                 sourceIndex,
                 targetListId,
-              })
+              }),
             );
           },
-        })
+        }),
       );
     },
-    [dispatch, currentProject?.Lists]
+    [dispatch, currentProject?.Lists],
   );
 
   const handleReorderLists = useCallback(
@@ -461,7 +426,7 @@ export default function useBoardDetail(projectId) {
         dispatch(updateList({ id: listId, payload: { Position: index } }));
       });
     },
-    [dispatch]
+    [dispatch],
   );
 
   function handleDeleteList(listId) {
@@ -470,7 +435,6 @@ export default function useBoardDetail(projectId) {
 
   function handleDeleteCard(cardId) {
     dispatch(deleteCardAction({ id: cardId }));
-    if (selectedCard?.Id === cardId) setSelectedCard(null);
   }
 
   const lists = useMemo(
@@ -508,97 +472,93 @@ export default function useBoardDetail(projectId) {
     router.push(`/projects/${projectId}/cards/${card.Id}`);
   }
 
-  function closeCardDetail() {
-    setSelectedCard(null);
+  function handleCapacityChange(form, memberId, value) {
+    const capacity = form.getValues("CapacitySnapshot") || {};
+    const next = { ...capacity };
+    if (value === "" || value == null) {
+      delete next[memberId];
+    } else {
+      next[memberId] = Number(value);
+    }
+    form.setValue("CapacitySnapshot", next, { shouldDirty: true });
   }
 
-  const refetchProject = useCallback(() => {
-    if (projectId) dispatch(fetchProjectById(projectId));
-  }, [projectId, dispatch]);
-
-  async function handleAddAttachment(url, fileName) {
-    if (!selectedCard?.Id || !orgId) return;
-    const res = await attachmentsService.create(
-      selectedCard.Id,
-      { Type: "link", Url: url, FileName: fileName || null },
-      orgId
-    );
-    if (res?.success) refetchProject();
-  }
-
-  async function handleRemoveAttachment(attachmentId) {
-    if (!selectedCard?.Id || !orgId) return;
-    const res = await attachmentsService.remove(
-      selectedCard.Id,
-      attachmentId,
-      orgId
-    );
-    if (res?.success) refetchProject();
-  }
-
-  async function handleAddComment(content) {
-    if (!selectedCard?.Id || !orgId) return;
-    const res = await commentsService.create(
-      selectedCard.Id,
-      { Content: content },
-      orgId
-    );
-    if (res?.success) refetchProject();
-  }
-
-  async function handleAddChecklist(title) {
-    if (!selectedCard?.Id || !orgId) return;
-    const res = await checklistsService.createChecklist(
-      selectedCard.Id,
-      { Title: title },
-      orgId
-    );
-    if (res?.success) refetchProject();
-  }
-
-  async function handleAddChecklistItem(checklistId, title) {
-    if (!selectedCard?.Id || !orgId) return;
-    const res = await checklistsService.createItem(
-      selectedCard.Id,
-      checklistId,
-      { Title: title },
-      orgId
-    );
-    if (res?.success) refetchProject();
-  }
-
-  async function handleToggleChecklistItem(checklistId, itemId, isCompleted) {
-    if (!selectedCard?.Id || !orgId) return;
-    const res = await checklistsService.updateItem(
-      selectedCard.Id,
-      checklistId,
-      itemId,
-      { IsCompleted: isCompleted },
-      orgId
-    );
-    if (res?.success) refetchProject();
-  }
-
-  async function handleDeleteChecklist(checklistId) {
-    if (!selectedCard?.Id || !orgId) return;
-    const res = await checklistsService.deleteChecklist(
-      selectedCard.Id,
-      checklistId,
-      orgId
-    );
-    if (res?.success) refetchProject();
-  }
-
-  async function handleDeleteChecklistItem(checklistId, itemId) {
-    if (!selectedCard?.Id || !orgId) return;
-    const res = await checklistsService.deleteItem(
-      selectedCard.Id,
-      checklistId,
-      itemId,
-      orgId
-    );
-    if (res?.success) refetchProject();
-  }
+  const safeLists = useMemo(() => lists || [], [lists]);
+  const safeSprints = useMemo(() => sprints || [], [sprints]);
+  const priorityLabelByValue = useMemo(
+    () =>
+      TICKET_PRIORITY_OPTIONS.reduce(
+        (acc, option) => ({ ...acc, [option.value]: option.label }),
+        {},
+      ),
+    [],
+  );
+  const capacityMembers = useMemo(
+    () =>
+      (orgMembers || []).map((m) => ({
+        id: m.User?.Id || m.UserId,
+        name: m.User?.FullName || "Unknown",
+      })),
+    [orgMembers],
+  );
+  const listToDeleteTitle =
+    safeLists.find((l) => l.Id === listToDeleteId)?.Title ?? "this list";
+  const sprintOptions = safeSprints.map((s) => ({ value: s.Id, label: s.Name }));
+  const sprintNameById = useMemo(
+    () =>
+      sprintOptions.reduce(
+        (acc, option) => ({ ...acc, [option.value]: option.label }),
+        {},
+      ),
+    [sprintOptions],
+  );
+  const wipByListId = useMemo(
+    () =>
+      safeLists.reduce((acc, list) => {
+        const statusKey =
+          TICKET_STATUS_BY_LIST_TITLE[list?.Title?.trim().toLowerCase() ?? ""];
+        const limit =
+          statusKey && Number.isFinite(TICKET_WIP_LIMITS_BY_STATUS[statusKey])
+            ? TICKET_WIP_LIMITS_BY_STATUS[statusKey]
+            : null;
+        const count = list?.Cards?.length ?? 0;
+        acc[list.Id] = {
+          status: statusKey || null,
+          limit,
+          count,
+          isBlocked: !!limit && count >= limit,
+        };
+        return acc;
+      }, {}),
+    [safeLists],
+  );
+  const projectStatusLabel =
+    PROJECT_STATUS_OPTIONS.find((s) => s.value === currentProject?.Status)
+      ?.label ||
+    currentProject?.Status ||
+    "—";
+  const projectStatusKey = (currentProject?.Status || "").toLowerCase();
+  const isProjectReadOnly =
+    projectStatusKey === "paused" || projectStatusKey === "closed";
+  const canManageSprints = !isReadOnly && projectStatusKey === "active";
+  const canEditBacklog = !isReadOnly && !isProjectReadOnly;
+  const backlogData =
+    activeBacklogTab === "product"
+      ? (productBacklog?.data?.items ?? [])
+      : activeBacklogTab === "sprint"
+        ? (sprintBacklog?.data?.items ?? [])
+        : activeBacklogTab === "bugs"
+          ? (bugBacklog?.data?.items ?? [])
+          : (blockedBacklog?.data?.items ?? []);
+  const planSprint = safeSprints.find((s) => s.Id === planSprintId);
+  const backlogLoading =
+    activeBacklogTab === "product"
+      ? productBacklog?.isLoading
+      : activeBacklogTab === "sprint"
+        ? sprintBacklog?.isLoading
+        : activeBacklogTab === "bugs"
+          ? bugBacklog?.isLoading
+          : blockedBacklog?.isLoading;
 
   return {
     currentProject,
@@ -649,7 +609,6 @@ export default function useBoardDetail(projectId) {
     sprintBacklog,
     bugBacklog,
     blockedBacklog,
-    sprints,
     fetchSprintsState,
     createSprintState,
     updateSprintState,
@@ -683,6 +642,23 @@ export default function useBoardDetail(projectId) {
     isReadOnly,
     sprintToDeleteId,
     setSprintToDeleteId,
-    setSprintToDeleteId,
+    bulkTargetSprintId,
+    setBulkTargetSprintId,
+    safeLists,
+    safeSprints,
+    priorityLabelByValue,
+    capacityMembers,
+    listToDeleteTitle,
+    sprintOptions,
+    sprintNameById,
+    wipByListId,
+    projectStatusLabel,
+    isProjectReadOnly,
+    canManageSprints,
+    canEditBacklog,
+    backlogData,
+    planSprint,
+    backlogLoading,
+    handleCapacityChange,
   };
 }

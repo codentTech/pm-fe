@@ -12,9 +12,11 @@ const generalState = {
 const initialState = {
   pages: [],
   currentPage: null,
+  requestedSlug: null,
   attachments: [],
   fetchPages: generalState,
   fetchPage: generalState,
+  searchPages: generalState,
   createPage: generalState,
   updatePage: generalState,
   deletePage: generalState,
@@ -28,6 +30,19 @@ export const fetchWikiPages = createAsyncThunk(
   async ({ projectId }, thunkAPI) => {
     try {
       const response = await wikiService.fetchWikiPages(projectId);
+      if (response?.success && response?.data) return response.data;
+      return thunkAPI.rejectWithValue(response);
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ payload: error });
+    }
+  },
+);
+
+export const searchWikiPages = createAsyncThunk(
+  "wiki/searchWikiPages",
+  async ({ projectId, q }, thunkAPI) => {
+    try {
+      const response = await wikiService.searchWikiPages(projectId, q);
       if (response?.success && response?.data) return response.data;
       return thunkAPI.rejectWithValue(response);
     } catch (error) {
@@ -174,6 +189,7 @@ export const wikiSlice = createSlice({
   reducers: {
     clearCurrentPage: (state) => {
       state.currentPage = null;
+      state.requestedSlug = null;
     },
   },
   extraReducers: (builder) => {
@@ -186,7 +202,17 @@ export const wikiSlice = createSlice({
       .addCase(fetchWikiPages.rejected, (state, action) =>
         setRejected(state, "fetchPages", action.payload?.message),
       )
-      .addCase(fetchWikiPage.pending, (state) => setPending(state, "fetchPage"))
+      .addCase(searchWikiPages.pending, (state) => setPending(state, "searchPages"))
+      .addCase(searchWikiPages.fulfilled, (state, action) => {
+        setFulfilled(state, "searchPages", action.payload);
+      })
+      .addCase(searchWikiPages.rejected, (state, action) =>
+        setRejected(state, "searchPages", action.payload?.message),
+      )
+      .addCase(fetchWikiPage.pending, (state, action) => {
+        setPending(state, "fetchPage");
+        state.requestedSlug = action.meta?.arg?.slug ?? null;
+      })
       .addCase(fetchWikiPage.fulfilled, (state, action) => {
         setFulfilled(state, "fetchPage", action.payload);
         state.currentPage = action.payload;

@@ -8,7 +8,7 @@ export const LIST_COLORS = [
   "from-violet-500 to-violet-700",
 ];
 
-export const BOARD_CARD_COLORS = LIST_COLORS;
+export const PROJECT_CARD_COLORS = LIST_COLORS;
 export const CARD_COLORS = LIST_COLORS;
 export const KPI_SEPARATOR_COLORS = LIST_COLORS;
 export const LIST_CARD_COLORS = LIST_COLORS;

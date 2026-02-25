@@ -6,8 +6,11 @@ import {
   closestCorners,
   defaultDropAnimationSideEffects,
 } from "@dnd-kit/core";
-import { SortableContext, horizontalListSortingStrategy } from "@dnd-kit/sortable";
-import CardItem from "@/components/boards/card-item/card-item.component";
+import {
+  SortableContext,
+  horizontalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import CardItem from "@/components/projects/card-item/card-item.component";
 import DraggableCard from "./components/draggable-card/draggable-card.component";
 import useBoardDnd from "./use-board-dnd.hook";
 
@@ -42,16 +45,17 @@ export default function BoardDnd({
   wipByListId,
   children,
 }) {
-  const { sensors, onDragStart, onDragOver, onDragEnd, onDragCancel } = useBoardDnd({
-    listIds,
-    lists,
-    onMoveCardAt,
-    onReorderLists,
-    setActiveCard,
-    setActiveListId,
-    setActiveDropTarget,
-    wipByListId,
-  });
+  const { sensors, onDragStart, onDragOver, onDragEnd, onDragCancel } =
+    useBoardDnd({
+      listIds,
+      lists,
+      onMoveCardAt,
+      onReorderLists,
+      setActiveCard,
+      setActiveListId,
+      setActiveDropTarget,
+      wipByListId,
+    });
 
   return (
     <DndContext
@@ -67,7 +71,11 @@ export default function BoardDnd({
       </SortableContext>
       <DragOverlay dropAnimation={dropAnimationConfig}>
         {activeCard ? (
-          <DraggableCard card={activeCard} listId={activeCard.ListId} isDragOverlay>
+          <DraggableCard
+            card={activeCard}
+            listId={activeCard.ListId}
+            isDragOverlay
+          >
             <CardItem
               card={activeCard}
               onMoveTo={() => {}}

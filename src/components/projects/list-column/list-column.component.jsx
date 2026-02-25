@@ -4,7 +4,7 @@ import { Plus, MoreHorizontal, Trash2 } from "lucide-react";
 import CustomButton from "@/common/components/custom-button/custom-button.component";
 import CustomInput from "@/common/components/custom-input/custom-input.component";
 import TextArea from "@/common/components/text-area/text-area.component";
-import CardItem from "@/components/boards/card-item/card-item.component";
+import CardItem from "@/components/projects/card-item/card-item.component";
 import useListColumn from "./use-list-column.hook";
 
 export default function ListColumn({

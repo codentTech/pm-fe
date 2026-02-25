@@ -1,20 +1,28 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import ConfirmationModal from "@/common/components/confirmation-modal/confirmation-modal.component";
 import CustomButton from "@/common/components/custom-button/custom-button.component";
-import CustomInput from "@/common/components/custom-input/custom-input.component";
 import CustomDataTable from "@/common/components/custom-data-table/custom-data-table.component";
+import CustomInput from "@/common/components/custom-input/custom-input.component";
 import SimpleSelect from "@/common/components/dropdowns/simple-select/simple-select.jsx";
 import Loader from "@/common/components/loader/loader.component";
 import Modal from "@/common/components/modal/modal.component";
 import NoResultFound from "@/common/components/no-result-found/no-result-found.jsx";
+import ReadMore from "@/common/components/readmore/readmore.component";
 import TextArea from "@/common/components/text-area/text-area.component";
-import BoardDnd from "@/components/boards/board-dnd/board-dnd.component";
-import SortableListColumn from "@/components/boards/board-dnd/components/sortable-list-column/sortable-list-column.component";
+import { LIST_COLORS } from "@/common/constants/colors.constant";
+import {
+  SPRINT_STATUS_CLASSES,
+  SPRINT_STATUS_LABELS,
+  SPRINT_STATUS_OPTIONS,
+  SPRINT_STATUS_TRANSITIONS,
+} from "@/common/constants/sprint.constant";
+import { TICKET_PRIORITY_OPTIONS } from "@/common/constants/ticket.constant";
+import { formatDate } from "@/common/utils/date.util";
+import BoardDnd from "@/components/projects/board-dnd/board-dnd.component";
+import SortableListColumn from "@/components/projects/board-dnd/components/sortable-list-column/sortable-list-column.component";
 import {
   ArrowLeft,
-  BookOpen,
   CheckCircle,
   LayoutGrid,
   Lock,
@@ -25,25 +33,12 @@ import {
   Users,
 } from "lucide-react";
 import Link from "next/link";
-import useBoardDetail from "./use-board-detail.hook";
-import { LIST_COLORS } from "@/common/constants/colors.constant";
-import {
-  TICKET_STATUS_BY_LIST_TITLE,
-  TICKET_WIP_LIMITS_BY_STATUS,
-} from "@/common/constants/ticket.constant";
-import { TICKET_PRIORITY_OPTIONS } from "@/common/constants/ticket.constant";
-import { PROJECT_STATUS_OPTIONS } from "@/common/constants/project.constant";
-import {
-  SPRINT_STATUS_LABELS,
-  SPRINT_STATUS_CLASSES,
-  SPRINT_STATUS_OPTIONS,
-  SPRINT_STATUS_TRANSITIONS,
-} from "@/common/constants/sprint.constant";
-import { formatDate } from "@/common/utils/date.util";
-import ReadMore from "@/common/components/readmore/readmore.component";
+import { useRouter } from "next/navigation";
+import { useMemo } from "react";
+import useProjectDetail from "./use-detail.hook";
 
-export default function BoardDetail({ projectId }) {
-  const [bulkTargetSprintId, setBulkTargetSprintId] = useState("");
+export default function ProjectDetail({ projectId }) {
+  const router = useRouter();
   const {
     currentProject,
     fetchState,
@@ -87,7 +82,6 @@ export default function BoardDetail({ projectId }) {
     sprintBacklog,
     bugBacklog,
     blockedBacklog,
-    sprints,
     fetchSprintsState,
     createSprintState,
     updateSprintState,
@@ -122,69 +116,28 @@ export default function BoardDetail({ projectId }) {
     confirmDeleteSprint,
     sprintToDeleteId,
     setSprintToDeleteId,
+    bulkTargetSprintId,
+    setBulkTargetSprintId,
     currentUserRole,
     isReadOnly,
     orgMembers,
-  } = useBoardDetail(projectId);
-
-  const safeLists = lists || [];
-  const safeSprints = sprints || [];
-
-  const priorityLabelByValue = useMemo(
-    () =>
-      TICKET_PRIORITY_OPTIONS.reduce(
-        (acc, option) => ({ ...acc, [option.value]: option.label }),
-        {},
-      ),
-    [],
-  );
-
-  const capacityMembers = useMemo(
-    () =>
-      (orgMembers || []).map((m) => ({
-        id: m.User?.Id || m.UserId,
-        name: m.User?.FullName || "Unknown",
-      })),
-    [orgMembers],
-  );
-
-  const listToDeleteTitle =
-    safeLists.find((l) => l.Id === listToDeleteId)?.Title ?? "this list";
-  const sprintOptions = safeSprints.map((s) => ({
-    value: s.Id,
-    label: s.Name,
-  }));
-  const sprintNameById = sprintOptions.reduce(
-    (acc, option) => ({ ...acc, [option.value]: option.label }),
-    {},
-  );
-  const wipByListId = safeLists.reduce((acc, list) => {
-    const statusKey =
-      TICKET_STATUS_BY_LIST_TITLE[list?.Title?.trim().toLowerCase() ?? ""];
-    const limit =
-      statusKey && Number.isFinite(TICKET_WIP_LIMITS_BY_STATUS[statusKey])
-        ? TICKET_WIP_LIMITS_BY_STATUS[statusKey]
-        : null;
-    const count = list?.Cards?.length ?? 0;
-    acc[list.Id] = {
-      status: statusKey || null,
-      limit,
-      count,
-      isBlocked: !!limit && count >= limit,
-    };
-    return acc;
-  }, {});
-
-  const projectStatusLabel =
-    PROJECT_STATUS_OPTIONS.find((s) => s.value === currentProject?.Status)
-      ?.label ||
-    currentProject?.Status ||
-    "—";
-  const projectStatusKey = (currentProject?.Status || "").toLowerCase();
-  const isProjectReadOnly =
-    projectStatusKey === "paused" || projectStatusKey === "closed";
-  const canManageSprints = !isReadOnly && projectStatusKey === "active";
-  const canEditBacklog = !isReadOnly && !isProjectReadOnly;
+    safeLists,
+    safeSprints,
+    priorityLabelByValue,
+    capacityMembers,
+    listToDeleteTitle,
+    sprintOptions,
+    sprintNameById,
+    wipByListId,
+    projectStatusLabel,
+    isProjectReadOnly,
+    canManageSprints,
+    canEditBacklog,
+    backlogData,
+    planSprint,
+    backlogLoading,
+    handleCapacityChange,
+  } = useProjectDetail(projectId);
 
   const CapacityEditor = ({ form, disabled = false }) => {
     const capacity = form.watch("CapacitySnapshot") || {};
@@ -210,16 +163,9 @@ export default function BoardDetail({ projectId }) {
               placeholder="Hours"
               className="w-28"
               value={capacity[member.id] ?? ""}
-              onChange={(e) => {
-                const next = { ...capacity };
-                const value = e.target.value;
-                if (!value) {
-                  delete next[member.id];
-                } else {
-                  next[member.id] = Number(value);
-                }
-                form.setValue("CapacitySnapshot", next, { shouldDirty: true });
-              }}
+              onChange={(e) =>
+                handleCapacityChange(form, member.id, e.target.value)
+              }
               disabled={disabled}
             />
           </div>
@@ -350,26 +296,6 @@ export default function BoardDetail({ projectId }) {
     sprintOptions,
   ]);
 
-  const backlogData =
-    activeBacklogTab === "product"
-      ? (productBacklog?.data?.items ?? [])
-      : activeBacklogTab === "sprint"
-        ? (sprintBacklog?.data?.items ?? [])
-        : activeBacklogTab === "bugs"
-          ? (bugBacklog?.data?.items ?? [])
-          : (blockedBacklog?.data?.items ?? []);
-
-  const planSprint = safeSprints.find((s) => s.Id === planSprintId);
-
-  const backlogLoading =
-    activeBacklogTab === "product"
-      ? productBacklog?.isLoading
-      : activeBacklogTab === "sprint"
-        ? sprintBacklog?.isLoading
-        : activeBacklogTab === "bugs"
-          ? bugBacklog?.isLoading
-          : blockedBacklog?.isLoading;
-
   if (fetchState?.isLoading && !currentProject) {
     return (
       <div className="flex min-h-[400px] items-center justify-center p-6">
@@ -422,12 +348,14 @@ export default function BoardDetail({ projectId }) {
               {projectStatusLabel}
             </span>
           )}
-          <CustomButton
-            text="Create Wiki for this project"
-            variant="primary"
-            size="sm"
-            onClick={() => router.push(`/projects/${projectId}/wiki`)}
-          />
+          <Link href={`/projects/${projectId}/wiki`}>
+            <CustomButton
+              text="Wiki"
+              variant="primary"
+              size="sm"
+              className="shrink-0"
+            />
+          </Link>
         </div>
       </div>
 
@@ -444,16 +372,16 @@ export default function BoardDetail({ projectId }) {
         <span className="page-separator-line" />
       </div>
 
-      <div className="px-4 sm:px-5 mb-4 ">
+      <div className="px-4 sm:px-5 mb-4">
         {currentProject.Description && (
-          <p className="max-w-full break-words rounded-lg border border-neutral-200 p-2">
+          <div className="max-w-full break-words rounded-lg border border-neutral-200 p-2">
             <ReadMore text={currentProject.Description} size={300} />
-          </p>
+          </div>
         )}
       </div>
 
       <div className="px-4 sm:px-5">
-        <div className="flex flex-wrap gap-2 rounded-lg border border-neutral-200 bg-white/70 p-2 shadow-sm">
+        <div className="flex flex-wrap items-center gap-2 rounded-lg border border-neutral-200 bg-white/70 p-2 shadow-sm">
           {[
             { key: "kanban", label: "Kanban" },
             { key: "backlogs", label: "Backlogs" },
@@ -472,6 +400,12 @@ export default function BoardDetail({ projectId }) {
               {view.label}
             </button>
           ))}
+          <Link
+            href={`/projects/${projectId}/wiki`}
+            className="rounded-lg px-3.5 py-1 text-xs font-semibold transition-all bg-neutral-200 text-neutral-600 hover:bg-indigo-50 hover:text-indigo-700"
+          >
+            Wiki
+          </Link>
         </div>
       </div>
 
@@ -585,10 +519,7 @@ export default function BoardDetail({ projectId }) {
             {activeBacklogTab === "sprint" && (
               <div className="min-w-[240px]">
                 <SimpleSelect
-                  options={(sprints || []).map((s) => ({
-                    value: s.Id,
-                    label: s.Name,
-                  }))}
+                  options={sprintOptions}
                   value={selectedSprintId}
                   onChange={(value) => setSelectedSprintId(value)}
                   placeholder="Select sprint"
@@ -869,7 +800,7 @@ export default function BoardDetail({ projectId }) {
                   ),
                 },
               ]}
-              data={(sprints || []).map((s) => ({ ...s, id: s.Id }))}
+              data={safeSprints.map((s) => ({ ...s, id: s.Id }))}
               loading={!!fetchSprintsState?.isLoading}
               searchable={false}
               paginated={false}

@@ -8,20 +8,27 @@ import Modal from "@/common/components/modal/modal.component";
 import NoResultFound from "@/common/components/no-result-found/no-result-found.jsx";
 import ProjectsListSkeleton from "@/common/components/skeleton/projects-list-skeleton.component";
 import TextArea from "@/common/components/text-area/text-area.component";
-import { BOARD_CARD_COLORS } from "@/common/constants/colors.constant";
+import { PROJECT_CARD_COLORS } from "@/common/constants/colors.constant";
 import {
   PROJECT_DELIVERY_TYPE_OPTIONS,
   PROJECT_RISK_LEVEL_OPTIONS,
   PROJECT_STATUS_OPTIONS,
 } from "@/common/constants/project.constant";
 import OnboardingBanner from "@/components/onboarding/onboarding-banner.component";
-import { LayoutGrid, LayoutList, Pencil, Plus, Trash2 } from "lucide-react";
+import {
+  BookOpen,
+  LayoutGrid,
+  LayoutList,
+  Pencil,
+  Plus,
+  Trash2,
+} from "lucide-react";
 import Link from "next/link";
 import { Controller } from "react-hook-form";
-import useBoardsList from "./use-boards-list.hook";
+import useProjectsList from "./use-projects-list.hook";
 
 function getProjectColor(index) {
-  return BOARD_CARD_COLORS[index % BOARD_CARD_COLORS.length];
+  return PROJECT_CARD_COLORS[index % PROJECT_CARD_COLORS.length];
 }
 
 function getProjectStatusLabel(status) {
@@ -33,7 +40,7 @@ function getProjectStatusLabel(status) {
   );
 }
 
-export default function BoardsList() {
+export default function ProjectsList() {
   const {
     projects,
     loading,
@@ -51,13 +58,14 @@ export default function BoardsList() {
     editErrors,
     register,
     editRegister,
+    bidOptions,
     onSubmitCreate,
     onSubmitEdit,
     handleDeleteProject,
     createLoading,
     updateLoading,
     deleteLoading,
-  } = useBoardsList();
+  } = useProjectsList();
 
   return (
     <div className="min-h-full">
@@ -80,7 +88,7 @@ export default function BoardsList() {
       <div className="mb-5 flex items-center gap-1 sm:mb-6" aria-hidden>
         <span className="h-px flex-1 bg-gradient-to-r from-transparent via-neutral-300 to-transparent" />
         <span className="flex gap-1">
-          {BOARD_CARD_COLORS.map((color, i) => (
+          {PROJECT_CARD_COLORS.map((color, i) => (
             <span
               key={i}
               className={`h-1.5 w-1.5 rounded-full bg-gradient-to-br ${color}`}
@@ -142,6 +150,15 @@ export default function BoardsList() {
                   </div>
                   <div className="h-4 w-px shrink-0 bg-neutral-200" />
                   <div className="flex flex-1 gap-1">
+                    <Link
+                      href={`/projects/${project.Id}/wiki`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="flex min-w-0 flex-1 items-center justify-center rounded-md bg-neutral-100 py-2 hover:bg-neutral-200"
+                      aria-label="Open wiki"
+                      title="Wiki"
+                    >
+                      <BookOpen className="h-4 w-4" />
+                    </Link>
                     <button
                       type="button"
                       onClick={(e) => {
@@ -182,7 +199,7 @@ export default function BoardsList() {
       >
         <form
           onSubmit={handleSubmit(onSubmitCreate)}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
         >
           {/* Project name */}
           <CustomInput
@@ -257,16 +274,22 @@ export default function BoardsList() {
             )}
           />
 
-          {/* External reference ID */}
-          <CustomInput
-            label="External reference ID"
+          {/* Link to bid */}
+          <Controller
             name="ExternalReferenceId"
-            placeholder="External ID"
-            register={register}
-            errors={errors}
+            control={createForm.control}
+            render={({ field }) => (
+              <SimpleSelect
+                label="Link to bid"
+                options={bidOptions}
+                value={field.value || ""}
+                onChange={field.onChange}
+                placeholder="Select a bid…"
+                errors={errors}
+              />
+            )}
           />
 
-          {/* ✅ Full-width TextArea */}
           <div className="col-span-1 sm:col-span-2 lg:col-span-3 xl:col-span-4">
             <TextArea
               label="Description (optional)"
@@ -373,12 +396,19 @@ export default function BoardsList() {
             )}
           />
 
-          <CustomInput
-            label="External reference ID"
+          <Controller
             name="ExternalReferenceId"
-            placeholder="External ID"
-            register={editRegister}
-            errors={editErrors}
+            control={editForm.control}
+            render={({ field }) => (
+              <SimpleSelect
+                label="Link to bid"
+                options={bidOptions}
+                value={field.value || ""}
+                onChange={field.onChange}
+                placeholder="Select a bid…"
+                errors={editErrors}
+              />
+            )}
           />
 
           <div className="col-span-1 sm:col-span-2 lg:col-span-3 xl:col-span-4 mt-2">

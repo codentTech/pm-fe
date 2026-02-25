@@ -4,7 +4,7 @@ import { use } from "react";
 import Auth from "@/auth/auth.component";
 import AUTH from "@/common/constants/auth.constant";
 import NAVBAR_TITLE from "@/common/constants/navbar-title.constant";
-import BoardDetail from "@/components/boards/board-detail/board-detail.component";
+import BoardDetail from "@/components/projects/detail/detail.component";
 
 export default function BoardDetailPage({ params }) {
   const { id } = use(params);

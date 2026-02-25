@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
@@ -10,9 +10,9 @@ import {
   updateProject,
   deleteProject,
 } from "@/provider/features/projects/projects.slice";
+import { fetchBids } from "@/provider/features/bids/bids.slice";
 
-export default function useBoardsList() {
-  // stats
+export default function useProjectsList() {
   const dispatch = useDispatch();
   const searchParams = useSearchParams();
   const {
@@ -23,8 +23,9 @@ export default function useBoardsList() {
     deleteProject: deleteState,
   } = useSelector((state) => state?.projects ?? {});
   const currentOrganizationId = useSelector(
-    (state) => state.organizations?.currentOrganizationId
+    (state) => state.organizations?.currentOrganizationId,
   );
+  const bids = useSelector((state) => state.bids?.bids ?? []);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingProject, setEditingProject] = useState(null);
   const [projectToDeleteId, setProjectToDeleteId] = useState(null);
@@ -66,8 +67,22 @@ export default function useBoardsList() {
   }, [dispatch, currentOrganizationId]);
 
   useEffect(() => {
+    if (currentOrganizationId !== undefined) {
+      dispatch(fetchBids({ params: { page: 1, limit: 100 } }));
+    }
+  }, [dispatch, currentOrganizationId]);
+
+  useEffect(() => {
     if (searchParams?.get("openCreate") === "1") setShowCreateModal(true);
   }, [searchParams]);
+
+  const bidOptions = useMemo(() => {
+    const options = (bids || []).map((bid) => ({
+      value: bid.Id,
+      label: [bid.BidTitle, bid.ClientDisplayName].filter(Boolean).join(" — ") || "Bid",
+    }));
+    return [{ value: "", label: "None" }, ...options];
+  }, [bids]);
 
   useEffect(() => {
     if (editingProject) {
@@ -104,7 +119,7 @@ export default function useBoardsList() {
           setShowCreateModal(false);
           createForm.reset();
         },
-      })
+      }),
     );
   }
 
@@ -127,7 +142,7 @@ export default function useBoardsList() {
           setEditingProject(null);
           editForm.reset();
         },
-      })
+      }),
     );
   }
 
@@ -137,7 +152,7 @@ export default function useBoardsList() {
       deleteProject({
         id: projectToDeleteId,
         successCallBack: () => setProjectToDeleteId(null),
-      })
+      }),
     );
   }
 
@@ -158,6 +173,7 @@ export default function useBoardsList() {
     editErrors: editForm.formState.errors,
     register: createForm.register,
     editRegister: editForm.register,
+    bidOptions,
     onSubmitCreate,
     onSubmitEdit,
     handleDeleteProject,
