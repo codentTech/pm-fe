@@ -40,18 +40,33 @@ const navItems = [
 ];
 
 const projectItems = [
-  { href: "/projects/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  {
+    href: "/projects/dashboard",
+    label: "Dashboard",
+    icon: LayoutDashboard,
+    visibility: SIDEBAR_VISIBILITY.dashboard,
+  },
   { href: "/projects", label: "Projects", icon: List },
 ];
 
 const bidItems = [
-  { href: "/bids/dashboard", label: "Dashboard", icon: BarChart3 },
+  {
+    href: "/bids/dashboard",
+    label: "Dashboard",
+    icon: BarChart3,
+    visibility: SIDEBAR_VISIBILITY.dashboard,
+  },
   { href: "/bids/all", label: "All bids", icon: Briefcase },
   { href: "/bids/backlogs", label: "Backlogs", icon: CheckSquare },
 ];
 
 const dailyUpdateItems = [
-  { href: "/daily-updates/dashboard", label: "Dashboard", icon: BarChart3 },
+  {
+    href: "/daily-updates/dashboard",
+    label: "Dashboard",
+    icon: BarChart3,
+    visibility: SIDEBAR_VISIBILITY.dashboard,
+  },
   { href: "/daily-updates/updates", label: "Updates", icon: ClipboardCheck },
   { href: "/daily-updates/backlogs", label: "Backlogs", icon: CheckSquare },
   { href: "/daily-updates/analytics", label: "Analytics", icon: BarChart3 },
@@ -297,7 +312,13 @@ export default function AppSidebar({ onMenuClick }) {
 
                   {bidsExpanded && (
                     <div className="mt-1 space-y-0.5 border-l-2 border-neutral-200 pl-3 ml-3">
-                      {bidItems.map(({ href, label, icon: Icon }) => {
+                      {bidItems
+                        .filter(
+                          (item) =>
+                            !item.visibility ||
+                            canSeeSidebarItem(orgRole, item.visibility),
+                        )
+                        .map(({ href, label, icon: Icon }) => {
                         const isActive = pathname === href;
                         return (
                           <Link
@@ -341,7 +362,13 @@ export default function AppSidebar({ onMenuClick }) {
 
                 {projectExpanded && (
                   <div className="mt-1 space-y-0.5 border-l-2 border-neutral-200 pl-3 ml-3">
-                    {projectItems.map(({ href, label, icon: Icon }) => {
+                    {projectItems
+                      .filter(
+                        (item) =>
+                          !item.visibility ||
+                          canSeeSidebarItem(orgRole, item.visibility),
+                      )
+                      .map(({ href, label, icon: Icon }) => {
                       const isActive = pathname === href;
                       return (
                         <Link
@@ -384,7 +411,13 @@ export default function AppSidebar({ onMenuClick }) {
 
                 {dailyUpdatesExpanded && (
                   <div className="mt-1 space-y-0.5 border-l-2 border-neutral-200 pl-3 ml-3">
-                    {dailyUpdateItems.map(({ href, label, icon: Icon }) => {
+                    {dailyUpdateItems
+                      .filter(
+                        (item) =>
+                          !item.visibility ||
+                          canSeeSidebarItem(orgRole, item.visibility),
+                      )
+                      .map(({ href, label, icon: Icon }) => {
                       const isActive = pathname === href;
                       return (
                         <Link

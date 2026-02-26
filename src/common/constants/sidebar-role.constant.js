@@ -35,6 +35,9 @@ export const SIDEBAR_VISIBILITY = Object.freeze({
 
   /** Pending invitations link: org_admin only */
   workspacePendingInvites: ORG_ADMIN_ROLES,
+
+  /** Dashboard links (Projects, Bids, Daily Updates): org_admin only */
+  dashboard: ORG_ADMIN_ROLES,
 });
 
 /** Returns true if the current org role is allowed for the given visibility rule (null = all roles). */
