@@ -2,26 +2,10 @@
 
 import CustomButton from "@/common/components/custom-button/custom-button.component";
 import Modal from "@/common/components/modal/modal.component";
-import {
-  ArrowLeft,
-  Mail,
-  RefreshCw,
-  Tag,
-  Trash2,
-  Users,
-  User,
-} from "lucide-react";
+import PageHeader from "@/common/components/page-header/page-header.component";
+import { Mail, RefreshCw, Tag, Trash2, Users, User } from "lucide-react";
 import Link from "next/link";
 import useWorkspaceDetail from "./use-workspace-detail.hook";
-
-const SEPARATOR_COLORS = [
-  "from-indigo-500 to-indigo-700",
-  "from-emerald-500 to-emerald-700",
-  "from-amber-500 to-amber-700",
-  "from-rose-500 to-rose-700",
-  "from-sky-500 to-sky-700",
-  "from-violet-500 to-violet-700",
-];
 
 const LINKS = [
   {
@@ -63,58 +47,37 @@ export default function WorkspaceDetail() {
 
   return (
     <div className="min-h-full">
-      <div className="page-header-bar">
-        <Link href="/settings/workspace">
-          <CustomButton
-            type="button"
-            text="Back to workspaces"
-            variant="outline"
-            size="sm"
-            startIcon={<ArrowLeft className="h-4 w-4" />}
-            className="shrink-0"
-          />
-        </Link>
-        <div className="page-header-divider" />
-        <div className="min-w-0 flex-1 overflow-hidden">
-          <h1 className="page-header-title">{org?.Name ?? "Workspace"}</h1>
-          <p className="page-header-subtitle">
-            View members, invites, and labels
-          </p>
-        </div>
-        <div className="flex shrink-0 items-center gap-2">
-          {!isCurrentWorkspace && (
+      <PageHeader
+        backLink={{
+          href: "/settings/workspace",
+          label: "Back to workspaces",
+        }}
+        title={org?.Name ?? "Workspace"}
+        subtitle="View members, invites, and labels"
+        actions={
+          <>
+            {!isCurrentWorkspace && (
+              <CustomButton
+                type="button"
+                text="Switch to this workspace"
+                variant="primary"
+                size="xs"
+                startIcon={<RefreshCw className="h-3.5 w-3.5" />}
+                onClick={handleSwitchWorkspace}
+              />
+            )}
+
             <CustomButton
               type="button"
-              text="Switch to this workspace"
-              variant="primary"
-              size="sm"
-              startIcon={<RefreshCw className="h-4 w-4" />}
-              onClick={handleSwitchWorkspace}
+              text="Delete workspace"
+              variant="danger"
+              size="xs"
+              startIcon={<Trash2 className="h-3.5 w-3.5" />}
+              onClick={openDeleteModal}
             />
-          )}
-          <CustomButton
-            type="button"
-            text="Delete workspace"
-            variant="danger"
-            size="sm"
-            startIcon={<Trash2 className="h-4 w-4" />}
-            onClick={openDeleteModal}
-          />
-        </div>
-      </div>
-
-      <div className="page-separator" aria-hidden>
-        <span className="page-separator-line" />
-        <span className="flex gap-1">
-          {SEPARATOR_COLORS.map((color, i) => (
-            <span
-              key={i}
-              className={`page-separator-dot bg-gradient-to-br ${color}`}
-            />
-          ))}
-        </span>
-        <span className="page-separator-line" />
-      </div>
+          </>
+        }
+      />
 
       <div className="space-y-4 px-4 sm:px-5">
         <div className="rounded-xl border-2 border-neutral-200 bg-neutral-50/50 p-4">

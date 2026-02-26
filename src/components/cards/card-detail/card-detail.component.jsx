@@ -29,6 +29,7 @@ import { Controller } from "react-hook-form";
 import CardAttachmentsSection from "./components/card-attachments-section/card-attachments-section.component";
 import CardChecklistsSection from "./components/card-checklists-section/card-checklists-section.component";
 import CardCommentsSection from "./components/card-comments-section/card-comments-section.component";
+import PageHeader from "@/common/components/page-header/page-header.component";
 import useCardDetail from "./use-card-detail.hook";
 
 function SelectedLabels({ labelIds, labels }) {
@@ -152,14 +153,6 @@ export default function CardDetail({ projectId, cardId }) {
     );
   }
 
-  const SEPARATOR_COLORS = [
-    "from-indigo-500 to-indigo-700",
-    "from-emerald-500 to-emerald-700",
-    "from-amber-500 to-amber-700",
-    "from-rose-500 to-rose-700",
-    "from-sky-500 to-sky-700",
-    "from-violet-500 to-violet-700",
-  ];
   const projectStatusLabel = (currentProject?.Status || "—").toLowerCase();
   const statusHistory = Array.isArray(card.StatusHistory)
     ? [...card.StatusHistory].reverse()
@@ -168,65 +161,46 @@ export default function CardDetail({ projectId, cardId }) {
 
   return (
     <div className="flex min-w-0 flex-col bg-white">
-      <div className="sticky top-0 z-10 page-header-bar">
-        <Link
-          href={`/projects/${projectId}`}
-          className="flex shrink-0 items-center gap-1.5 rounded-md px-2 py-1.5 typography-body font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          <span className="hidden sm:inline">
-            {currentProject?.Name || "Project"}
-          </span>
-        </Link>
-        <div className="page-header-divider" />
-        <div className="min-w-0 flex-1 overflow-hidden">
-          <h1 className="truncate font-bold typography-h4 !text-indigo-600 sm:typography-h3">
-            {capitalizeFirstLetter(card.Title)}
-          </h1>
-        </div>
-        {projectStatusLabel && (
-          <span className="rounded-full bg-neutral-100 px-3 py-1 text-xs font-semibold text-neutral-700">
-            {projectStatusLabel}
-          </span>
-        )}
-        {currentUserRole && (
-          <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">
-            {currentUserRole}
-          </span>
-        )}
-        <button
-          type="button"
-          onClick={handleCopyLink}
-          className="flex shrink-0 items-center gap-1.5 rounded-md px-2 py-1.5 typography-body-sm text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900 focus:outline-none"
-          title="Copy card link"
-        >
-          {linkCopied ? (
-            <>
-              <CheckCircle className="h-4 w-4 text-success-600" />
-              <span className="hidden sm:inline">Copied</span>
-            </>
-          ) : (
-            <>
-              <Link2 className="h-4 w-4" />
-              <span className="hidden sm:inline">Copy link</span>
-            </>
-          )}
-        </button>
-      </div>
-
-      <div className="page-separator" aria-hidden>
-        <span className="page-separator-line" />
-        <span className="flex gap-1">
-          {SEPARATOR_COLORS.map((color, i) => (
-            <span
-              key={i}
-              className={`page-separator-dot bg-gradient-to-br ${color}`}
-            />
-          ))}
-        </span>
-        <span className="page-separator-line" />
-      </div>
-
+      <PageHeader
+        backLink={{
+          href: `/projects/${projectId}`,
+          label: currentProject?.Name || "Project",
+        }}
+        title={capitalizeFirstLetter(card.Title)}
+        actions={
+          <>
+            {projectStatusLabel && (
+              <span className="rounded-full bg-neutral-100 px-3 py-1 text-xs font-semibold text-neutral-700">
+                {projectStatusLabel}
+              </span>
+            )}
+            {currentUserRole && (
+              <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">
+                {currentUserRole}
+              </span>
+            )}
+            <button
+              type="button"
+              onClick={handleCopyLink}
+              className="flex shrink-0 items-center gap-1.5 rounded-md px-2 py-1.5 typography-body-sm text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900 focus:outline-none"
+              title="Copy card link"
+            >
+              {linkCopied ? (
+                <>
+                  <CheckCircle className="h-4 w-4 text-success-600" />
+                  <span className="hidden sm:inline">Copied</span>
+                </>
+              ) : (
+                <>
+                  <Link2 className="h-4 w-4" />
+                  <span className="hidden sm:inline">Copy link</span>
+                </>
+              )}
+            </button>
+          </>
+        }
+        className="sticky top-0 z-10"
+      />
       <form
         onSubmit={cardDetailForm.handleSubmit(handleUpdateCard)}
         className="flex min-w-0 flex-1 flex-col"

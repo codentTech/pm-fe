@@ -1,15 +1,14 @@
 "use client";
 
-import { ArrowLeft, FileQuestion } from "lucide-react";
-import Link from "next/link";
+import { FileQuestion } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { BID_STATUS_LABELS } from "@/common/constants/bid.constant";
-import { KPI_SEPARATOR_COLORS } from "@/common/constants/colors.constant";
 import { formatDate } from "@/common/utils/date.util";
 import useBidDetail from "./use-bid-detail.hook";
 import NoResultFound from "@/common/components/no-result-found/no-result-found.jsx";
 import CustomButton from "@/common/components/custom-button/custom-button.component";
+import PageHeader from "@/common/components/page-header/page-header.component";
 import { createProjectFromBid } from "@/provider/features/projects/projects.slice";
 
 export default function BidDetail({ bidId }) {
@@ -47,60 +46,36 @@ export default function BidDetail({ bidId }) {
 
   return (
     <div className="flex min-w-0 flex-col bg-white">
-      <div className="sticky top-0 z-10 page-header-bar">
-        <Link
-          href="/bids"
-          className="flex shrink-0 items-center gap-1.5 rounded-md px-2 py-1.5 typography-body font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          <span className="hidden sm:inline">Bids</span>
-        </Link>
-        <div className="page-header-divider" />
-        <div className="min-w-0 flex-1 overflow-hidden">
-          <h1 className="truncate font-bold typography-h4 !text-indigo-600 sm:typography-h3">
-            {bid.BidTitle}
-          </h1>
-          <p className="truncate text-sm text-neutral-600">
-            {bid.ClientDisplayName}
-          </p>
-        </div>
-        <div className="hidden sm:flex items-center gap-2">
-          <span className="rounded-lg bg-indigo-600 px-3 py-1 text-xs font-medium text-white">
-            {BID_STATUS_LABELS[bid.CurrentStatus] || bid.CurrentStatus || "—"}
-          </span>
-          {bid.CurrentStatus === "won" && (
-            <CustomButton
-              text="Create project"
-              variant="primary"
-              size="sm"
-              loading={createProjectState?.isLoading}
-              onClick={() =>
-                dispatch(
-                  createProjectFromBid({
-                    bidId: bid.Id,
-                    successCallBack: (project) =>
-                      router.push(`/projects/${project.Id}`),
-                  })
-                )
-              }
-            />
-          )}
-        </div>
-      </div>
-
-      <div className="page-separator" aria-hidden>
-        <span className="page-separator-line" />
-        <span className="flex gap-1">
-          {KPI_SEPARATOR_COLORS.map((color, i) => (
-            <span
-              key={i}
-              className={`page-separator-dot bg-gradient-to-br ${color}`}
-            />
-          ))}
-        </span>
-        <span className="page-separator-line" />
-      </div>
-
+      <PageHeader
+        backLink={{ href: "/bids", label: "Bids" }}
+        title={bid.BidTitle}
+        subtitle={bid.ClientDisplayName}
+        actions={
+          <div className="hidden sm:flex items-center gap-2">
+            <span className="rounded-lg bg-indigo-600 px-3 py-1 text-xs font-medium text-white">
+              {BID_STATUS_LABELS[bid.CurrentStatus] || bid.CurrentStatus || "—"}
+            </span>
+            {bid.CurrentStatus === "won" && (
+              <CustomButton
+                text="Create project"
+                variant="primary"
+                size="sm"
+                loading={createProjectState?.isLoading}
+                onClick={() =>
+                  dispatch(
+                    createProjectFromBid({
+                      bidId: bid.Id,
+                      successCallBack: (project) =>
+                        router.push(`/projects/${project.Id}`),
+                    })
+                  )
+                }
+              />
+            )}
+          </div>
+        }
+        className="sticky top-0 z-10"
+      />
       <div className="px-4 sm:px-6 space-y-5">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="rounded-lg border border-neutral-200 bg-white p-4 space-y-3">

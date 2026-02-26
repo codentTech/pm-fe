@@ -7,7 +7,6 @@ if (typeof globalThis.boolean === "undefined") {
 
 import { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
 import CustomButton from "@/common/components/custom-button/custom-button.component";
@@ -15,8 +14,8 @@ import Modal from "@/common/components/modal/modal.component";
 import CircularILoader from "@/common/components/circular-loader/circular-loader.component";
 import NoResultFound from "@/common/components/no-result-found/no-result-found.jsx";
 import { FileQuestion } from "lucide-react";
+import PageHeader from "@/common/components/page-header/page-header.component";
 import useProjectWiki from "../../use-wiki.hook";
-import { WIKI_SEPARATOR_COLORS } from "../../wiki.utils";
 import ProjectWikiAttachments from "../attachments/project-wiki-attachments.component";
 
 const ReactMarkdown = dynamic(
@@ -75,27 +74,11 @@ export default function ProjectWikiDetail({ projectId, slug }) {
   if (notFound) {
     return (
       <div className="min-h-full">
-        <div className="page-header-bar">
-          <Link
-            href={`/projects/${projectId}/wiki`}
-            className="flex shrink-0 items-center gap-1.5 typography-body font-medium text-neutral-600 transition-colors hover:text-neutral-900"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to wiki
-          </Link>
-        </div>
-        <div className="page-separator" aria-hidden>
-          <span className="page-separator-line" />
-          <span className="flex gap-1">
-            {WIKI_SEPARATOR_COLORS.map((color, i) => (
-              <span
-                key={i}
-                className={`page-separator-dot bg-gradient-to-br ${color}`}
-              />
-            ))}
-          </span>
-          <span className="page-separator-line" />
-        </div>
+        <PageHeader
+          backLink={{ href: `/projects/${projectId}/wiki`, label: "Back to wiki" }}
+          title="Wiki page not found"
+          subtitle="This page may have been removed or the link might be incorrect."
+        />
         <div className="px-4 py-8 sm:px-5">
           <div className="rounded-xl border-2 border-neutral-200 bg-white p-8">
             <NoResultFound
@@ -132,56 +115,35 @@ export default function ProjectWikiDetail({ projectId, slug }) {
 
   return (
     <div className="min-h-full">
-      <div className="page-header-bar">
-        <Link
-          href={`/projects/${projectId}/wiki`}
-          className="flex shrink-0 items-center gap-1.5 typography-body font-medium text-neutral-600 transition-colors hover:text-neutral-900"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to wiki
-        </Link>
-        <div className="page-header-divider" />
-        <div className="min-w-0 flex-1 overflow-hidden">
-          <h1 className="page-header-title">{displayPage?.Title ?? "Wiki"}</h1>
-          <p className="page-header-subtitle">Updated {formattedUpdatedAt}</p>
-        </div>
-        {isAdmin && (
-          <div className="flex shrink-0 items-center gap-2">
-            <CustomButton
-              type="button"
-              text="Edit"
-              variant="outline"
-              size="sm"
-              startIcon={<Pencil className="h-4 w-4" />}
-              onClick={() =>
-                router.push(`/projects/${projectId}/wiki/${slug}/edit`)
-              }
-            />
-            <CustomButton
-              type="button"
-              text="Delete"
-              variant="danger"
-              size="sm"
-              startIcon={<Trash2 className="h-4 w-4" />}
-              onClick={() => setShowDeleteModal(true)}
-            />
-          </div>
-        )}
-      </div>
-
-      <div className="page-separator" aria-hidden>
-        <span className="page-separator-line" />
-        <span className="flex gap-1">
-          {WIKI_SEPARATOR_COLORS.map((color, i) => (
-            <span
-              key={i}
-              className={`page-separator-dot bg-gradient-to-br ${color}`}
-            />
-          ))}
-        </span>
-        <span className="page-separator-line" />
-      </div>
-
+      <PageHeader
+        backLink={{ href: `/projects/${projectId}/wiki`, label: "Back to wiki" }}
+        title={displayPage?.Title ?? "Wiki"}
+        subtitle={`Updated ${formattedUpdatedAt}`}
+        actions={
+          isAdmin ? (
+            <>
+              <CustomButton
+                type="button"
+                text="Edit"
+                variant="outline"
+                size="sm"
+                startIcon={<Pencil className="h-4 w-4" />}
+                onClick={() =>
+                  router.push(`/projects/${projectId}/wiki/${slug}/edit`)
+                }
+              />
+              <CustomButton
+                type="button"
+                text="Delete"
+                variant="danger"
+                size="sm"
+                startIcon={<Trash2 className="h-4 w-4" />}
+                onClick={() => setShowDeleteModal(true)}
+              />
+            </>
+          ) : null
+        }
+      />
       <div className="px-4 pb-8 sm:px-5">
         <div className="mx-auto max-w-3xl space-y-6">
           <div className="min-w-0 rounded-xl border-2 border-neutral-200 bg-white shadow-sm overflow-hidden">

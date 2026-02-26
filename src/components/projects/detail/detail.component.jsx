@@ -10,7 +10,7 @@ import Modal from "@/common/components/modal/modal.component";
 import NoResultFound from "@/common/components/no-result-found/no-result-found.jsx";
 import ReadMore from "@/common/components/readmore/readmore.component";
 import TextArea from "@/common/components/text-area/text-area.component";
-import { LIST_COLORS } from "@/common/constants/colors.constant";
+import PageHeader from "@/common/components/page-header/page-header.component";
 import {
   SPRINT_STATUS_CLASSES,
   SPRINT_STATUS_LABELS,
@@ -328,50 +328,28 @@ export default function ProjectDetail({ projectId }) {
 
   return (
     <div className="min-h-full">
-      <div className="sticky top-0 z-10 page-header-bar">
-        <Link
-          href="/projects"
-          className="flex shrink-0 items-center gap-1.5 rounded-md px-2 py-1.5 typography-body font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          <span className="hidden sm:inline">Projects</span>
-        </Link>
-        <div className="page-header-divider" />
-        <div className="min-w-0 flex-1 overflow-hidden">
-          <h1 className="font-bold !text-indigo-600 typography-h4 sm:typography-h3 max-w-[500px] truncate">
-            {currentProject.Name}
-          </h1>
-        </div>
-        <div className="flex items-center gap-2">
-          {projectStatusLabel && (
-            <span className="rounded-lg bg-black px-3 py-[5px] text-xs font-semibold text-white">
-              {projectStatusLabel}
-            </span>
-          )}
-          <Link href={`/projects/${projectId}/wiki`}>
-            <CustomButton
-              text="Wiki"
-              variant="primary"
-              size="sm"
-              className="shrink-0"
-            />
-          </Link>
-        </div>
-      </div>
-
-      <div className="page-separator" aria-hidden>
-        <span className="page-separator-line" />
-        <span className="flex gap-1">
-          {LIST_COLORS.map((color, i) => (
-            <span
-              key={i}
-              className={`page-separator-dot bg-gradient-to-br ${color}`}
-            />
-          ))}
-        </span>
-        <span className="page-separator-line" />
-      </div>
-
+      <PageHeader
+        backLink={{ href: "/projects", label: "Projects" }}
+        title={currentProject.Name}
+        actions={
+          <>
+            {projectStatusLabel && (
+              <span className="rounded-lg bg-black px-3 py-[5px] text-xs font-semibold text-white">
+                {projectStatusLabel}
+              </span>
+            )}
+            <Link href={`/projects/${projectId}/wiki`}>
+              <CustomButton
+                text="Wiki"
+                variant="primary"
+                size="sm"
+                className="shrink-0"
+              />
+            </Link>
+          </>
+        }
+        className="sticky top-0 z-10"
+      />
       <div className="px-4 sm:px-5 mb-4">
         {currentProject.Description && (
           <div className="max-w-full break-words rounded-lg border border-neutral-200 p-2">

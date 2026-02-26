@@ -2,8 +2,8 @@
 
 import CustomDataTable from "@/common/components/custom-data-table/custom-data-table.component";
 import DailyUpdatesFilterBar from "../filter-bar/filter-bar.component";
+import PageHeader from "@/common/components/page-header/page-header.component";
 import { Filter } from "lucide-react";
-import { KPI_SEPARATOR_COLORS } from "@/common/constants/colors.constant";
 import useDailyUpdatesBacklogs from "./use-backlogs.hook";
 
 export default function DailyUpdatesBacklogs() {
@@ -39,33 +39,11 @@ export default function DailyUpdatesBacklogs() {
 
   return (
     <div className="min-h-full">
-      <div className="page-header-bar px-4 sm:px-5">
-        <div className="page-header-divider" />
-        <div className="min-w-0 flex-1 overflow-hidden">
-          <h1 className="page-header-title">Backlogs</h1>
-          <p className="page-header-subtitle">
-            Monitor missing updates, blockers, and off-plan work.
-          </p>
-        </div>
-      </div>
-
-      <div
-        className="mb-4 flex items-center gap-1 px-4 sm:mb-6 sm:px-5"
-        aria-hidden
-      >
-        <span className="h-px flex-1 bg-gradient-to-r from-transparent via-neutral-300 to-transparent" />
-        <span className="flex gap-1">
-          {KPI_SEPARATOR_COLORS.map((color, i) => (
-            <span
-              key={i}
-              className={`h-1.5 w-1.5 rounded-full bg-gradient-to-br ${color}`}
-            />
-          ))}
-        </span>
-        <span className="h-px flex-1 bg-gradient-to-r from-transparent via-neutral-300 to-transparent" />
-      </div>
-
-      <div className="px-4 sm:px-5 space-y-4">
+      <PageHeader
+        title="Backlogs"
+        subtitle="Monitor missing updates, blockers, and off-plan work."
+      />
+      <div className="px-4 sm:px-5 space-y-4 pb-10">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap gap-2 rounded-lg border border-neutral-200 bg-white/70 p-2 shadow-sm">
             {[
@@ -130,9 +108,7 @@ export default function DailyUpdatesBacklogs() {
             showUserFilter={showUserFilter}
           />
         )}
-      </div>
 
-      <div className="px-4 py-4 sm:px-5">
         <CustomDataTable
           columns={backlogColumns}
           data={backlogData.map((item) => ({

@@ -8,7 +8,7 @@ import CustomInput from "@/common/components/custom-input/custom-input.component
 import SimpleSelect from "@/common/components/dropdowns/simple-select/simple-select.jsx";
 import TextArea from "@/common/components/text-area/text-area.component";
 import { currencyOptions } from "@/common/constants/options.constant";
-import { ArrowLeft } from "lucide-react";
+import PageHeader from "@/common/components/page-header/page-header.component";
 import useBidTracker from "../bid-tracker/use-bid-tracker.hook";
 
 export default function BidForm() {
@@ -26,25 +26,12 @@ export default function BidForm() {
 
   return (
     <div className="min-h-full">
-      <div className="page-header-bar px-4 sm:px-5">
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => router.push("/bids/all")}
-            className="flex items-center gap-2 text-sm font-medium text-neutral-600 hover:text-neutral-800"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to bids
-          </button>
-        </div>
-        <div className="min-w-0 flex-1 overflow-hidden">
-          <h1 className="page-header-title">Log bid</h1>
-          <p className="page-header-subtitle">
-            Capture a new opportunity with key details.
-          </p>
-        </div>
-      </div>
-
+      <PageHeader
+        backLink={{ href: "/bids/all", label: "Back to bids" }}
+        title="Log bid"
+        subtitle="Capture a new opportunity with key details."
+        className="px-4 sm:px-5"
+      />
       <form
         onSubmit={createForm.handleSubmit(handleSubmit)}
         className="p-4 sm:p-6"

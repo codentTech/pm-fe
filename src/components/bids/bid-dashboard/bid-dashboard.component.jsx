@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import CustomButton from "@/common/components/custom-button/custom-button.component";
+import PageHeader from "@/common/components/page-header/page-header.component";
 import { KPI_SEPARATOR_COLORS } from "@/common/constants/colors.constant";
 import useBidTracker from "../bid-tracker/use-bid-tracker.hook";
 
@@ -22,39 +23,20 @@ export default function BidDashboard() {
 
   return (
     <div className="min-h-full">
-      <div className="page-header-bar px-4 sm:px-5">
-        <div className="page-header-divider" />
-        <div className="min-w-0 flex-1 overflow-hidden">
-          <h1 className="page-header-title">Bid Management</h1>
-          <p className="page-header-subtitle">
-            Track bids, pipeline, and sales execution
-          </p>
-        </div>
-        <CustomButton
-          text="Log bid"
-          onClick={() => router.push("/bids/new")}
-          variant="primary"
-          size="sm"
-          className="shrink-0 rounded-lg px-3 py-1.5 typography-caption font-medium sm:px-4 sm:py-2 sm:typography-button"
-        />
-      </div>
-
-      <div
-        className="mb-4 flex items-center gap-1 px-4 sm:mb-6 sm:px-5"
-        aria-hidden
-      >
-        <span className="h-px flex-1 bg-gradient-to-r from-transparent via-neutral-300 to-transparent" />
-        <span className="flex gap-1">
-          {KPI_SEPARATOR_COLORS.map((color, i) => (
-            <span
-              key={i}
-              className={`h-1.5 w-1.5 rounded-full bg-gradient-to-br ${color}`}
-            />
-          ))}
-        </span>
-        <span className="h-px flex-1 bg-gradient-to-r from-transparent via-neutral-300 to-transparent" />
-      </div>
-
+      <PageHeader
+        title="Bid Management"
+        subtitle="Track bids, pipeline, and sales execution"
+        actions={
+          <CustomButton
+            text="Log bid"
+            onClick={() => router.push("/bids/new")}
+            variant="primary"
+            size="sm"
+            className="shrink-0 rounded-lg px-3 py-1.5 typography-caption font-medium sm:px-4 sm:py-2 sm:typography-button"
+          />
+        }
+        className="px-4 sm:px-5"
+      />
       <div className="my-5 px-4 sm:px-5">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6">
           {[

@@ -4,6 +4,7 @@ import CustomButton from "@/common/components/custom-button/custom-button.compon
 import CustomDataTable from "@/common/components/custom-data-table/custom-data-table.component";
 import CustomInput from "@/common/components/custom-input/custom-input.component";
 import Modal from "@/common/components/modal/modal.component";
+import PageHeader from "@/common/components/page-header/page-header.component";
 import { Controller } from "react-hook-form";
 import useWorkspaceLabelsSection from "./use-workspace-labels-section.hook";
 
@@ -13,7 +14,6 @@ export default function WorkspaceLabelsSection({ orgId }) {
     tableData,
     LABEL_ACTIONS,
     LABEL_COLORS,
-    SEPARATOR_COLORS,
     fetchLabelsState,
     createLabelState,
     updateLabelState,
@@ -35,54 +35,35 @@ export default function WorkspaceLabelsSection({ orgId }) {
   if (!orgId) return null;
 
   return (
-    <>
-      <div className="min-h-full">
-        <div className="page-header-bar">
-          <div className="page-header-divider" />
-          <div className="min-w-0 flex-1 overflow-hidden">
-            <h1 className="page-header-title">Labels</h1>
-            <p className="page-header-subtitle">
-              Create and manage labels for your boards
-            </p>
-          </div>
+    <div className="min-h-full">
+      <PageHeader
+        title="Labels"
+        subtitle="Create and manage labels for your boards"
+        actions={
           <CustomButton
             type="button"
             text="Add label"
             variant="primary"
-            size="sm"
             onClick={toggleShowLabelForm}
-            className="shrink-0"
           />
-        </div>
-        <div className="page-separator" aria-hidden>
-          <span className="page-separator-line" />
-          <span className="flex gap-1">
-            {SEPARATOR_COLORS.map((color, i) => (
-              <span
-                key={i}
-                className={`page-separator-dot bg-gradient-to-br ${color}`}
-              />
-            ))}
-          </span>
-          <span className="page-separator-line" />
-        </div>
-        <div className="w-full px-4 sm:px-5">
-          <CustomDataTable
-            className="w-full"
-            columns={labelColumns}
-            data={tableData}
-            loading={fetchLabelsState?.isLoading}
-            selectable={false}
-            searchable={false}
-            paginated={tableData.length > 10}
-            pageSize={10}
-            actions={LABEL_ACTIONS}
-            onActionClick={handleActionClick}
-            emptyMessage="No labels yet. Create labels to organize cards across your boards."
-            tableClassName="min-w-full divide-y divide-neutral-200"
-            headerClassName="border-neutral-200"
-          />
-        </div>
+        }
+      />
+      <div className="px-4 sm:px-5 space-y-4 pb-10">
+        <CustomDataTable
+          className="w-full"
+          columns={labelColumns}
+          data={tableData}
+          loading={fetchLabelsState?.isLoading}
+          selectable={false}
+          searchable={false}
+          paginated={tableData.length > 10}
+          pageSize={10}
+          actions={LABEL_ACTIONS}
+          onActionClick={handleActionClick}
+          emptyMessage="No labels yet. Create labels to organize cards across your boards."
+          tableClassName="min-w-full divide-y divide-neutral-200"
+          headerClassName="border-neutral-200"
+        />
       </div>
 
       <Modal
@@ -177,6 +158,6 @@ export default function WorkspaceLabelsSection({ orgId }) {
           </div>
         </div>
       </Modal>
-    </>
+    </div>
   );
 }

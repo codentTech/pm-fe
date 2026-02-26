@@ -5,6 +5,7 @@ import CustomDataTable from "@/common/components/custom-data-table/custom-data-t
 import CustomInput from "@/common/components/custom-input/custom-input.component";
 import SimpleSelect from "@/common/components/dropdowns/simple-select/simple-select.jsx";
 import Modal from "@/common/components/modal/modal.component";
+import PageHeader from "@/common/components/page-header/page-header.component";
 import { Controller } from "react-hook-form";
 import useWorkspaceMembersSection from "./use-workspace-members-section.hook";
 
@@ -12,7 +13,6 @@ export default function WorkspaceMembersSection({ orgId }) {
   const {
     MEMBER_COLUMNS,
     MEMBER_ACTIONS,
-    SEPARATOR_COLORS,
     tableData,
     membersLoading,
     showInviteForm,
@@ -39,54 +39,35 @@ export default function WorkspaceMembersSection({ orgId }) {
   if (!orgId) return null;
 
   return (
-    <>
-      <div className="min-h-full">
-        <div className="page-header-bar">
-          <div className="page-header-divider" />
-          <div className="min-w-0 flex-1 overflow-hidden">
-            <h1 className="page-header-title">Members</h1>
-            <p className="page-header-subtitle">
-              Invite teammates to collaborate
-            </p>
-          </div>
+    <div className="min-h-full">
+      <PageHeader
+        title="Members"
+        subtitle="Invite teammates to collaborate"
+        actions={
           <CustomButton
             type="button"
             text="Invite members"
             variant="primary"
-            size="sm"
             onClick={toggleShowInviteForm}
-            className="shrink-0"
           />
-        </div>
-        <div className="page-separator" aria-hidden>
-          <span className="page-separator-line" />
-          <span className="flex gap-1">
-            {SEPARATOR_COLORS.map((color, i) => (
-              <span
-                key={i}
-                className={`page-separator-dot bg-gradient-to-br ${color}`}
-              />
-            ))}
-          </span>
-          <span className="page-separator-line" />
-        </div>
-        <div className="w-full px-4 sm:px-5">
-          <CustomDataTable
-            className="w-full"
-            columns={MEMBER_COLUMNS}
-            data={tableData}
-            loading={membersLoading}
-            selectable={false}
-            searchable={false}
-            paginated={tableData.length > 10}
-            pageSize={10}
-            actions={MEMBER_ACTIONS}
-            onActionClick={handleActionClick}
-            emptyMessage="No members yet. Invite teammates to collaborate."
-            tableClassName="min-w-full divide-y divide-neutral-200"
-            headerClassName="border-neutral-200"
-          />
-        </div>
+        }
+      />
+      <div className="px-4 sm:px-5 space-y-4 pb-10">
+        <CustomDataTable
+          className="w-full"
+          columns={MEMBER_COLUMNS}
+          data={tableData}
+          loading={membersLoading}
+          selectable={false}
+          searchable={false}
+          paginated={tableData.length > 10}
+          pageSize={10}
+          actions={MEMBER_ACTIONS}
+          onActionClick={handleActionClick}
+          emptyMessage="No members yet. Invite teammates to collaborate."
+          tableClassName="min-w-full divide-y divide-neutral-200"
+          headerClassName="border-neutral-200"
+        />
       </div>
 
       <Modal
@@ -214,6 +195,6 @@ export default function WorkspaceMembersSection({ orgId }) {
           </div>
         </div>
       </Modal>
-    </>
+    </div>
   );
 }

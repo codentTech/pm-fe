@@ -1,18 +1,14 @@
 "use client";
 
 import { useMemo } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, BookOpen, ChevronRight, FileText, Plus } from "lucide-react";
+import { BookOpen, ChevronRight, FileText, Plus } from "lucide-react";
 import CustomButton from "@/common/components/custom-button/custom-button.component";
 import CustomInput from "@/common/components/custom-input/custom-input.component";
 import NoResultFound from "@/common/components/no-result-found/no-result-found.jsx";
+import PageHeader from "@/common/components/page-header/page-header.component";
 import useProjectWiki from "./use-wiki.hook";
-import {
-  WIKI_SEPARATOR_COLORS,
-  formatRelativeTime,
-  stripMarkdown,
-} from "./wiki.utils";
+import { formatRelativeTime, stripMarkdown } from "./wiki.utils";
 
 export default function ProjectWikiList({ projectId }) {
   const router = useRouter();
@@ -35,45 +31,24 @@ export default function ProjectWikiList({ projectId }) {
 
   return (
     <div className="min-h-full">
-      <div className="page-header-bar">
-        <Link
-          href={`/projects/${projectId}`}
-          className="flex shrink-0 items-center gap-1.5 typography-body font-medium text-neutral-600 transition-colors hover:text-neutral-900"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to project
-        </Link>
-        <div className="page-header-divider" />
-        <div className="min-w-0 flex-1 overflow-hidden">
-          <h1 className="page-header-title">Project wiki</h1>
-          <p className="page-header-subtitle">{projectName}</p>
-        </div>
-        {isAdmin && (
-          <CustomButton
-            type="button"
-            text="New page"
-            variant="primary"
-            size="sm"
-            startIcon={<Plus className="h-4 w-4" />}
-            onClick={() => router.push(`/projects/${projectId}/wiki/new`)}
-            className="shrink-0"
-          />
-        )}
-      </div>
-
-      <div className="page-separator" aria-hidden>
-        <span className="page-separator-line" />
-        <span className="flex gap-1">
-          {WIKI_SEPARATOR_COLORS.map((color, i) => (
-            <span
-              key={i}
-              className={`page-separator-dot bg-gradient-to-br ${color}`}
+      <PageHeader
+        backLink={{ href: `/projects/${projectId}`, label: "Back to project" }}
+        title="Project wiki"
+        subtitle={projectName}
+        actions={
+          isAdmin ? (
+            <CustomButton
+              type="button"
+              text="New page"
+              variant="primary"
+              size="sm"
+              startIcon={<Plus className="h-4 w-4" />}
+              onClick={() => router.push(`/projects/${projectId}/wiki/new`)}
+              className="shrink-0"
             />
-          ))}
-        </span>
-        <span className="page-separator-line" />
-      </div>
-
+          ) : null
+        }
+      />
       <div className="px-4 pb-8 sm:px-5">
         <div className="mx-auto max-w-3xl">
           {initialLoading ? (

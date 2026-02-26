@@ -12,7 +12,7 @@ import TextArea from "@/common/components/text-area/text-area.component";
 import { BarChart3, Plus } from "lucide-react";
 import { Controller } from "react-hook-form";
 import { KPI_ACTIONS, KPI_COLUMNS } from "./kpi-tracker.constants";
-import { KPI_SEPARATOR_COLORS } from "@/common/constants/colors.constant";
+import PageHeader from "@/common/components/page-header/page-header.component";
 import useKpiTracker, { PERIOD_OPTIONS } from "./use-kpi-tracker.hook";
 
 export default function KpiTracker() {
@@ -46,50 +46,21 @@ export default function KpiTracker() {
 
   return (
     <div className="min-h-full">
-      <div className="page-header-bar px-4 sm:px-5">
-        <div className="page-header-divider" />
-        <div className="min-w-0 flex-1 overflow-hidden">
-          <h1 className="page-header-title">KPI Tracker</h1>
-          <p className="page-header-subtitle">
-            Track key metrics and performance indicators
-          </p>
-        </div>
-        <CustomButton
-          text="Add KPI"
-          onClick={() => setShowCreateModal(true)}
-          variant="primary"
-          startIcon={<Plus className="h-3.5 w-3.5 shrink-0" />}
-          size="sm"
-          className="shrink-0 rounded-lg px-3 py-1.5 typography-caption font-medium sm:px-4 sm:py-2 sm:typography-button"
-        />
-      </div>
-
-      <div
-        className="mb-4 flex items-center gap-1 px-4 sm:mb-6 sm:px-5"
-        aria-hidden
-      >
-        <span className="h-px flex-1 bg-gradient-to-r from-transparent via-neutral-300 to-transparent" />
-        <span className="flex gap-1">
-          {KPI_SEPARATOR_COLORS.map((color, i) => (
-            <span
-              key={i}
-              className={`h-1.5 w-1.5 rounded-full bg-gradient-to-br ${color}`}
-            />
-          ))}
-        </span>
-        <span className="h-px flex-1 bg-gradient-to-r from-transparent via-neutral-300 to-transparent" />
-      </div>
-
+      <PageHeader
+        title="KPI Tracker"
+        subtitle="Track key metrics and performance indicators"
+        actions={
+          <CustomButton
+            text="Add KPI"
+            onClick={() => setShowCreateModal(true)}
+            variant="primary"
+          />
+        }
+      />
       {loading ? (
         <KpiTableSkeleton />
-      ) : !kpis?.length ? (
-        <NoResultFound
-          icon={BarChart3}
-          title="No KPIs yet"
-          description="Add your first KPI to track key metrics over time."
-        />
       ) : (
-        <div className="w-full overflow-x-auto px-4 sm:px-5">
+        <div className="px-4 sm:px-5 space-y-4 pb-10">
           <CustomDataTable
             columns={KPI_COLUMNS}
             data={tableData}
@@ -104,7 +75,6 @@ export default function KpiTracker() {
             tableClassName="min-w-full divide-y divide-neutral-200"
             headerClassName="border-neutral-200"
             rowClassName="transition-colors"
-            className=""
           />
         </div>
       )}

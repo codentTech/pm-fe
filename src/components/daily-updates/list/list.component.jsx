@@ -5,9 +5,9 @@ import CustomButton from "@/common/components/custom-button/custom-button.compon
 import CustomDataTable from "@/common/components/custom-data-table/custom-data-table.component";
 import CustomInput from "@/common/components/custom-input/custom-input.component";
 import DailyUpdatesFilterBar from "../filter-bar/filter-bar.component";
+import PageHeader from "@/common/components/page-header/page-header.component";
 import useDailyUpdatesTracker from "../tracker/use-daily-updates-tracker.hook";
 import { Filter, Search, Eye } from "lucide-react";
-import { KPI_SEPARATOR_COLORS } from "@/common/constants/colors.constant";
 
 export default function DailyUpdatesUpdates() {
   const {
@@ -90,40 +90,18 @@ export default function DailyUpdatesUpdates() {
 
   return (
     <div className="min-h-full">
-      <div className="page-header-bar px-4 sm:px-5">
-        <div className="page-header-divider" />
-        <div className="min-w-0 flex-1 overflow-hidden">
-          <h1 className="page-header-title">Daily updates</h1>
-          <p className="page-header-subtitle">
-            Track daily progress, blockers, and off-plan work.
-          </p>
-        </div>
-        <CustomButton
-          text="Submit update"
-          variant="primary"
-          size="sm"
-          className="shrink-0 rounded-lg px-3 py-1.5 typography-caption font-medium sm:px-4 sm:py-2 sm:typography-button"
-          onClick={handleCreateUpdate}
-        />
-      </div>
-
-      <div
-        className="mb-4 flex items-center gap-1 px-4 sm:mb-6 sm:px-5"
-        aria-hidden
-      >
-        <span className="h-px flex-1 bg-gradient-to-r from-transparent via-neutral-300 to-transparent" />
-        <span className="flex gap-1">
-          {KPI_SEPARATOR_COLORS.map((color, i) => (
-            <span
-              key={i}
-              className={`h-1.5 w-1.5 rounded-full bg-gradient-to-br ${color}`}
-            />
-          ))}
-        </span>
-        <span className="h-px flex-1 bg-gradient-to-r from-transparent via-neutral-300 to-transparent" />
-      </div>
-
-      <div className="px-4 sm:px-6 space-y-3">
+      <PageHeader
+        title="Daily updates"
+        subtitle="Track daily progress, blockers, and off-plan work."
+        actions={
+          <CustomButton
+            text="Submit update"
+            variant="primary"
+            onClick={handleCreateUpdate}
+          />
+        }
+      />
+      <div className="px-4 sm:px-5 space-y-4 pb-10">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="min-w-[320px] flex-1">
             <CustomInput
@@ -179,9 +157,6 @@ export default function DailyUpdatesUpdates() {
             showUserFilter={showUserFilter}
           />
         )}
-      </div>
-
-      <div className="p-4 sm:p-6">
         <CustomDataTable
           columns={updateColumns}
           data={(updates || []).map((u) => ({ ...u, id: u.Id }))}

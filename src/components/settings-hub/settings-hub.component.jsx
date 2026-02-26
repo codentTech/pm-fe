@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Building2, ChevronRight, Lock, User } from "lucide-react";
+import PageHeader from "@/common/components/page-header/page-header.component";
 
 const SETTINGS_SECTIONS = [
   {
@@ -25,37 +26,13 @@ const SETTINGS_SECTIONS = [
 ];
 
 export default function SettingsHub() {
-  const SEPARATOR_COLORS = [
-    "from-indigo-500 to-indigo-700",
-    "from-emerald-500 to-emerald-700",
-    "from-amber-500 to-amber-700",
-    "from-rose-500 to-rose-700",
-    "from-sky-500 to-sky-700",
-    "from-violet-500 to-violet-700",
-  ];
-
   return (
     <div className="min-h-full">
-      <div className="page-header-bar p-4 sm:p-5">
-        <div className="page-header-divider" />
-        <div className="min-w-0 flex-1 overflow-hidden">
-          <h1 className="page-header-title">
-            Settings
-          </h1>
-          <p className="page-header-subtitle">
-            Manage your account and workspace preferences.
-          </p>
-        </div>
-      </div>
-      <div className="page-separator" aria-hidden>
-        <span className="page-separator-line" />
-        <span className="flex gap-1">
-          {SEPARATOR_COLORS.map((color, i) => (
-            <span key={i} className={`page-separator-dot bg-gradient-to-br ${color}`} />
-          ))}
-        </span>
-        <span className="page-separator-line" />
-      </div>
+      <PageHeader
+        title="Settings"
+        subtitle="Manage your account and workspace preferences."
+        className="p-4 sm:p-5"
+      />
       <div className="grid gap-4 p-4 sm:grid-cols-2 sm:p-5">
         {SETTINGS_SECTIONS.map(({ href, label, description, icon: Icon }) => (
           <Link

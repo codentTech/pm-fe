@@ -6,11 +6,11 @@ import CustomDataTable from "@/common/components/custom-data-table/custom-data-t
 import CustomInput from "@/common/components/custom-input/custom-input.component";
 import Loader from "@/common/components/loader/loader.component";
 import Modal from "@/common/components/modal/modal.component";
+import PageHeader from "@/common/components/page-header/page-header.component";
 import useSuperAdminOrganizationsList from "./organizations-list.hook";
 
 export default function SuperAdminOrganizationsList() {
   const {
-    SEPARATOR_COLORS,
     loading,
     error,
     message,
@@ -45,36 +45,19 @@ export default function SuperAdminOrganizationsList() {
 
   return (
     <div className="min-h-full">
-      <div className="page-header-bar px-4 sm:px-5">
-        <div className="page-header-divider" />
-        <div className="min-w-0 flex-1 overflow-hidden">
-          <h1 className="page-header-title">Organizations</h1>
-          <p className="page-header-subtitle">
-            All workspaces. Create a new one and assign an org admin by email;
-            org admins manage members and settings.
-          </p>
-        </div>
-        <div className="shrink-0">
+      <PageHeader
+        title="Organizations"
+        subtitle="All workspaces. Create a new one and assign an org admin by email; org admins manage members and settings."
+        actions={
           <CustomButton
             type="button"
             text="Create organization"
             variant="primary"
             onClick={openCreateModal}
           />
-        </div>
-      </div>
-      <div className="page-separator" aria-hidden>
-        <span className="page-separator-line" />
-        <span className="flex gap-1">
-          {SEPARATOR_COLORS.map((color, i) => (
-            <span
-              key={i}
-              className={`page-separator-dot bg-gradient-to-br ${color}`}
-            />
-          ))}
-        </span>
-        <span className="page-separator-line" />
-      </div>
+        }
+        className="px-4 sm:px-5"
+      />
       <div className="px-4 sm:px-5">
         {createSuccessMessage && (
           <div className="mb-4 flex items-center justify-between rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">

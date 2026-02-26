@@ -6,9 +6,10 @@ import SimpleSelect from "@/common/components/dropdowns/simple-select/simple-sel
 import Loader from "@/common/components/loader/loader.component";
 import NoResultFound from "@/common/components/no-result-found/no-result-found.jsx";
 import TextArea from "@/common/components/text-area/text-area.component";
-import { ArrowLeft, ClipboardCheck, Plus, Trash2 } from "lucide-react";
+import { ClipboardCheck, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { Controller } from "react-hook-form";
+import PageHeader from "@/common/components/page-header/page-header.component";
 import WorkItemReferenceSelect from "./components/work-item-reference-select/work-item-reference-select.component";
 import useDailyUpdateForm from "./use-create=daily-update.hook";
 
@@ -60,38 +61,20 @@ export default function DailyUpdateForm({ updateId }) {
 
   return (
     <div className="min-h-full">
-      <div className="page-header-bar flex items-center justify-between px-4 sm:px-5">
-        <div className="flex items-center justify-between">
-          <Link
-            href="/daily-updates/updates"
-            className="group flex h-7 w-7 items-center justify-center rounded-full 
-             bg-black shadow-md transition-all duration-200 ease-in-out
-             hover:scale-105 hover:bg-neutral-900 active:scale-95"
-            aria-label="Back"
-          >
-            <ArrowLeft
-              className="h-4 w-4 text-white transition-transform duration-200 
-               group-hover:-translate-x-0.5"
-            />
-          </Link>
-          <div className="page-header-divider mx-2" />
-          <div className="min-w-0 flex-1">
-            <h1 className="page-header-title">
-              {isEditMode ? "Edit daily update" : "Submit daily update"}
-            </h1>
-            <p className="page-header-subtitle">
-              Log your work items, blockers, and next day plan.
-            </p>
-          </div>
-        </div>
-        <CustomButton
-          type="submit"
-          form="daily-update-form"
-          text={isEditMode ? "Save update" : "Submit update"}
-          loading={createState?.isLoading || updateState?.isLoading}
-        />
-      </div>
-
+      <PageHeader
+        backLink={{ href: "/daily-updates/updates", label: "Back to daily updates" }}
+        title={isEditMode ? "Edit daily update" : "Submit daily update"}
+        subtitle="Log your work items, blockers, and next day plan."
+        actions={
+          <CustomButton
+            type="submit"
+            form="daily-update-form"
+            text={isEditMode ? "Save update" : "Submit update"}
+            loading={createState?.isLoading || updateState?.isLoading}
+          />
+        }
+        className="px-4 sm:px-5"
+      />
       <form
         id="daily-update-form"
         onSubmit={form.handleSubmit(handleSubmit)}

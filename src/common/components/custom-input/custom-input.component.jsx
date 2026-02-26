@@ -133,7 +133,7 @@ export default function CustomInput({
 
           {/* Helper text */}
           {helperText && (
-            <p className="min-w-24 typography-caption text-neutral-600 whitespace-nowrap truncate">
+            <p className="min-w-24 text-[11px] text-neutral-600 whitespace-nowrap truncate">
               {helperText}
             </p>
           )}

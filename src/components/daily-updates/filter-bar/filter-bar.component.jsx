@@ -21,7 +21,9 @@ export default function DailyUpdatesFilterBar({
   showUserFilter = true,
 }) {
   return (
-    <div className={`grid gap-3 sm:grid-cols-2 ${showUserFilter ? "lg:grid-cols-5" : "lg:grid-cols-4"}`}>
+    <div
+      className={`grid gap-3 border-y p-4 bg-gray-100 rounded-lg sm:grid-cols-2 ${showUserFilter ? "lg:grid-cols-5" : "lg:grid-cols-4"}`}
+    >
       <div className="w-full">
         <CustomInput
           label="From"

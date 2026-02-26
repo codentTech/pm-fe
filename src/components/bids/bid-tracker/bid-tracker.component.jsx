@@ -12,6 +12,7 @@ import {
   BID_STATUS_LABELS,
   BID_WITHDRAWAL_REASON_OPTIONS,
 } from "@/common/constants/bid.constant";
+import PageHeader from "@/common/components/page-header/page-header.component";
 import { KPI_SEPARATOR_COLORS } from "@/common/constants/colors.constant";
 import { currencyOptions } from "@/common/constants/options.constant";
 import { Briefcase, Trash2 } from "lucide-react";
@@ -75,40 +76,18 @@ export default function BidTracker() {
 
   return (
     <div className="min-h-full">
-      <div className="page-header-bar px-4 sm:px-5">
-        <div className="page-header-divider" />
-        <div className="min-w-0 flex-1 overflow-hidden">
-          <h1 className="page-header-title">Bid Management</h1>
-          <p className="page-header-subtitle">
-            Track bids, pipeline, and sales execution
-          </p>
-        </div>
-        <CustomButton
-          text="Log bid"
-          onClick={() => setShowCreateModal(true)}
-          variant="primary"
-          size="sm"
-          className="shrink-0 rounded-lg px-3 py-1.5 typography-caption font-medium sm:px-4 sm:py-2 sm:typography-button"
-        />
-      </div>
-
-      <div
-        className="mb-4 flex items-center gap-1 px-4 sm:mb-6 sm:px-5"
-        aria-hidden
-      >
-        <span className="h-px flex-1 bg-gradient-to-r from-transparent via-neutral-300 to-transparent" />
-        <span className="flex gap-1">
-          {KPI_SEPARATOR_COLORS.map((color, i) => (
-            <span
-              key={i}
-              className={`h-1.5 w-1.5 rounded-full bg-gradient-to-br ${color}`}
-            />
-          ))}
-        </span>
-        <span className="h-px flex-1 bg-gradient-to-r from-transparent via-neutral-300 to-transparent" />
-      </div>
-
-      <div className="my-5 px-4 sm:px-5">
+      <PageHeader
+        title="Bid Management"
+        subtitle="Track bids, pipeline, and sales execution"
+        actions={
+          <CustomButton
+            text="Log bid"
+            onClick={() => setShowCreateModal(true)}
+            variant="primary"
+          />
+        }
+      />
+      <div className="px-4 sm:px-5 space-y-4 pb-10">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6">
           {[
             { label: "Total bids", value: metrics.total ?? "—" },
@@ -149,7 +128,7 @@ export default function BidTracker() {
         </div>
       </div>
 
-      <div className="px-4 sm:px-5">
+      <div className="flex flex-wrap gap-2 rounded-lg border border-neutral-200 bg-white/70 p-2 shadow-sm">
         <div className="flex flex-wrap gap-2 rounded-lg border border-neutral-200 bg-white/70 p-2 shadow-sm">
           {views.map((view) => (
             <button
@@ -171,8 +150,7 @@ export default function BidTracker() {
       {loading ? (
         <KpiTableSkeleton />
       ) : (
-        <div className="mt-6 w-full overflow-x-auto px-4 sm:px-5">
-          {/* Bulk Action Bar */}
+        <>
           {selectedIds.length > 0 && (
             <div className="mb-4 flex items-center justify-between rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-2">
               <span className="text-sm font-medium text-indigo-900">
@@ -243,7 +221,7 @@ export default function BidTracker() {
             headerClassName="border-neutral-200"
             rowClassName="transition-colors"
           />
-        </div>
+        </>
       )}
 
       <CreateBidModal

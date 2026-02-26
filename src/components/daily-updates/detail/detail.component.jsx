@@ -2,7 +2,7 @@
 
 import CustomButton from "@/common/components/custom-button/custom-button.component";
 import NoResultFound from "@/common/components/no-result-found/no-result-found.jsx";
-import { KPI_SEPARATOR_COLORS } from "@/common/constants/colors.constant";
+import PageHeader from "@/common/components/page-header/page-header.component";
 import { formatDate, formatDateTime } from "@/common/utils/date.util";
 import { ArrowLeft, ClipboardCheck, Pencil } from "lucide-react";
 import Link from "next/link";
@@ -49,57 +49,33 @@ export default function DailyUpdateDetail({ updateId }) {
 
   return (
     <div className="flex min-w-0 flex-col bg-white">
-      <div className="sticky top-0 z-10 page-header-bar">
-        <Link
-          href="/daily-updates/updates"
-          className="flex shrink-0 items-center gap-1.5 rounded-md px-2 py-1.5 typography-body font-medium text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          <span className="hidden sm:inline">Daily updates</span>
-        </Link>
-        <div className="page-header-divider" />
-        <div className="min-w-0 flex-1 overflow-hidden">
-          <h1 className="truncate font-bold typography-h4 !text-indigo-600 sm:typography-h3">
-            Update · {formatDate(currentUpdate.Date)}
-          </h1>
-          <p className="truncate text-sm text-neutral-600">
-            {roleLabelMap[currentUpdate.Role] || currentUpdate.Role || "—"}
-          </p>
-        </div>
-        <div className="hidden sm:flex items-center gap-2">
-          <span
-            className={`rounded-lg px-3 py-1 text-xs font-medium text-white ${
-              statusPillClasses[currentUpdate.OverallStatus] || "bg-neutral-500"
-            }`}
-          >
-            {statusLabelMap[currentUpdate.OverallStatus] ||
-              currentUpdate.OverallStatus ||
-              "—"}
-          </span>
-          {canEdit && (
-            <CustomButton
-              text="Edit"
-              variant="ghost"
-              startIcon={<Pencil className="h-4 w-4" />}
-              onClick={handleEdit}
-            />
-          )}
-        </div>
-      </div>
-
-      <div className="page-separator" aria-hidden>
-        <span className="page-separator-line" />
-        <span className="flex gap-1">
-          {KPI_SEPARATOR_COLORS.map((color, i) => (
+      <PageHeader
+        backLink={{ href: "/daily-updates/updates", label: "Daily updates" }}
+        title={`Update · ${formatDate(currentUpdate.Date)}`}
+        subtitle={roleLabelMap[currentUpdate.Role] || currentUpdate.Role || "—"}
+        actions={
+          <div className="hidden sm:flex items-center gap-2">
             <span
-              key={i}
-              className={`page-separator-dot bg-gradient-to-br ${color}`}
-            />
-          ))}
-        </span>
-        <span className="page-separator-line" />
-      </div>
-
+              className={`rounded-lg px-3 py-1 text-xs font-medium text-white ${
+                statusPillClasses[currentUpdate.OverallStatus] || "bg-neutral-500"
+              }`}
+            >
+              {statusLabelMap[currentUpdate.OverallStatus] ||
+                currentUpdate.OverallStatus ||
+                "—"}
+            </span>
+            {canEdit && (
+              <CustomButton
+                text="Edit"
+                variant="ghost"
+                startIcon={<Pencil className="h-4 w-4" />}
+                onClick={handleEdit}
+              />
+            )}
+          </div>
+        }
+        className="sticky top-0 z-10"
+      />
       <div className="px-4 sm:px-6 space-y-5">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="rounded-lg border border-neutral-200 bg-white p-4 space-y-3">

@@ -48,7 +48,6 @@ const bidItems = [
   { href: "/bids/dashboard", label: "Dashboard", icon: BarChart3 },
   { href: "/bids/all", label: "All bids", icon: Briefcase },
   { href: "/bids/backlogs", label: "Backlogs", icon: CheckSquare },
-  { href: "/bids/new", label: "Log bid", icon: ClipboardCheck },
 ];
 
 const dailyUpdateItems = [
@@ -56,7 +55,6 @@ const dailyUpdateItems = [
   { href: "/daily-updates/updates", label: "Updates", icon: ClipboardCheck },
   { href: "/daily-updates/backlogs", label: "Backlogs", icon: CheckSquare },
   { href: "/daily-updates/analytics", label: "Analytics", icon: BarChart3 },
-  { href: "/daily-updates/new", label: "Submit update", icon: ClipboardCheck },
 ];
 
 const accountItems = [
@@ -215,7 +213,9 @@ export default function AppSidebar({ onMenuClick }) {
               <div className="mt-1">
                 <button
                   type="button"
-                  onClick={() => setSuperAdminAccountExpanded(!superAdminAccountExpanded)}
+                  onClick={() =>
+                    setSuperAdminAccountExpanded(!superAdminAccountExpanded)
+                  }
                   className={`flex min-h-[40px] w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors focus:outline-none ${
                     pathname?.startsWith("/super-admin/account")
                       ? "bg-indigo-50 text-indigo-700"
@@ -232,20 +232,22 @@ export default function AppSidebar({ onMenuClick }) {
                 </button>
                 {superAdminAccountExpanded && (
                   <div className="mt-1 space-y-0.5 border-l-2 border-neutral-200 pl-3 ml-3">
-                    {superAdminAccountItems.map(({ href, label, icon: Icon }) => (
-                      <Link
-                        key={href}
-                        href={href}
-                        className={`flex min-h-[34px] items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors focus:outline-none ${
-                          pathname === href
-                            ? "bg-indigo-50 font-medium text-indigo-600"
-                            : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-800"
-                        }`}
-                      >
-                        <Icon className="h-3.5 w-3.5 shrink-0" />
-                        {label}
-                      </Link>
-                    ))}
+                    {superAdminAccountItems.map(
+                      ({ href, label, icon: Icon }) => (
+                        <Link
+                          key={href}
+                          href={href}
+                          className={`flex min-h-[34px] items-center gap-2.5 rounded-md px-3 py-2 text-sm transition-colors focus:outline-none ${
+                            pathname === href
+                              ? "bg-indigo-50 font-medium text-indigo-600"
+                              : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-800"
+                          }`}
+                        >
+                          <Icon className="h-3.5 w-3.5 shrink-0" />
+                          {label}
+                        </Link>
+                      ),
+                    )}
                   </div>
                 )}
               </div>

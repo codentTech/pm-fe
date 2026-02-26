@@ -25,7 +25,7 @@ export default function CustomButton({
   className = "",
   type = "button",
   variant = "primary",
-  size = "md",
+  size = "sm",
   disabled = false,
   href = null,
   endIcon = null,

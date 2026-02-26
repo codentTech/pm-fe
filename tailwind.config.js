@@ -336,7 +336,7 @@ module.exports = {
 
         /* Page separator with colored dots */
         ".page-separator": {
-          "@apply flex items-center gap-1 px-3 py-2 mb-4 sm:px-4": {},
+          "@apply flex items-center gap-1 px-3 mb-4 sm:px-4": {},
         },
         ".page-separator-line": {
           "@apply h-px flex-1 bg-gradient-to-r from-transparent via-neutral-300 to-transparent":

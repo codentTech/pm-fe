@@ -3,17 +3,16 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { ArrowLeft, Save } from "lucide-react";
+import { Save } from "lucide-react";
 import CustomButton from "@/common/components/custom-button/custom-button.component";
 import CustomInput from "@/common/components/custom-input/custom-input.component";
 import TextArea from "@/common/components/text-area/text-area.component";
 import Loader from "@/common/components/loader/loader.component";
 import NoResultFound from "@/common/components/no-result-found/no-result-found.jsx";
 import { BookOpen } from "lucide-react";
+import PageHeader from "@/common/components/page-header/page-header.component";
 import useProjectWiki from "../../use-wiki.hook";
 import ProjectWikiAttachments from "../attachments/project-wiki-attachments.component";
-import { WIKI_SEPARATOR_COLORS } from "../../wiki.utils";
 
 export default function ProjectWikiForm({ projectId, slug }) {
   const router = useRouter();
@@ -93,48 +92,25 @@ export default function ProjectWikiForm({ projectId, slug }) {
 
   return (
     <div className="min-h-full">
-      <div className="page-header-bar">
-        <Link
-          href={backHref}
-          className="flex shrink-0 items-center gap-1.5 typography-body font-medium text-neutral-600 transition-colors hover:text-neutral-900"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to wiki
-        </Link>
-        <div className="page-header-divider" />
-        <div className="min-w-0 flex-1 overflow-hidden">
-          <h1 className="page-header-title">
-            {isEdit ? "Edit wiki page" : "New wiki page"}
-          </h1>
-          <p className="page-header-subtitle">
-            {isEdit
-              ? "Update the knowledge base entry."
-              : "Create a new project wiki page."}
-          </p>
-        </div>
-        <CustomButton
-          type="submit"
-          form="wiki-page-form"
-          text={isEdit ? "Save changes" : "Create"}
-          variant="primary"
-          startIcon={<Save className="h-4 w-4" />}
-          loading={isLoading}
-        />
-      </div>
-
-      <div className="page-separator" aria-hidden>
-        <span className="page-separator-line" />
-        <span className="flex gap-1">
-          {WIKI_SEPARATOR_COLORS.map((color, i) => (
-            <span
-              key={i}
-              className={`page-separator-dot bg-gradient-to-br ${color}`}
-            />
-          ))}
-        </span>
-        <span className="page-separator-line" />
-      </div>
-
+      <PageHeader
+        backLink={{ href: backHref, label: "Back to wiki" }}
+        title={isEdit ? "Edit wiki page" : "New wiki page"}
+        subtitle={
+          isEdit
+            ? "Update the knowledge base entry."
+            : "Create a new project wiki page."
+        }
+        actions={
+          <CustomButton
+            type="submit"
+            form="wiki-page-form"
+            text={isEdit ? "Save changes" : "Create"}
+            variant="primary"
+            startIcon={<Save className="h-4 w-4" />}
+            loading={isLoading}
+          />
+        }
+      />
       <form
         id="wiki-page-form"
         onSubmit={form.handleSubmit((values) => {

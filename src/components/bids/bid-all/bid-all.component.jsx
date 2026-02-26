@@ -3,7 +3,7 @@
 import CustomButton from "@/common/components/custom-button/custom-button.component";
 import CustomDataTable from "@/common/components/custom-data-table/custom-data-table.component";
 import SimpleSelect from "@/common/components/dropdowns/simple-select/simple-select.jsx";
-import NoResultFound from "@/common/components/no-result-found/no-result-found.jsx";
+import PageHeader from "@/common/components/page-header/page-header.component";
 import KpiTableSkeleton from "@/common/components/skeleton/kpi-table-skeleton.component";
 import {
   BID_ACTIONS,
@@ -12,7 +12,6 @@ import {
   BID_STATUS_LABELS,
   BID_WITHDRAWAL_REASON_OPTIONS,
 } from "@/common/constants/bid.constant";
-import { KPI_SEPARATOR_COLORS } from "@/common/constants/colors.constant";
 import { currencyOptions } from "@/common/constants/options.constant";
 import { Briefcase, Trash2 } from "lucide-react";
 import Link from "next/link";
@@ -71,49 +70,21 @@ export default function BidAll() {
 
   return (
     <div className="min-h-full">
-      <div className="page-header-bar px-4 sm:px-5">
-        <div className="page-header-divider" />
-        <div className="min-w-0 flex-1 overflow-hidden">
-          <h1 className="page-header-title">All bids</h1>
-          <p className="page-header-subtitle">
-            Review the full bid pipeline in one place.
-          </p>
-        </div>
-        <CustomButton
-          text="Log bid"
-          onClick={() => router.push("/bids/new")}
-          variant="primary"
-          size="sm"
-          className="shrink-0 rounded-lg px-3 py-1.5 typography-caption font-medium sm:px-4 sm:py-2 sm:typography-button"
-        />
-      </div>
-
-      <div
-        className="mb-4 flex items-center gap-1 px-4 sm:mb-6 sm:px-5"
-        aria-hidden
-      >
-        <span className="h-px flex-1 bg-gradient-to-r from-transparent via-neutral-300 to-transparent" />
-        <span className="flex gap-1">
-          {KPI_SEPARATOR_COLORS.map((color, i) => (
-            <span
-              key={i}
-              className={`h-1.5 w-1.5 rounded-full bg-gradient-to-br ${color}`}
-            />
-          ))}
-        </span>
-        <span className="h-px flex-1 bg-gradient-to-r from-transparent via-neutral-300 to-transparent" />
-      </div>
-
+      <PageHeader
+        title="All bids"
+        subtitle="Review the full bid pipeline in one place."
+        actions={
+          <CustomButton
+            text="Log bid"
+            onClick={() => router.push("/bids/new")}
+            variant="primary"
+          />
+        }
+      />
       {loading ? (
         <KpiTableSkeleton />
-      ) : !bids?.length ? (
-        <NoResultFound
-          icon={Briefcase}
-          title="No bids yet"
-          description="Log your first bid to track pipeline and outcomes."
-        />
       ) : (
-        <div className="mt-6 w-full overflow-x-auto px-4 sm:px-5">
+        <div className="px-4 sm:px-5 space-y-4 pb-10">
           {selectedIds.length > 0 && (
             <div className="mb-4 flex items-center justify-between rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-2">
               <span className="text-sm font-medium text-indigo-900">

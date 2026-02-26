@@ -4,6 +4,7 @@ import { Lock, Mail, User } from "lucide-react";
 import CustomButton from "@/common/components/custom-button/custom-button.component";
 import CustomInput from "@/common/components/custom-input/custom-input.component";
 import Loader from "@/common/components/loader/loader.component";
+import PageHeader from "@/common/components/page-header/page-header.component";
 import useUserSettings from "./use-user-settings.hook";
 
 export default function UserSettings() {
@@ -28,37 +29,12 @@ export default function UserSettings() {
     );
   }
 
-  const SEPARATOR_COLORS = [
-    "from-indigo-500 to-indigo-700",
-    "from-emerald-500 to-emerald-700",
-    "from-amber-500 to-amber-700",
-    "from-rose-500 to-rose-700",
-    "from-sky-500 to-sky-700",
-    "from-violet-500 to-violet-700",
-  ];
-
   return (
     <div className="min-h-full p-4 sm:p-5">
-      <div className="page-header-bar">
-        <div className="page-header-divider" />
-        <div className="min-w-0 flex-1 overflow-hidden">
-          <h1 className="page-header-title">
-            Account
-          </h1>
-          <p className="truncate typography-caption font-medium text-neutral-700">
-            Profile, password, and personal preferences
-          </p>
-        </div>
-      </div>
-      <div className="page-separator" aria-hidden>
-        <span className="page-separator-line" />
-        <span className="flex gap-1">
-          {SEPARATOR_COLORS.map((color, i) => (
-            <span key={i} className={`page-separator-dot bg-gradient-to-br ${color}`} />
-          ))}
-        </span>
-        <span className="page-separator-line" />
-      </div>
+      <PageHeader
+        title="Account"
+        subtitle="Profile, password, and personal preferences"
+      />
       <div className="grid gap-6 sm:grid-cols-2">
       <div className="rounded-lg border border-neutral-200 bg-white p-6 shadow-sm">
         <h2 className="mb-4 flex items-center gap-2 font-semibold text-neutral-900">

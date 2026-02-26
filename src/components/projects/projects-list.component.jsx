@@ -15,6 +15,7 @@ import {
   PROJECT_STATUS_OPTIONS,
 } from "@/common/constants/project.constant";
 import OnboardingBanner from "@/components/onboarding/onboarding-banner.component";
+import PageHeader from "@/common/components/page-header/page-header.component";
 import {
   BookOpen,
   LayoutGrid,
@@ -69,127 +70,111 @@ export default function ProjectsList() {
 
   return (
     <div className="min-h-full">
-      <div className="page-header-bar px-4 sm:px-5">
-        <div className="page-header-divider" />
-        <div className="min-w-0 flex-1 overflow-hidden">
-          <h1 className="page-header-title">Your projects</h1>
-          <p className="page-header-subtitle">
-            Create and manage projects with lists and cards
-          </p>
-        </div>
-        <CustomButton
-          text="Create project"
-          onClick={() => setShowCreateModal(true)}
-          variant="primary"
-          size="sm"
-        />
-      </div>
+      <PageHeader
+        title="Your projects"
+        subtitle="Create and manage projects with lists and cards"
+        actions={
+          <CustomButton
+            text="Create project"
+            onClick={() => setShowCreateModal(true)}
+            variant="primary"
+          />
+        }
+      />
+      <div className="px-4 sm:px-5 space-y-4 pb-10">
+        {!loading && !projects?.length && (
+          <OnboardingBanner hasProjects={!!projects?.length} />
+        )}
 
-      <div className="mb-5 flex items-center gap-1 sm:mb-6" aria-hidden>
-        <span className="h-px flex-1 bg-gradient-to-r from-transparent via-neutral-300 to-transparent" />
-        <span className="flex gap-1">
-          {PROJECT_CARD_COLORS.map((color, i) => (
-            <span
-              key={i}
-              className={`h-1.5 w-1.5 rounded-full bg-gradient-to-br ${color}`}
-            />
-          ))}
-        </span>
-        <span className="h-px flex-1 bg-gradient-to-r from-transparent via-neutral-300 to-transparent" />
-      </div>
-
-      {!loading && !projects?.length && (
-        <OnboardingBanner hasProjects={!!projects?.length} />
-      )}
-
-      {loading ? (
-        <ProjectsListSkeleton />
-      ) : !projects?.length ? (
-        <NoResultFound
-          icon={LayoutGrid}
-          title="No projects yet"
-          description="Create your first project to organize tasks with lists and cards."
-        />
-      ) : (
-        <div className="grid gap-4 px-4 sm:px-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-          {projects.map((project, index) => (
-            <div
-              key={project.Id}
-              className={`group rounded-lg bg-gradient-to-br p-[2px] ${getProjectColor(index)}`}
-            >
-              <div className="flex h-full flex-col overflow-hidden rounded-lg bg-white">
-                <Link
-                  href={`/projects/${project.Id}`}
-                  className="flex-1 block outline-none rounded-t-lg"
-                >
-                  <div
-                    className={`relative flex h-20 items-start bg-gradient-to-br p-3 ${getProjectColor(index)}`}
+        {loading ? (
+          <ProjectsListSkeleton />
+        ) : !projects?.length ? (
+          <NoResultFound
+            icon={LayoutGrid}
+            title="No projects yet"
+            description="Create your first project to organize tasks with lists and cards."
+          />
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+            {projects.map((project, index) => (
+              <div
+                key={project.Id}
+                className={`group rounded-lg bg-gradient-to-br p-[2px] ${getProjectColor(index)}`}
+              >
+                <div className="flex h-full flex-col overflow-hidden rounded-lg bg-white">
+                  <Link
+                    href={`/projects/${project.Id}`}
+                    className="flex-1 block outline-none rounded-t-lg"
                   >
-                    <h3 className="card-title-gradient">{project.Name}</h3>
-                    <span className="absolute right-3 bottom-3 rounded-lg bg-white/90 px-2 py-0.5 text-[12px] font-semibold text-neutral-700">
-                      {getProjectStatusLabel(project.Status)}
-                    </span>
-                  </div>
-                  <div className="flex flex-col p-3">
-                    <p className="line-clamp-2 text-xs text-neutral-600">
-                      {(
-                        project.Description ??
-                        project.description ??
-                        ""
-                      ).trim() || "No description"}
-                    </p>
-                  </div>
-                </Link>
-                <div className="flex w-full items-center gap-2 border-t border-neutral-200 bg-neutral-50/50 p-2">
-                  <div className="flex items-center gap-1.5 rounded-md bg-indigo-50 px-2 py-1">
-                    <LayoutList className="h-3.5 w-3.5 text-indigo-600" />
-                    <span className="text-xs font-semibold text-indigo-700">
-                      {project.Lists?.length ?? 0} list
-                      {(project.Lists?.length ?? 0) !== 1 ? "s" : ""}
-                    </span>
-                  </div>
-                  <div className="h-4 w-px shrink-0 bg-neutral-200" />
-                  <div className="flex flex-1 gap-1">
-                    <Link
-                      href={`/projects/${project.Id}/wiki`}
-                      onClick={(e) => e.stopPropagation()}
-                      className="flex min-w-0 flex-1 items-center justify-center rounded-md bg-neutral-100 py-2 hover:bg-neutral-200"
-                      aria-label="Open wiki"
-                      title="Wiki"
+                    <div
+                      className={`relative flex h-20 items-start bg-gradient-to-br p-3 ${getProjectColor(index)}`}
                     >
-                      <BookOpen className="h-4 w-4" />
-                    </Link>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setEditingProject(project);
-                      }}
-                      className="action-icon-edit min-w-0 flex-1 rounded-md bg-neutral-100 py-2 hover:bg-neutral-200"
-                      aria-label="Edit project"
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setProjectToDeleteId(project.Id);
-                      }}
-                      className="action-icon-delete min-w-0 flex-1 rounded-md bg-danger-50 py-2 hover:bg-danger-100"
-                      aria-label="Delete project"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
+                      <h3 className="card-title-gradient">{project.Name}</h3>
+                      <span className="absolute right-3 bottom-3 rounded-lg bg-white/90 px-2 py-0.5 text-[12px] font-semibold text-neutral-700">
+                        {getProjectStatusLabel(project.Status)}
+                      </span>
+                    </div>
+                    <div className="flex flex-col p-3">
+                      <p className="line-clamp-2 text-xs text-neutral-600">
+                        {(
+                          project.Description ??
+                          project.description ??
+                          ""
+                        ).trim() || "No description"}
+                      </p>
+                    </div>
+                  </Link>
+                  <div className="flex w-full items-center gap-2 border-t border-neutral-200 bg-neutral-50/50 p-2">
+                    <div className="flex items-center gap-1.5 rounded-md bg-indigo-50 px-2 py-1">
+                      <LayoutList className="h-3.5 w-3.5 text-indigo-600" />
+                      <span className="text-xs font-semibold text-indigo-700">
+                        {project.Lists?.length ?? 0} list
+                        {(project.Lists?.length ?? 0) !== 1 ? "s" : ""}
+                      </span>
+                    </div>
+                    <div className="h-4 w-px shrink-0 bg-neutral-200" />
+                    <div className="flex flex-1 gap-1">
+                      <Link
+                        href={`/projects/${project.Id}/wiki`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="flex min-w-0 flex-1 items-center justify-center rounded-md bg-neutral-100 py-2 hover:bg-neutral-200"
+                        aria-label="Open wiki"
+                        title="Wiki"
+                      >
+                        <BookOpen className="h-4 w-4" />
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setEditingProject(project);
+                        }}
+                        className="action-icon-edit min-w-0 flex-1 rounded-md bg-neutral-100 py-2 hover:bg-neutral-200"
+                        aria-label="Edit project"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setProjectToDeleteId(project.Id);
+                        }}
+                        className="action-icon-delete min-w-0 flex-1 rounded-md bg-danger-50 py-2 hover:bg-danger-100"
+                        aria-label="Delete project"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </div>
 
       <Modal
         show={showCreateModal}
