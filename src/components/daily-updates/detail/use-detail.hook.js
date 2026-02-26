@@ -5,10 +5,15 @@ import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { fetchDailyUpdateById } from "@/provider/features/daily-updates/daily-updates.slice";
 import { getDisplayUser } from "@/common/utils/users.util";
-import { DAILY_UPDATE_CUTOFF_HOURS } from "@/common/constants/daily-update.constant";
+import {
+  DAILY_UPDATE_CUTOFF_HOURS,
+  DAILY_UPDATE_ROLE_OPTIONS,
+  DAILY_UPDATE_STATUS_OPTIONS,
+  WORK_ITEM_STATUS_OPTIONS,
+  WORK_ITEM_TYPES_BY_ROLE,
+} from "@/common/constants/daily-update.constant";
 
 export default function useDailyUpdateDetail(updateId) {
-  // stats
   const dispatch = useDispatch();
   const router = useRouter();
   const {
@@ -31,12 +36,66 @@ export default function useDailyUpdateDetail(updateId) {
     return new Date() <= cutoff;
   }, [currentUpdate, displayUser?.Id]);
 
-  // useEffect
   useEffect(() => {
     if (updateId) dispatch(fetchDailyUpdateById({ id: updateId }));
   }, [dispatch, updateId]);
 
-  // functions
+  const workItems = useMemo(
+    () => currentUpdate?.WorkItems || [],
+    [currentUpdate],
+  );
+  const roleValue = currentUpdate?.Role;
+  const allowedTypes = WORK_ITEM_TYPES_BY_ROLE?.[roleValue] || [];
+  const allowedTypeSet = useMemo(
+    () => new Set(allowedTypes.map((option) => option.value)),
+    [allowedTypes],
+  );
+
+  const filteredWorkItems = useMemo(() => {
+    if (!roleValue || allowedTypes.length === 0) return workItems;
+    return workItems.filter((item) => allowedTypeSet.has(item.Type));
+  }, [workItems, roleValue, allowedTypes, allowedTypeSet]);
+
+  const blockedItems = useMemo(
+    () => filteredWorkItems.filter((item) => item.Status === "blocked"),
+    [filteredWorkItems],
+  );
+
+  const statusLabelMap = useMemo(
+    () =>
+      DAILY_UPDATE_STATUS_OPTIONS.reduce(
+        (acc, option) => ({ ...acc, [option.value]: option.label }),
+        {},
+      ),
+    [],
+  );
+
+  const roleLabelMap = useMemo(
+    () =>
+      DAILY_UPDATE_ROLE_OPTIONS.reduce(
+        (acc, option) => ({ ...acc, [option.value]: option.label }),
+        {},
+      ),
+    [],
+  );
+
+  const workItemTypeLabelMap = useMemo(
+    () =>
+      Object.values(WORK_ITEM_TYPES_BY_ROLE)
+        .flat()
+        .reduce((acc, option) => ({ ...acc, [option.value]: option.label }), {}),
+    [],
+  );
+
+  const workItemStatusLabelMap = useMemo(
+    () =>
+      WORK_ITEM_STATUS_OPTIONS.reduce(
+        (acc, option) => ({ ...acc, [option.value]: option.label }),
+        {},
+      ),
+    [],
+  );
+
   function handleEdit() {
     if (!updateId) return;
     router.push(`/daily-updates/${updateId}/edit`);
@@ -47,5 +106,11 @@ export default function useDailyUpdateDetail(updateId) {
     fetchState,
     canEdit,
     handleEdit,
+    workItems: filteredWorkItems,
+    blockedItems,
+    statusLabelMap,
+    roleLabelMap,
+    workItemTypeLabelMap,
+    workItemStatusLabelMap,
   };
 }

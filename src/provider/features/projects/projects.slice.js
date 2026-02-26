@@ -45,10 +45,11 @@ const initialState = {
 
 export const fetchProjects = createAsyncThunk(
   "projects/fetchProjects",
-  async (_, thunkAPI) => {
+  async (arg, thunkAPI) => {
     const orgId = getValidOrgId(thunkAPI.getState());
+    const params = arg?.params ?? {};
     try {
-      const response = await projectsService.fetchProjects(orgId);
+      const response = await projectsService.fetchProjects(orgId, params);
       if (response?.success && response?.data) {
         return response.data;
       }

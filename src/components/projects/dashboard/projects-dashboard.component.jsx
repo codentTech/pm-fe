@@ -3,82 +3,85 @@
 import CustomButton from "@/common/components/custom-button/custom-button.component";
 import PageHeader from "@/common/components/page-header/page-header.component";
 import { Bar, Pie } from "react-chartjs-2";
-import {
-  AlertCircle,
-  CalendarClock,
-  ClipboardList,
-  DollarSign,
-  Target,
-  TrendingUp,
-} from "lucide-react";
-import BidDashboardFilterBar from "./components/bid-dashboard-filter-bar.component";
-import useBidDashboardLogic from "./use-bid-dashboard.hook";
+import { AlertTriangle, ClipboardList, ListChecks, Target } from "lucide-react";
+import ProjectsDashboardFilterBar from "./components/projects-dashboard-filter-bar.component";
+import useProjectsDashboardLogic from "./use-projects-dashboard.hook";
 
-export default function BidDashboard() {
+export default function ProjectsDashboard() {
   const {
     analyticsSummary,
-    metricsState,
-    fetchBidsState,
+    fetchState,
     statusPieData,
-    bidsByDateData,
-    valueByPlatformData,
+    projectsByDateData,
+    deliveryTypeBarData,
     pieOptions,
     barOptions,
     selectedFromDate,
     selectedToDate,
     selectedStatus,
-    selectedPlatform,
+    selectedDeliveryType,
+    selectedRiskLevel,
     setSelectedFromDate,
     setSelectedToDate,
     setSelectedStatus,
-    setSelectedPlatform,
+    setSelectedDeliveryType,
+    setSelectedRiskLevel,
     statusOptions,
-    platformOptions,
-    handleLogBid,
-  } = useBidDashboardLogic();
+    deliveryTypeOptions,
+    riskLevelOptions,
+    handleCreateProject,
+    handleViewProjects,
+  } = useProjectsDashboardLogic();
 
-  const isLoading = metricsState?.isLoading || fetchBidsState?.isLoading;
+  const isLoading = fetchState?.isLoading;
 
   return (
     <div className="min-h-full">
       <PageHeader
-        title="Bid Management"
-        subtitle="Track bids, pipeline, and sales execution"
+        title="Projects Dashboard"
+        subtitle="Overview of projects by status, delivery type, and risk"
         actions={
-          <CustomButton
-            text="Log bid"
-            variant="primary"
-            onClick={handleLogBid}
-          />
+          <div className="flex items-center gap-2">
+            <CustomButton
+              text="View all"
+              variant="secondary"
+              onClick={handleViewProjects}
+            />
+            <CustomButton
+              text="Create project"
+              variant="primary"
+              onClick={handleCreateProject}
+            />
+          </div>
         }
       />
 
-      <div className="px-4 space-y-4 pb-10 sm:px-5">
-        {/* Summary cards — same pattern as Daily Updates Dashboard */}
+      <div className="space-y-4 px-4 pb-10 sm:px-5">
+        {/* Summary cards — same pattern as Daily Updates / Bid Dashboard */}
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {[
             {
-              label: "Total bids",
-              value: analyticsSummary.totalBids,
+              label: "Total projects",
+              value: analyticsSummary.totalProjects,
               icon: ClipboardList,
               bg: "bg-indigo-100 border-indigo-200",
             },
             {
-              label: "Win rate",
-              value: analyticsSummary.winRate,
-              icon: Target,
+              label: "Active",
+              value: analyticsSummary.activeCount,
+              icon: ListChecks,
               bg: "bg-sky-100 border-sky-200",
             },
             {
-              label: "Avg deal size",
-              value: analyticsSummary.avgDealSize,
-              icon: DollarSign,
-              bg: "bg-amber-100 border-amber-200",
+              label: "Completed",
+              value: analyticsSummary.completedCount,
+              icon: Target,
+              bg: "bg-emerald-100 border-emerald-200",
             },
             {
-              label: "Avg draft age (days)",
-              value: analyticsSummary.avgDraftAgeDays,
-              icon: CalendarClock,
+              label: "High risk",
+              value: analyticsSummary.highRiskCount,
+              icon: AlertTriangle,
               bg: "bg-rose-100 border-rose-200",
             },
           ].map((item) => {
@@ -102,54 +105,21 @@ export default function BidDashboard() {
           })}
         </div>
 
-        {/* Second row: follow-up and ghosted */}
-        <div className="grid gap-3 sm:grid-cols-2">
-          {[
-            {
-              label: "Follow-up overdue",
-              value: analyticsSummary.followUpOverdue,
-              icon: AlertCircle,
-              bg: "bg-orange-100 border-orange-200",
-            },
-            {
-              label: "Ghosted suggested",
-              value: analyticsSummary.ghostedSuggested,
-              icon: TrendingUp,
-              bg: "bg-violet-100 border-violet-200",
-            },
-          ].map((item) => {
-            const Icon = item.icon;
-            return (
-              <div
-                key={item.label}
-                className={`rounded-lg border px-4 py-3 shadow-sm ${item.bg}`}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-sm font-semibold text-neutral-600">
-                    <Icon className="h-4 w-4 text-indigo-600" />
-                    {item.label}
-                  </div>
-                  <div className="text-2xl font-semibold text-neutral-800">
-                    {item.value}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
         {/* Filters */}
-        <BidDashboardFilterBar
+        <ProjectsDashboardFilterBar
           selectedFromDate={selectedFromDate}
           selectedToDate={selectedToDate}
           selectedStatus={selectedStatus}
-          selectedPlatform={selectedPlatform}
+          selectedDeliveryType={selectedDeliveryType}
+          selectedRiskLevel={selectedRiskLevel}
           statusOptions={statusOptions}
-          platformOptions={platformOptions}
+          deliveryTypeOptions={deliveryTypeOptions}
+          riskLevelOptions={riskLevelOptions}
           setSelectedFromDate={setSelectedFromDate}
           setSelectedToDate={setSelectedToDate}
           setSelectedStatus={setSelectedStatus}
-          setSelectedPlatform={setSelectedPlatform}
+          setSelectedDeliveryType={setSelectedDeliveryType}
+          setSelectedRiskLevel={setSelectedRiskLevel}
         />
 
         {/* Charts */}
@@ -170,20 +140,20 @@ export default function BidDashboard() {
 
           <div className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm">
             <p className="text-sm font-semibold text-neutral-800">
-              Bids by date
+              Projects by start date
             </p>
             <div className="mt-4 h-56">
-              <Bar data={bidsByDateData} options={barOptions} />
+              <Bar data={projectsByDateData} options={barOptions} />
             </div>
           </div>
         </div>
 
         <div className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm">
           <p className="text-sm font-semibold text-neutral-800">
-            Proposed value by platform
+            Projects by delivery type
           </p>
           <div className="mt-4 h-64">
-            <Bar data={valueByPlatformData} options={barOptions} />
+            <Bar data={deliveryTypeBarData} options={barOptions} />
           </div>
         </div>
       </div>

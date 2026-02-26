@@ -13,7 +13,12 @@ export function formatDate(date) {
  * @returns {string}
  */
 export function formatDateTime(date) {
-  return date ? new Date(date).toLocaleString(undefined, { dateStyle: "short", timeStyle: "short" }) : "—";
+  return date
+    ? new Date(date).toLocaleString(undefined, {
+        dateStyle: "short",
+        timeStyle: "short",
+      })
+    : "—";
 }
 
 /**
@@ -33,3 +38,12 @@ export function formatRelativeTime(dateStr) {
   if (diff < 43200) return `${Math.floor(diff / 1440)}d ago`;
   return d.toLocaleDateString();
 }
+
+export const getCurrentDate = () => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+};

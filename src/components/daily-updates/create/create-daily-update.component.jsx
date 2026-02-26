@@ -11,7 +11,7 @@ import Link from "next/link";
 import { Controller } from "react-hook-form";
 import PageHeader from "@/common/components/page-header/page-header.component";
 import WorkItemReferenceSelect from "./components/work-item-reference-select/work-item-reference-select.component";
-import useDailyUpdateForm from "./use-create=daily-update.hook";
+import useDailyUpdateForm from "./use-create-daily-update.hook";
 
 export default function DailyUpdateForm({ updateId }) {
   const {

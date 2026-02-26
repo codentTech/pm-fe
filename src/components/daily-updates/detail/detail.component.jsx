@@ -7,19 +7,20 @@ import { formatDate, formatDateTime } from "@/common/utils/date.util";
 import { ArrowLeft, ClipboardCheck, Pencil } from "lucide-react";
 import Link from "next/link";
 import useDailyUpdateDetail from "./use-detail.hook";
-import useDailyUpdateDetailView from "./use-detail-view.hook";
 import { WORK_ITEM_TYPES_BID } from "@/common/constants/daily-update.constant";
 
 export default function DailyUpdateDetail({ updateId }) {
-  const { currentUpdate, canEdit, handleEdit } = useDailyUpdateDetail(updateId);
   const {
+    currentUpdate,
+    canEdit,
+    handleEdit,
     workItems,
     blockedItems,
     statusLabelMap,
     roleLabelMap,
     workItemTypeLabelMap,
     workItemStatusLabelMap,
-  } = useDailyUpdateDetailView(currentUpdate);
+  } = useDailyUpdateDetail(updateId);
 
   if (!currentUpdate) {
     return (

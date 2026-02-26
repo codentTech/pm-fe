@@ -1,10 +1,9 @@
 "use client";
 
-import ThreedotIcon from "@/common/icons/threedot.icon";
 import PropTypes from "prop-types";
 import React from "react";
-import { useCustomDataTable } from "./use-custom-data-table.hook";
 import SimpleSelect from "../dropdowns/simple-select/simple-select";
+import { useCustomDataTable } from "./use-custom-data-table.hook";
 
 const CustomDataTable = ({
   // Core data props

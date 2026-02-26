@@ -3,14 +3,14 @@
 import Auth from "@/auth/auth.component";
 import AUTH from "@/common/constants/auth.constant";
 import NAVBAR_TITLE from "@/common/constants/navbar-title.constant";
-import DailyUpdatesUpdates from "@/components/daily-updates/list.component";
+import ProjectsDashboard from "@/components/projects/dashboard/projects-dashboard.component";
 
-export default function DailyUpdatesUpdatesPage() {
+export default function ProjectsDashboardPage() {
   return (
     <Auth
-      component={<DailyUpdatesUpdates />}
+      component={<ProjectsDashboard />}
       type={AUTH.PRIVATE}
-      title={NAVBAR_TITLE.DAILY_UPDATES}
+      title={NAVBAR_TITLE.PROJECTS}
     />
   );
 }
