@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import React from "react";
 import SimpleSelect from "../dropdowns/simple-select/simple-select";
 import { useCustomDataTable } from "./use-custom-data-table.hook";
+import { MoreVertical } from "lucide-react";
 
 const CustomDataTable = ({
   // Core data props
@@ -381,7 +382,7 @@ const CustomDataTable = ({
                               }}
                               className="p-2 rounded hover:bg-gray-100 transition-colors duration-150"
                             >
-                              <ThreedotIcon />
+                              <MoreVertical />
                             </button>
                           </td>
                         )
